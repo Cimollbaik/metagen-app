@@ -7,17 +7,28 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script>
-        tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] }, colors: { gray: { 850: '#1f2937', 900: '#111827', 950: '#030712' } } } } }
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { gray: { 850: '#1f2937', 900: '#111827', 950: '#030712' } }
+                }
+            }
+        }
     </script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #030712; color: #f3f4f6; }
         .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #1f2937; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+        /* FIX: !important untuk menang dari Tailwind flex class */
         .tab-content { display: none !important; }
         .tab-content.active { display: flex !important; }
         .dropzone-active { border-color: #3b82f6; background-color: rgba(59, 130, 246, 0.1); }
         .btn-generate { background-size: 200% auto; transition: 0.5s; }
+        .btn-generate:hover:not(:disabled) { background-position: right center; }
         .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
         @media (hover: none) { .copy-btn { opacity: 1 !important; } }
     </style>
@@ -109,7 +120,9 @@
                     <h3 class="text-sm font-medium text-gray-400">Queue (<span id="queue-count">0</span>)</h3>
                     <button id="btn-clear-queue" class="text-xs text-red-400 hover:text-red-300">Clear Queue</button>
                 </div>
-                <div id="queue-list" class="flex-1 overflow-y-auto custom-scrollbar px-4 pb-4 space-y-2"></div>
+                <div id="queue-list" class="flex-1 overflow-y-auto custom-scrollbar px-4 pb-4 space-y-2">
+                    <div class="text-center text-gray-600 text-sm py-8">Queue is empty</div>
+                </div>
             </div>
 
             <div class="h-1/2 flex flex-col bg-gray-900">
@@ -170,6 +183,10 @@
         <span id="toast-message" class="text-sm">Notification</span>
     </div>
 
+    <!-- ============================================================
+         SCRIPT 1: NON-MODULE — Tab switching + API status
+         Jalan duluan, tidak butuh CDN, tidak bisa gagal
+         ============================================================ -->
     <script>
         window.switchTab = function(targetId) {
             document.querySelectorAll('.tab-btn').forEach(function(b) {
@@ -204,6 +221,9 @@
                     var target = document.getElementById(targetId);
                     if (target) target.classList.add('active');
                 });
+                console.log('[MetaGen] Tab switching installed ✓');
+            } else {
+                console.error('[MetaGen] tabs-header NOT FOUND!');
             }
 
             var apiKeyInput = document.getElementById('api-key');
@@ -221,10 +241,14 @@
                     }
                     if (typeof window.updateGenerateButton === 'function') window.updateGenerateButton();
                 });
+                console.log('[MetaGen] API status listener installed ✓');
             }
         });
     </script>
 
+    <!-- ============================================================
+         SCRIPT 2: MODULE — Gemini SDK
+         ============================================================ -->
     <script type="module">
         import { GoogleGenAI, Type } from 'https://esm.run/@google/genai';
 
@@ -283,7 +307,8 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             return new Promise((res, rej) => {
                 const tx = appState.db.transaction(['results'], 'readwrite');
                 tx.objectStore('results').put({ filename, ...data });
-                tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error);
+                tx.oncomplete = () => res();
+                tx.onerror = () => rej(tx.error);
             });
         };
 
@@ -302,6 +327,39 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 tx.objectStore('results').clear();
                 tx.oncomplete = () => res();
             });
+        };
+
+        const loadSettings = () => {
+            document.getElementById('api-key').value = localStorage.getItem('mmg_api_key') || '';
+            document.getElementById('model-select').value = localStorage.getItem('mmg_model') || 'gemini-3.1-flash-lite';
+            document.getElementById('global-context').value = localStorage.getItem('mmg_context') || '';
+            document.getElementById('toggle-ai').checked = localStorage.getItem('mmg_ai') === 'true';
+            document.getElementById('toggle-editorial').checked = localStorage.getItem('mmg_editorial') === 'true';
+            document.getElementById('ai-model-name').value = localStorage.getItem('mmg_ai_model_name') || '';
+            document.getElementById('ai-prompt-text').value = localStorage.getItem('mmg_ai_prompt_text') || '';
+            const k = document.getElementById('api-key').value.trim();
+            if (k.length > 20) appState.isApiValid = true;
+            updateApiStatus(k);
+            toggleMagnificSettings();
+            updateGenerateButton();
+        };
+
+        const saveSettings = () => {
+            localStorage.setItem('mmg_api_key', document.getElementById('api-key').value.trim());
+            localStorage.setItem('mmg_model', document.getElementById('model-select').value);
+            localStorage.setItem('mmg_context', document.getElementById('global-context').value);
+            localStorage.setItem('mmg_ai', document.getElementById('toggle-ai').checked);
+            localStorage.setItem('mmg_editorial', document.getElementById('toggle-editorial').checked);
+            localStorage.setItem('mmg_ai_model_name', document.getElementById('ai-model-name').value);
+            localStorage.setItem('mmg_ai_prompt_text', document.getElementById('ai-prompt-text').value);
+            updateGenerateButton();
+            toggleMagnificSettings();
+        };
+
+        const toggleMagnificSettings = () => {
+            const s = document.getElementById('ai-magnific-settings');
+            if (document.getElementById('toggle-ai').checked) s.classList.remove('opacity-50', 'pointer-events-none');
+            else s.classList.add('opacity-50', 'pointer-events-none');
         };
 
         const showToast = (msg, type = 'info') => {
@@ -335,45 +393,8 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             const ce = document.getElementById('cost-estimate');
             if (pending > 0 && hasKey) { ce.classList.remove('hidden'); ce.textContent = `Est: ${pending} API calls`; }
             else ce.classList.add('hidden');
-            console.log('[MetaGen] updateGenerateButton: hasKey=' + hasKey + ' pending=' + pending + ' disabled=' + btn.disabled);
         };
         window.updateGenerateButton = updateGenerateButton;
-
-        const loadSettings = () => {
-            document.getElementById('api-key').value = localStorage.getItem('mmg_api_key') || '';
-            document.getElementById('model-select').value = localStorage.getItem('mmg_model') || 'gemini-3.1-flash-lite';
-            document.getElementById('global-context').value = localStorage.getItem('mmg_context') || '';
-            document.getElementById('toggle-ai').checked = localStorage.getItem('mmg_ai') === 'true';
-            document.getElementById('toggle-editorial').checked = localStorage.getItem('mmg_editorial') === 'true';
-            document.getElementById('ai-model-name').value = localStorage.getItem('mmg_ai_model_name') || '';
-            document.getElementById('ai-prompt-text').value = localStorage.getItem('mmg_ai_prompt_text') || '';
-            const k = document.getElementById('api-key').value.trim();
-            if (k.length > 20) appState.isApiValid = true;
-            updateApiStatus(k);
-            toggleMagnificSettings();
-            updateGenerateButton();
-        };
-
-        const saveSettings = () => {
-            localStorage.setItem('mmg_api_key', document.getElementById('api-key').value.trim());
-            localStorage.setItem('mmg_model', document.getElementById('model-select').value);
-            localStorage.setItem('mmg_context', document.getElementById('global-context').value);
-            localStorage.setItem('mmg_ai', document.getElementById('toggle-ai').checked);
-            localStorage.setItem('mmg_editorial', document.getElementById('toggle-editorial').checked);
-            localStorage.setItem('mmg_ai_model_name', document.getElementById('ai-model-name').value);
-            localStorage.setItem('mmg_ai_prompt_text', document.getElementById('ai-prompt-text').value);
-            updateGenerateButton();
-            toggleMagnificSettings();
-        };
-
-        const toggleMagnificSettings = () => {
-            const s = document.getElementById('ai-magnific-settings');
-            if (document.getElementById('toggle-ai').checked) {
-                s.classList.remove('opacity-50', 'pointer-events-none');
-            } else {
-                s.classList.add('opacity-50', 'pointer-events-none');
-            }
-        };
 
         ['api-key','model-select','global-context','ai-model-name','ai-prompt-text'].forEach(id => {
             document.getElementById(id).addEventListener('input', saveSettings);
@@ -408,10 +429,14 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 showToast('Testing key...', 'info');
                 await ai.models.generateContent({ model: model, contents: "Respond with exactly the word 'OK'." });
                 showToast('API Key is valid!', 'success');
-                appState.isApiValid = true; updateApiStatus(key, true); updateGenerateButton();
+                appState.isApiValid = true;
+                updateApiStatus(key, true);
+                updateGenerateButton();
             } catch (e) {
                 showToast('API Key test failed: ' + e.message, 'error');
-                appState.isApiValid = false; updateApiStatus(key, false); updateGenerateButton();
+                appState.isApiValid = false;
+                updateApiStatus(key, false);
+                updateGenerateButton();
             }
         });
 
@@ -425,7 +450,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
         const resizeImg = (file, maxDim = 1024) => new Promise((res, rej) => {
             const isSvg = file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg');
             let to = null;
-            if (isSvg) to = setTimeout(() => rej(new Error("SVG rendered empty")), 5000);
+            if (isSvg) to = setTimeout(() => rej(new Error("SVG render timeout")), 5000);
             const rd = new FileReader();
             rd.readAsDataURL(file);
             rd.onload = (e) => {
@@ -465,7 +490,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             const frames = []; let thumb = null;
             v.addEventListener('loadedmetadata', async () => {
                 const dur = v.duration;
-                if (dur < 5) showToast(`Warning: ${file.name} is under 5s`, 'error');
+                if (dur < 5) showToast(`Warning: ${file.name} < 5s (Pond5 min)`, 'error');
                 const pts = [dur * 0.15, dur * 0.5, dur * 0.85];
                 const cv = document.getElementById('processing-canvas');
                 const ctx = cv.getContext('2d');
@@ -493,86 +518,151 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
         });
 
         const handleFiles = async (files) => {
-            console.log('[MetaGen] handleFiles called with', files.length, 'files');
-            const groups = {};
+            console.log('[MetaGen] === handleFiles START ===');
+            console.log('[MetaGen] received', files.length, 'files');
+            
+            // STEP 1: Log setiap file + klasifikasi
+            const parsed = [];
             for (let i = 0; i < files.length; i++) {
                 const f = files[i];
                 const ld = f.name.lastIndexOf('.');
-                if (ld === -1) continue;
-                const ext = f.name.substring(ld + 1).toLowerCase();
-                const stem = f.name.substring(0, ld);
-                if (!groups[stem]) groups[stem] = {};
-                groups[stem][ext] = f;
-                console.log('[MetaGen] file:', f.name, '→ stem:', stem, 'ext:', ext);
+                const ext = ld === -1 ? '' : f.name.substring(ld + 1).toLowerCase();
+                const stem = ld === -1 ? f.name : f.name.substring(0, ld);
+                parsed.push({ file: f, ext: ext, stem: stem });
+                console.log(`[MetaGen] file[${i}] name="${f.name}" stem="${stem}" ext="${ext}" size=${f.size}`);
             }
-            console.log('[MetaGen] groups:', Object.keys(groups).length);
-            for (const stem in groups) {
-                const g = groups[stem];
-                const vEx = ['eps','ai','psd'].find(e => g[e]);
-                const pv = g['jpg'] || g['jpeg'] || g['png'];
-                const vd = g['mp4'] || g['mov'];
-                const sv = g['svg'];
-                const rg = g['jpg'] || g['jpeg'] || g['png'] || g['webp'] || g['gif'];
-                if (vEx) {
-                    if (pv) await addItem(g[vEx], pv);
-                    else showToast(`${g[vEx].name}: Need JPG/PNG preview`, 'info');
-                } else if (vd) await addItem(vd, null);
-                else if (sv) await addItem(sv, pv || null);
-                else if (rg) await addItem(rg, null);
+            
+            // STEP 2: Klasifikasi per tipe
+            const vectors = parsed.filter(p => ['eps','ai','psd'].includes(p.ext));
+            const videos = parsed.filter(p => ['mp4','mov'].includes(p.ext));
+            const svgs = parsed.filter(p => p.ext === 'svg');
+            const rasters = parsed.filter(p => ['jpg','jpeg','png','webp','gif'].includes(p.ext));
+            
+            console.log(`[MetaGen] vectors=${vectors.length} videos=${videos.length} svgs=${svgs.length} rasters=${rasters.length}`);
+            
+            // STEP 3: Pair vector dengan raster preview
+            const usedRasters = new Set();
+            for (const vec of vectors) {
+                const preview = rasters.find(r => r.stem.toLowerCase() === vec.stem.toLowerCase() && !usedRasters.has(r.file.name));
+                if (preview) {
+                    usedRasters.add(preview.file.name);
+                    await addItem(vec.file, preview.file);
+                    console.log(`[MetaGen] paired: ${vec.file.name} + ${preview.file.name}`);
+                } else {
+                    showToast(`${vec.file.name}: butuh JPG/PNG preview nama sama`, 'info');
+                    console.log(`[MetaGen] SKIPPED (no preview): ${vec.file.name}`);
+                }
             }
+            
+            // STEP 4: Video jadi item sendiri
+            for (const vid of videos) {
+                await addItem(vid.file, null);
+            }
+            
+            // STEP 5: SVG jadi item sendiri
+            for (const svg of svgs) {
+                await addItem(svg.file, null);
+            }
+            
+            // STEP 6: Raster yang belum dipakai jadi item sendiri
+            for (const r of rasters) {
+                if (!usedRasters.has(r.file.name)) {
+                    await addItem(r.file, null);
+                }
+            }
+            
+            console.log('[MetaGen] === handleFiles DONE ===');
             updateGenerateButton();
         };
 
-        const addItem = async (tf, pf) => {
-            const ext = tf.name.split('.').pop().toLowerCase();
+        const addItem = async (targetFile, previewFile) => {
+            if (!targetFile) return;
+            const ext = targetFile.name.split('.').pop().toLowerCase();
             const isV = ['mp4','mov'].includes(ext);
             const isVec = ['eps','ai','psd'].includes(ext);
             const isSvg = ext === 'svg';
             let mx = 20 * 1024 * 1024, lbl = "Image";
             if (isV) { mx = 500 * 1024 * 1024; lbl = "Video"; }
             else if (isVec || isSvg) { mx = 100 * 1024 * 1024; lbl = "Vector"; }
-            if (tf.size > mx) { showToast(`${tf.name} exceeds ${mx/(1024*1024)}MB (${lbl})`, 'error'); return; }
-            if (appState.queue.find(q => q.filename === tf.name)) {
-                console.log('[MetaGen] Skipping duplicate:', tf.name);
-                showToast(`${tf.name} sudah ada di queue (duplikat di-skip)`, 'info');
+            if (targetFile.size > mx) {
+                showToast(`${targetFile.name} exceeds ${mx/(1024*1024)}MB (${lbl})`, 'error');
+                console.log(`[MetaGen] SKIPPED size: ${targetFile.name}`);
                 return;
             }
+            
+            // Auto-rename kalau nama sama dengan yang sudah ada
+            let finalName = targetFile.name;
+            if (appState.queue.find(q => q.filename === finalName)) {
+                const base = finalName.substring(0, finalName.lastIndexOf('.'));
+                const ex = finalName.substring(finalName.lastIndexOf('.'));
+                let i = 1;
+                while (appState.queue.find(q => q.filename === `${base}_${i}${ex}`)) i++;
+                finalName = `${base}_${i}${ex}`;
+                showToast(`Renamed: ${targetFile.name} → ${finalName}`, 'info');
+                console.log(`[MetaGen] RENAMED: ${targetFile.name} → ${finalName}`);
+            }
+            
             let ft = 'image';
             if (isV) ft = 'video'; else if (isVec) ft = 'vector';
+            
             appState.queue.push({
-                id: genId(), filename: tf.name, targetFile: tf, previewFile: pf || tf,
-                type: ft, status: 'waiting', progress: 0, size: tf.size,
-                result: null, error: null, thumb: null, validationErrors: []
+                id: genId(),
+                filename: finalName,
+                targetFile: targetFile,
+                previewFile: previewFile || targetFile,
+                type: ft,
+                status: 'waiting',
+                progress: 0,
+                size: targetFile.size,
+                result: null,
+                error: null,
+                thumb: null,
+                validationErrors: []
             });
-            console.log('[MetaGen] Added:', tf.name, '| queue size:', appState.queue.length);
+            console.log(`[MetaGen] ADDED: ${finalName} (queue now ${appState.queue.length})`);
             renderQueue();
             updateGenerateButton();
         };
 
         const renderQueue = () => {
-            document.getElementById('queue-count').textContent = appState.queue.length;
             const list = document.getElementById('queue-list');
+            const countEl = document.getElementById('queue-count');
+            countEl.textContent = appState.queue.length;
+            
             if (appState.queue.length === 0) {
                 list.innerHTML = '<div class="text-center text-gray-600 text-sm py-8">Queue is empty</div>';
                 return;
             }
-            list.innerHTML = appState.queue.map(item => `
-                <div class="bg-gray-800 rounded-lg p-3 flex items-center gap-3 border border-gray-700 ${item.status === 'error' ? 'border-red-900/50' : item.status === 'done' ? 'border-green-900/50' : ''}">
+            
+            const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+            
+            let html = '';
+            for (const item of appState.queue) {
+                const safeName = esc(item.filename);
+                const statusColor = item.status === 'done' ? 'text-green-400' :
+                                    item.status === 'error' ? 'text-red-400' :
+                                    item.status === 'processing' ? 'text-blue-400' : 'text-gray-400';
+                const statusText = item.status === 'waiting' ? 'Waiting' :
+                                   item.status === 'processing' ? 'Analyzing...' :
+                                   item.status === 'error' ? 'Failed' : 'Done';
+                const borderClass = item.status === 'error' ? 'border-red-900/50' :
+                                    item.status === 'done' ? 'border-green-900/50' : '';
+                
+                html += `<div class="bg-gray-800 rounded-lg p-3 flex items-center gap-3 border border-gray-700 ${borderClass}">
                     <div class="w-10 h-10 rounded bg-gray-900 shrink-0 overflow-hidden border border-gray-700">
                         ${item.thumb ? `<img src="${item.thumb}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-xs text-gray-500">${item.type === 'video' ? '🎬' : '🖼️'}</div>`}
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-200 truncate" title="${item.filename}">${item.filename}</p>
+                        <p class="text-sm font-medium text-gray-200 truncate" title="${safeName}">${safeName}</p>
                         <div class="flex justify-between items-center mt-1">
                             <span class="text-xs text-gray-500">${fmtBytes(item.size)}</span>
-                            <span class="text-xs font-medium ${item.status === 'done' ? 'text-green-400' : item.status === 'error' ? 'text-red-400' : item.status === 'processing' ? 'text-blue-400' : 'text-gray-400'}">
-                                ${item.status === 'waiting' ? 'Waiting' : item.status === 'processing' ? 'Analyzing...' : item.status === 'error' ? 'Failed' : 'Done'}
-                            </span>
+                            <span class="text-xs font-medium ${statusColor}">${statusText}</span>
                         </div>
-                        ${item.error ? `<p class="text-[10px] text-red-400 mt-1 truncate">${item.error}</p>` : ''}
+                        ${item.error ? `<p class="text-[10px] text-red-400 mt-1 truncate">${esc(item.error)}</p>` : ''}
                     </div>
-                </div>
-            `).join('');
+                </div>`;
+            }
+            list.innerHTML = html;
         };
 
         const validate = (d) => {
@@ -601,7 +691,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                     a++;
                     const st = err.status || (err.message.includes('429') ? 429 : err.message.includes('503') ? 503 : 500);
                     if (st === 400 && err.message.includes('API key not valid')) throw new Error("INVALID_API_KEY");
-                    if ([429,503].includes(st) && a < maxRetries) {
+                    if ([429, 503].includes(st) && a < maxRetries) {
                         await new Promise(r => setTimeout(r, Math.pow(2, a) * 2000));
                     } else throw err;
                 }
@@ -611,7 +701,8 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
 
         const processFile = async (idx) => {
             const item = appState.queue[idx];
-            item.status = 'processing'; renderQueue();
+            item.status = 'processing';
+            renderQueue();
             try {
                 let parts = [];
                 if (item.type === 'video') {
@@ -624,28 +715,39 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                     parts = [{ inlineData: { data: rz.data, mimeType: rz.mimeType } }];
                 }
                 renderQueue();
+                
                 const ai = new GoogleGenAI({ apiKey: document.getElementById('api-key').value.trim() });
                 const model = document.getElementById('model-select').value;
                 const gc = document.getElementById('global-context').value.trim();
                 let prompt = PROMPT_BASE;
                 if (gc) prompt += `\n\nGlobal Context: ${gc}`;
+                
                 let errs = [], data = null, att = 0;
                 while (att <= 3) {
                     let p = prompt;
                     if (errs.length) p += `\n\nFIX:\n- ${errs.join('\n- ')}`;
                     const payload = {
-                        model, contents: [{ role: 'user', parts: [{ text: p }, ...parts] }],
+                        model,
+                        contents: [{ role: 'user', parts: [{ text: p }, ...parts] }],
                         config: { responseMimeType: "application/json", responseSchema: RESPONSE_SCHEMA, temperature: 0.2 }
                     };
                     const r = await callGemini(ai, payload);
-                    try { data = JSON.parse(r.text); errs = validate(data); if (!errs.length) break; }
-                    catch (pe) { errs = ["Parse fail"]; }
+                    try {
+                        data = JSON.parse(r.text);
+                        errs = validate(data);
+                        if (!errs.length) break;
+                    } catch (pe) { errs = ["Parse fail"]; }
                     att++;
                 }
+                
                 if (errs.length) {
-                    item.status = 'error'; item.error = "Validation failed"; item.validationErrors = errs;
+                    item.status = 'error';
+                    item.error = "Validation failed";
+                    item.validationErrors = errs;
                 } else {
-                    item.status = 'done'; item.result = data; item.error = null;
+                    item.status = 'done';
+                    item.result = data;
+                    item.error = null;
                     await saveToDB(item.filename, { result: data, thumb: item.thumb, timestamp: Date.now() });
                 }
             } catch (err) {
@@ -654,23 +756,28 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                     item.error = "Invalid API Key";
                     appState.isProcessing = false;
                     showToast('Invalid API Key', 'error');
-                } else item.error = err.message || "Unknown error";
+                } else {
+                    item.error = err.message || "Unknown error";
+                }
             }
-            renderQueue(); updateResultsUI();
+            renderQueue();
+            updateResultsUI();
         };
 
         document.getElementById('btn-generate').addEventListener('click', async () => {
             if (appState.isProcessing) return;
-            appState.isProcessing = true; updateGenerateButton();
+            appState.isProcessing = true;
+            updateGenerateButton();
             for (let i = 0; i < appState.queue.length; i++) {
                 if (!appState.isProcessing) break;
-                if (['waiting','error'].includes(appState.queue[i].status)) await processFile(i);
+                if (['waiting', 'error'].includes(appState.queue[i].status)) await processFile(i);
             }
-            appState.isProcessing = false; updateGenerateButton();
+            appState.isProcessing = false;
+            updateGenerateButton();
             showToast('Processing complete', 'success');
         });
 
-        const esc = (u) => (u || "").toString().replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+        const esc = (u) => (u || "").toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 
         window.copyText = (el) => {
             const t = el.getAttribute('data-copy');
@@ -699,7 +806,8 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             const k = r.keywords || [];
             let c = k.length;
             if (p === 'magnific' && document.getElementById('toggle-ai').checked) {
-                let t = k.filter(x => x !== '_ai_generated').slice(0, 49); c = t.length + 1;
+                let t = k.filter(x => x !== '_ai_generated').slice(0, 49);
+                c = t.length + 1;
             } else c = Math.min(k.length, 50);
             const col = c === 50 ? 'bg-green-500' : c >= 40 ? 'bg-yellow-500' : 'bg-red-500';
             return `<span class="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[10px] font-bold text-white ${col} leading-none shrink-0" style="height:18px;">${c}/50</span>`;
@@ -723,14 +831,19 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             document.getElementById('table-vecteezy').innerHTML = done.map(i => `<tr class="hover:bg-gray-800/50">${cell(i.filename,'150px')}${cell(i.result.vz_title,'150px')}${cell(i.result.vz_desc,'200px')}${cell(getKw(i.result,'vecteezy'),'200px',kwBadge(i.result,'vecteezy'))}${cell(i.result.vz_cat,'150px')}</tr>`).join('');
             document.getElementById('table-magnific').innerHTML = done.map(i => `<tr class="hover:bg-gray-800/50">${cell(i.filename,'150px')}${cell(i.result.mg_title,'200px')}${cell(getKw(i.result,'magnific'),'300px',kwBadge(i.result,'magnific'))}${cell(i.result.mg_type,'150px')}</tr>`).join('');
             document.getElementById('table-pond5').innerHTML = done.map(i => `<tr class="hover:bg-gray-800/50">${cell(i.filename,'150px')}${cell(i.result.p5_title,'150px')}${cell(i.result.p5_desc,'200px')}${cell(getKw(i.result,'pond5'),'200px',kwBadge(i.result,'pond5'))}${cell(i.result.p5_cat,'150px')}</tr>`).join('');
+            
             let errs = [], tot = 0;
             appState.queue.forEach(i => {
-                if (i.validationErrors?.length) { errs.push({ file: i.filename, errors: i.validationErrors }); tot += i.validationErrors.length; }
+                if (i.validationErrors?.length) {
+                    errs.push({ file: i.filename, errors: i.validationErrors });
+                    tot += i.validationErrors.length;
+                }
             });
             const b = document.getElementById('validation-badge');
             if (errs.length) {
-                b.textContent = tot; b.classList.remove('hidden');
-                document.getElementById('validation-list').innerHTML = errs.map(e => `<div class="bg-red-900/20 border border-red-900/50 rounded p-3"><p class="text-sm font-medium text-red-400 mb-1">${e.file}</p><ul class="list-disc list-inside text-xs text-gray-400 space-y-1">${e.errors.map(x => `<li>${x}</li>`).join('')}</ul></div>`).join('');
+                b.textContent = tot;
+                b.classList.remove('hidden');
+                document.getElementById('validation-list').innerHTML = errs.map(e => `<div class="bg-red-900/20 border border-red-900/50 rounded p-3"><p class="text-sm font-medium text-red-400 mb-1">${esc(e.file)}</p><ul class="list-disc list-inside text-xs text-gray-400 space-y-1">${e.errors.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`).join('');
             } else {
                 b.classList.add('hidden');
                 document.getElementById('validation-list').innerHTML = '<div class="text-gray-500 text-sm text-center pt-8">No validation errors.</div>';
@@ -739,9 +852,14 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
 
         const download = (content, filename) => {
             const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-            const l = document.createElement('a'); const u = URL.createObjectURL(blob);
-            l.setAttribute('href', u); l.setAttribute('download', filename); l.style.visibility = 'hidden';
-            document.body.appendChild(l); l.click(); document.body.removeChild(l);
+            const l = document.createElement('a');
+            const u = URL.createObjectURL(blob);
+            l.setAttribute('href', u);
+            l.setAttribute('download', filename);
+            l.style.visibility = 'hidden';
+            document.body.appendChild(l);
+            l.click();
+            document.body.removeChild(l);
         };
 
         const eC = (s, d = ',') => {
@@ -754,14 +872,20 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             const done = appState.queue.filter(i => i.status === 'done' && i.result);
             if (!done.length) return showToast('No processed items', 'error');
             showToast(`Exporting ${platform} CSV...`, 'info');
+            
             const ai = document.getElementById('toggle-ai').checked;
             const ed = document.getElementById('toggle-editorial').checked;
-            let csv = '', ext = ai ? '_ai' : '';
+            let csv = '';
+            let ext = ai ? '_ai' : '';
+            
             if (platform === 'adobe') {
                 csv = 'Filename,Title,Keywords,Category,Is generative AI\n';
-                done.forEach(i => { csv += [i.filename, i.result.adobe_title, getKw(i.result,'adobe'), i.result.adobe_cat, ai ? 'yes' : 'no'].map(v => eC(v)).join(',') + '\n'; });
+                done.forEach(i => {
+                    csv += [i.filename, i.result.adobe_title, getKw(i.result,'adobe'), i.result.adobe_cat, ai ? 'yes' : 'no'].map(v => eC(v)).join(',') + '\n';
+                });
                 download(csv, `adobe_stock${ext}.csv`);
-            } else if (platform === 'shutterstock') {
+            }
+            else if (platform === 'shutterstock') {
                 csv = 'Filename,Description,Keywords,Categories,Editorial,Mature content,illustration\n';
                 done.forEach(i => {
                     const c = [i.result.ss_cat, i.result.ss_cat2].filter(Boolean).join(',');
@@ -769,11 +893,15 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                     csv += [i.filename, i.result.ss_desc, getKw(i.result,'shutterstock'), c, ed ? 'yes' : 'no', 'no', isVec].map(v => eC(v)).join(',') + '\n';
                 });
                 download(csv, `shutterstock${ext}.csv`);
-            } else if (platform === 'vecteezy') {
+            }
+            else if (platform === 'vecteezy') {
                 csv = 'Filename,Title,Description,Keywords\n';
-                done.forEach(i => { csv += [i.filename, i.result.vz_title, i.result.vz_desc, getKw(i.result,'vecteezy')].map(v => eC(v)).join(',') + '\n'; });
+                done.forEach(i => {
+                    csv += [i.filename, i.result.vz_title, i.result.vz_desc, getKw(i.result,'vecteezy')].map(v => eC(v)).join(',') + '\n';
+                });
                 download(csv, `vecteezy${ext}.csv`);
-            } else if (platform === 'magnific') {
+            }
+            else if (platform === 'magnific') {
                 const p = document.getElementById('ai-prompt-text').value.trim() || "";
                 const m = document.getElementById('ai-model-name').value.trim() || "";
                 csv = 'filename;title;keywords' + (ai ? ';prompt;model' : '') + '\n';
@@ -783,7 +911,8 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                     csv += r.map(v => eC(v, ';')).join(';') + '\n';
                 });
                 download(csv, `magnific${ext}.csv`);
-            } else if (platform === 'pond5') {
+            }
+            else if (platform === 'pond5') {
                 csv = 'originalfilename,title,description,keywords,copyright,location,price,pricelarge,priceweb,setpriceforme,aspectratio,specifysource,datecreated,containsaudio,cameraspeed,curatornote,PrimaryCategory\n';
                 done.forEach(i => {
                     csv += [i.filename, i.result.p5_title, i.result.p5_desc, getKw(i.result,'pond5'), '', '', '', '', '', '', '', '', '', '', '', '', i.result.p5_cat].map(v => eC(v)).join(',') + '\n';
@@ -793,17 +922,32 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
         };
 
         (async () => {
+            console.log('[MetaGen] === INIT START ===');
             loadSettings();
             try {
                 await initDB();
                 const past = await loadFromDB();
                 if (past && past.length > 0) {
-                    appState.queue = past.map(p => ({ id: genId(), filename: p.filename, type: 'unknown', status: 'done', progress: 100, size: 0, result: p.result, thumb: p.thumb, error: null, validationErrors: [] }));
-                    renderQueue(); updateResultsUI();
+                    appState.queue = past.map(p => ({
+                        id: genId(),
+                        filename: p.filename,
+                        type: 'unknown',
+                        status: 'done',
+                        progress: 100,
+                        size: 0,
+                        result: p.result,
+                        thumb: p.thumb,
+                        error: null,
+                        validationErrors: []
+                    }));
+                    console.log(`[MetaGen] Restored ${past.length} results from IndexedDB`);
+                    renderQueue();
+                    updateResultsUI();
                     showToast(`Restored ${past.length} results`, 'info');
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error('[MetaGen] DB init failed:', e); }
             updateGenerateButton();
+            console.log('[MetaGen] === INIT DONE ===');
         })();
     </script>
 </body>
