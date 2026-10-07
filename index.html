@@ -23,7 +23,6 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: #1f2937; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #6b7280; }
-        /* FIX: !important untuk menang dari Tailwind flex class */
         .tab-content { display: none !important; }
         .tab-content.active { display: flex !important; }
         .dropzone-active { border-color: #3b82f6; background-color: rgba(59, 130, 246, 0.1); }
@@ -183,10 +182,6 @@
         <span id="toast-message" class="text-sm">Notification</span>
     </div>
 
-    <!-- ============================================================
-         SCRIPT 1: NON-MODULE — Tab switching + API status
-         Jalan duluan, tidak butuh CDN, tidak bisa gagal
-         ============================================================ -->
     <script>
         window.switchTab = function(targetId) {
             document.querySelectorAll('.tab-btn').forEach(function(b) {
@@ -222,8 +217,6 @@
                     if (target) target.classList.add('active');
                 });
                 console.log('[MetaGen] Tab switching installed ✓');
-            } else {
-                console.error('[MetaGen] tabs-header NOT FOUND!');
             }
 
             var apiKeyInput = document.getElementById('api-key');
@@ -241,14 +234,10 @@
                     }
                     if (typeof window.updateGenerateButton === 'function') window.updateGenerateButton();
                 });
-                console.log('[MetaGen] API status listener installed ✓');
             }
         });
     </script>
 
-    <!-- ============================================================
-         SCRIPT 2: MODULE — Gemini SDK
-         ============================================================ -->
     <script type="module">
         import { GoogleGenAI, Type } from 'https://esm.run/@google/genai';
 
@@ -447,6 +436,9 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             return parseFloat((b / Math.pow(1024, i)).toFixed(2)) + ' ' + ['B','KB','MB','GB'][i];
         };
 
+        // ============================================================
+        // FIX: WHITE BACKGROUND untuk SVG transparan
+        // ============================================================
         const resizeImg = (file, maxDim = 1024) => new Promise((res, rej) => {
             const isSvg = file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg');
             let to = null;
@@ -466,17 +458,32 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                     const cv = document.getElementById('processing-canvas');
                     cv.width = w; cv.height = h;
                     const ctx = cv.getContext('2d');
-                    ctx.clearRect(0, 0, w, h);
+                    
+                    // FIX: Isi canvas dengan WHITE dulu sebelum gambar
+                    // Ini penting karena SVG/PNG transparan akan jadi hitam kalau konversi ke JPEG
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(0, 0, w, h);
+                    
+                    // Baru gambar SVG di atas white background
                     ctx.drawImage(img, 0, 0, w, h);
+                    
                     if (isSvg) {
+                        // Pixel check: pastikan SVG punya konten (bukan transparent semua)
+                        // Kalau cuma putih semua setelah fill, berarti SVG-nya kosong
                         try {
                             const d = ctx.getImageData(0, 0, w, h).data;
-                            let empty = true;
-                            for (let i = 3; i < d.length; i += 4) { if (d[i] > 0) { empty = false; break; } }
-                            if (empty) return rej(new Error("SVG rendered empty"));
-                        } catch (err) {}
+                            let hasNonWhite = false;
+                            for (let i = 0; i < d.length; i += 4) {
+                                if (d[i] < 250 || d[i+1] < 250 || d[i+2] < 250) { hasNonWhite = true; break; }
+                            }
+                            if (!hasNonWhite) return rej(new Error("SVG rendered empty (all white)"));
+                        } catch (err) { /* CORS issue, skip check */ }
                     }
-                    res({ data: cv.toDataURL('image/jpeg', 0.85).split(',')[1], mimeType: 'image/jpeg', thumb: cv.toDataURL('image/jpeg', 0.2) });
+                    res({
+                        data: cv.toDataURL('image/jpeg', 0.85).split(',')[1],
+                        mimeType: 'image/jpeg',
+                        thumb: cv.toDataURL('image/jpeg', 0.2)
+                    });
                 };
                 img.onerror = () => { if (isSvg) clearTimeout(to); rej(new Error("Image load failed")); };
                 img.src = e.target.result;
@@ -518,10 +525,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
         });
 
         const handleFiles = async (files) => {
-            console.log('[MetaGen] === handleFiles START ===');
-            console.log('[MetaGen] received', files.length, 'files');
-            
-            // STEP 1: Log setiap file + klasifikasi
+            console.log('[MetaGen] handleFiles received', files.length, 'files');
             const parsed = [];
             for (let i = 0; i < files.length; i++) {
                 const f = files[i];
@@ -529,10 +533,9 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 const ext = ld === -1 ? '' : f.name.substring(ld + 1).toLowerCase();
                 const stem = ld === -1 ? f.name : f.name.substring(0, ld);
                 parsed.push({ file: f, ext: ext, stem: stem });
-                console.log(`[MetaGen] file[${i}] name="${f.name}" stem="${stem}" ext="${ext}" size=${f.size}`);
+                console.log(`[MetaGen] file[${i}]: ${f.name} (ext=${ext})`);
             }
             
-            // STEP 2: Klasifikasi per tipe
             const vectors = parsed.filter(p => ['eps','ai','psd'].includes(p.ext));
             const videos = parsed.filter(p => ['mp4','mov'].includes(p.ext));
             const svgs = parsed.filter(p => p.ext === 'svg');
@@ -540,38 +543,23 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             
             console.log(`[MetaGen] vectors=${vectors.length} videos=${videos.length} svgs=${svgs.length} rasters=${rasters.length}`);
             
-            // STEP 3: Pair vector dengan raster preview
             const usedRasters = new Set();
             for (const vec of vectors) {
                 const preview = rasters.find(r => r.stem.toLowerCase() === vec.stem.toLowerCase() && !usedRasters.has(r.file.name));
                 if (preview) {
                     usedRasters.add(preview.file.name);
                     await addItem(vec.file, preview.file);
-                    console.log(`[MetaGen] paired: ${vec.file.name} + ${preview.file.name}`);
                 } else {
                     showToast(`${vec.file.name}: butuh JPG/PNG preview nama sama`, 'info');
-                    console.log(`[MetaGen] SKIPPED (no preview): ${vec.file.name}`);
                 }
             }
             
-            // STEP 4: Video jadi item sendiri
-            for (const vid of videos) {
-                await addItem(vid.file, null);
-            }
-            
-            // STEP 5: SVG jadi item sendiri
-            for (const svg of svgs) {
-                await addItem(svg.file, null);
-            }
-            
-            // STEP 6: Raster yang belum dipakai jadi item sendiri
+            for (const vid of videos) await addItem(vid.file, null);
+            for (const svg of svgs) await addItem(svg.file, null);
             for (const r of rasters) {
-                if (!usedRasters.has(r.file.name)) {
-                    await addItem(r.file, null);
-                }
+                if (!usedRasters.has(r.file.name)) await addItem(r.file, null);
             }
             
-            console.log('[MetaGen] === handleFiles DONE ===');
             updateGenerateButton();
         };
 
@@ -586,11 +574,9 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             else if (isVec || isSvg) { mx = 100 * 1024 * 1024; lbl = "Vector"; }
             if (targetFile.size > mx) {
                 showToast(`${targetFile.name} exceeds ${mx/(1024*1024)}MB (${lbl})`, 'error');
-                console.log(`[MetaGen] SKIPPED size: ${targetFile.name}`);
                 return;
             }
             
-            // Auto-rename kalau nama sama dengan yang sudah ada
             let finalName = targetFile.name;
             if (appState.queue.find(q => q.filename === finalName)) {
                 const base = finalName.substring(0, finalName.lastIndexOf('.'));
@@ -599,7 +585,6 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 while (appState.queue.find(q => q.filename === `${base}_${i}${ex}`)) i++;
                 finalName = `${base}_${i}${ex}`;
                 showToast(`Renamed: ${targetFile.name} → ${finalName}`, 'info');
-                console.log(`[MetaGen] RENAMED: ${targetFile.name} → ${finalName}`);
             }
             
             let ft = 'image';
@@ -619,7 +604,6 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 thumb: null,
                 validationErrors: []
             });
-            console.log(`[MetaGen] ADDED: ${finalName} (queue now ${appState.queue.length})`);
             renderQueue();
             updateGenerateButton();
         };
@@ -634,11 +618,11 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 return;
             }
             
-            const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+            const esc2 = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
             
             let html = '';
             for (const item of appState.queue) {
-                const safeName = esc(item.filename);
+                const safeName = esc2(item.filename);
                 const statusColor = item.status === 'done' ? 'text-green-400' :
                                     item.status === 'error' ? 'text-red-400' :
                                     item.status === 'processing' ? 'text-blue-400' : 'text-gray-400';
@@ -658,7 +642,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                             <span class="text-xs text-gray-500">${fmtBytes(item.size)}</span>
                             <span class="text-xs font-medium ${statusColor}">${statusText}</span>
                         </div>
-                        ${item.error ? `<p class="text-[10px] text-red-400 mt-1 truncate">${esc(item.error)}</p>` : ''}
+                        ${item.error ? `<p class="text-[10px] text-red-400 mt-1 truncate">${esc2(item.error)}</p>` : ''}
                     </div>
                 </div>`;
             }
@@ -922,7 +906,6 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
         };
 
         (async () => {
-            console.log('[MetaGen] === INIT START ===');
             loadSettings();
             try {
                 await initDB();
@@ -940,14 +923,12 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                         error: null,
                         validationErrors: []
                     }));
-                    console.log(`[MetaGen] Restored ${past.length} results from IndexedDB`);
                     renderQueue();
                     updateResultsUI();
                     showToast(`Restored ${past.length} results`, 'info');
                 }
             } catch (e) { console.error('[MetaGen] DB init failed:', e); }
             updateGenerateButton();
-            console.log('[MetaGen] === INIT DONE ===');
         })();
     </script>
 </body>
