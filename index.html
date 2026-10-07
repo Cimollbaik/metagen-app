@@ -125,37 +125,37 @@
                 </div>
 
                 <div class="flex-1 overflow-hidden relative">
-                    <div id="tab-adobe" class="tab-content active h-full flex flex-col">
+                    <div id="tab-adobe" class="tab-content active h-full flex-col">
                         <div class="p-2 border-b border-gray-800 flex justify-end shrink-0">
                             <button onclick="exportCSV('adobe')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded shadow transition-colors">Export Adobe CSV</button>
                         </div>
                         <div class="flex-1 overflow-auto custom-scrollbar"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-gray-800/50 text-gray-400 sticky top-0 z-10"><tr><th class="px-4 py-2 font-medium">Filename</th><th class="px-4 py-2 font-medium">Title</th><th class="px-4 py-2 font-medium">Keywords</th><th class="px-4 py-2 font-medium">Category</th></tr></thead><tbody id="table-adobe" class="divide-y divide-gray-800"></tbody></table></div>
                     </div>
-                    <div id="tab-shutterstock" class="tab-content h-full flex flex-col">
+                    <div id="tab-shutterstock" class="tab-content h-full flex-col">
                         <div class="p-2 border-b border-gray-800 flex justify-end shrink-0">
                             <button onclick="exportCSV('shutterstock')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded shadow transition-colors">Export Shutterstock CSV</button>
                         </div>
                         <div class="flex-1 overflow-auto custom-scrollbar"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-gray-800/50 text-gray-400 sticky top-0 z-10"><tr><th class="px-4 py-2 font-medium">Filename</th><th class="px-4 py-2 font-medium">Description</th><th class="px-4 py-2 font-medium">Keywords</th><th class="px-4 py-2 font-medium">Categories</th></tr></thead><tbody id="table-shutterstock" class="divide-y divide-gray-800"></tbody></table></div>
                     </div>
-                    <div id="tab-vecteezy" class="tab-content h-full flex flex-col">
+                    <div id="tab-vecteezy" class="tab-content h-full flex-col">
                         <div class="p-2 border-b border-gray-800 flex justify-end shrink-0">
                             <button onclick="exportCSV('vecteezy')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded shadow transition-colors">Export Vecteezy CSV</button>
                         </div>
                         <div class="flex-1 overflow-auto custom-scrollbar"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-gray-800/50 text-gray-400 sticky top-0 z-10"><tr><th class="px-4 py-2 font-medium">Filename</th><th class="px-4 py-2 font-medium">Title</th><th class="px-4 py-2 font-medium">Description</th><th class="px-4 py-2 font-medium">Keywords</th><th class="px-4 py-2 font-medium">Category</th></tr></thead><tbody id="table-vecteezy" class="divide-y divide-gray-800"></tbody></table></div>
                     </div>
-                    <div id="tab-magnific" class="tab-content h-full flex flex-col">
+                    <div id="tab-magnific" class="tab-content h-full flex-col">
                         <div class="p-2 border-b border-gray-800 flex justify-end shrink-0">
                             <button onclick="exportCSV('magnific')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded shadow transition-colors">Export Magnific CSV</button>
                         </div>
                         <div class="flex-1 overflow-auto custom-scrollbar"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-gray-800/50 text-gray-400 sticky top-0 z-10"><tr><th class="px-4 py-2 font-medium">Filename</th><th class="px-4 py-2 font-medium">Title</th><th class="px-4 py-2 font-medium">Keywords</th><th class="px-4 py-2 font-medium">Type</th></tr></thead><tbody id="table-magnific" class="divide-y divide-gray-800"></tbody></table></div>
                     </div>
-                    <div id="tab-pond5" class="tab-content h-full flex flex-col">
+                    <div id="tab-pond5" class="tab-content h-full flex-col">
                         <div class="p-2 border-b border-gray-800 flex justify-end shrink-0">
                             <button onclick="exportCSV('pond5')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded shadow transition-colors">Export Pond5 CSV</button>
                         </div>
                         <div class="flex-1 overflow-auto custom-scrollbar"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-gray-800/50 text-gray-400 sticky top-0 z-10"><tr><th class="px-4 py-2 font-medium">Filename</th><th class="px-4 py-2 font-medium">Title</th><th class="px-4 py-2 font-medium">Description</th><th class="px-4 py-2 font-medium">Keywords</th><th class="px-4 py-2 font-medium">Category</th></tr></thead><tbody id="table-pond5" class="divide-y divide-gray-800"></tbody></table></div>
                     </div>
-                    <div id="tab-validation" class="tab-content h-full flex flex-col">
+                    <div id="tab-validation" class="tab-content h-full flex-col">
                         <div class="flex-1 overflow-auto custom-scrollbar p-4 space-y-3" id="validation-list">
                             <div class="text-gray-500 text-sm text-center pt-8">No validation errors.</div>
                         </div>
@@ -172,12 +172,7 @@
         <span id="toast-message" class="text-sm">Notification</span>
     </div>
 
-    <!-- ============================================================
-         SCRIPT 1: NON-MODULE — Jalan duluan, tidak butuh CDN
-         Berisi: tab switching, API status, semua yang bisa jalan mandiri
-         ============================================================ -->
     <script>
-        // ============ TAB SWITCHING ============
         window.switchTab = function(targetId) {
             document.querySelectorAll('.tab-btn').forEach(function(b) {
                 b.classList.remove('border-blue-500', 'text-white');
@@ -187,14 +182,9 @@
                 c.classList.remove('active');
             });
             var target = document.getElementById(targetId);
-            if (target) {
-                target.classList.add('active');
-            } else {
-                console.error('Tab not found:', targetId);
-            }
+            if (target) target.classList.add('active');
         };
 
-        // Pasang listener ke tabs-header
         document.addEventListener('DOMContentLoaded', function() {
             var tabsHeader = document.getElementById('tabs-header');
             if (tabsHeader) {
@@ -216,12 +206,8 @@
                     var target = document.getElementById(targetId);
                     if (target) target.classList.add('active');
                 });
-                console.log('[MetaGen] Tab switching installed ✓');
-            } else {
-                console.error('[MetaGen] tabs-header not found!');
             }
 
-            // ============ API STATUS (fallback, tidak butuh module) ============
             var apiKeyInput = document.getElementById('api-key');
             if (apiKeyInput) {
                 apiKeyInput.addEventListener('input', function() {
@@ -235,17 +221,12 @@
                         status.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Missing API Key';
                         status.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-red-900/30 text-red-400 border border-red-800/50';
                     }
-                    // Trigger generate button update if available
                     if (typeof window.updateGenerateButton === 'function') window.updateGenerateButton();
                 });
-                console.log('[MetaGen] API status listener installed ✓');
             }
         });
     </script>
 
-    <!-- ============================================================
-         SCRIPT 2: MODULE — Gemini SDK, semua fungsi generate
-         ============================================================ -->
     <script type="module">
         import { GoogleGenAI, Type } from 'https://esm.run/@google/genai';
 
