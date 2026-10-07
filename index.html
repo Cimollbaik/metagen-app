@@ -512,9 +512,6 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             v.addEventListener('error', () => rej(new Error("Video load failed")));
         });
 
-        // ============================================================
-        // HANDLE FILES — SVG sekarang juga cari pasangan JPG/PNG preview
-        // ============================================================
         const handleFiles = async (files) => {
             console.log('[MetaGen] handleFiles received', files.length, 'files');
             const parsed = [];
@@ -536,35 +533,28 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             
             const usedRasters = new Set();
             
-            // Vector: EPS/AI/PSD → butuh JPG/PNG preview
             for (const vec of vectors) {
                 const preview = rasters.find(r => r.stem.toLowerCase() === vec.stem.toLowerCase() && !usedRasters.has(r.file.name));
                 if (preview) {
                     usedRasters.add(preview.file.name);
                     await addItem(vec.file, preview.file);
-                    console.log(`[MetaGen] paired VECTOR: ${vec.file.name} + ${preview.file.name}`);
                 } else {
                     showToast(`${vec.file.name}: butuh JPG/PNG preview nama sama`, 'info');
                 }
             }
             
-            // Video: standalone
             for (const vid of videos) await addItem(vid.file, null);
             
-            // SVG: cari JPG/PNG preview dulu (fix untuk masalah hitam)
             for (const svg of svgs) {
                 const preview = rasters.find(r => r.stem.toLowerCase() === svg.stem.toLowerCase() && !usedRasters.has(r.file.name));
                 if (preview) {
                     usedRasters.add(preview.file.name);
                     await addItem(svg.file, preview.file);
-                    console.log(`[MetaGen] paired SVG: ${svg.file.name} + ${preview.file.name}`);
                 } else {
                     await addItem(svg.file, null);
-                    console.log(`[MetaGen] SVG standalone: ${svg.file.name}`);
                 }
             }
             
-            // Raster sisa: standalone
             for (const r of rasters) {
                 if (!usedRasters.has(r.file.name)) await addItem(r.file, null);
             }
@@ -890,7 +880,8 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             else if (platform === 'vecteezy') {
                 csv = 'Filename,Title,Description,Keywords\n';
                 done.forEach(i => {
-                    csv += [i.filename, i.result.vz_title, i.result.vz_desc, getKw(i.result,'vecteezy')].map(v => eC(v)).join(',') + '\n';
+                    const safeFilename = i.filename.replace(/ /g, '_');
+                    csv += [safeFilename, i.result.vz_title, i.result.vz_desc, getKw(i.result,'vecteezy')].map(v => eC(v)).join(',') + '\n';
                 });
                 download(csv, `vecteezy${ext}.csv`);
             }
