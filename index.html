@@ -7,27 +7,17 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    colors: { gray: { 850: '#1f2937', 900: '#111827', 950: '#030712' } }
-                }
-            }
-        }
+        tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] }, colors: { gray: { 850: '#1f2937', 900: '#111827', 950: '#030712' } } } } }
     </script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #030712; color: #f3f4f6; }
         .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #1f2937; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #6b7280; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .dropzone-active { border-color: #3b82f6; background-color: rgba(59, 130, 246, 0.1); }
         .btn-generate { background-size: 200% auto; transition: 0.5s; }
-        .btn-generate:hover:not(:disabled) { background-position: right center; }
         .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
         @media (hover: none) { .copy-btn { opacity: 1 !important; } }
     </style>
@@ -97,9 +87,7 @@
                 </div>
 
                 <div class="pt-4">
-                    <button id="btn-generate" disabled class="btn-generate w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white font-medium py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transition-all">
-                        Generate Metadata
-                    </button>
+                    <button id="btn-generate" disabled class="btn-generate w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white font-medium py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transition-all">Generate Metadata</button>
                     <p id="cost-estimate" class="text-center text-xs text-gray-500 mt-2 hidden">Est: 0 API calls</p>
                 </div>
             </div>
@@ -184,6 +172,80 @@
         <span id="toast-message" class="text-sm">Notification</span>
     </div>
 
+    <!-- ============================================================
+         SCRIPT 1: NON-MODULE — Jalan duluan, tidak butuh CDN
+         Berisi: tab switching, API status, semua yang bisa jalan mandiri
+         ============================================================ -->
+    <script>
+        // ============ TAB SWITCHING ============
+        window.switchTab = function(targetId) {
+            document.querySelectorAll('.tab-btn').forEach(function(b) {
+                b.classList.remove('border-blue-500', 'text-white');
+                b.classList.add('border-transparent', 'text-gray-400');
+            });
+            document.querySelectorAll('.tab-content').forEach(function(c) {
+                c.classList.remove('active');
+            });
+            var target = document.getElementById(targetId);
+            if (target) {
+                target.classList.add('active');
+            } else {
+                console.error('Tab not found:', targetId);
+            }
+        };
+
+        // Pasang listener ke tabs-header
+        document.addEventListener('DOMContentLoaded', function() {
+            var tabsHeader = document.getElementById('tabs-header');
+            if (tabsHeader) {
+                tabsHeader.addEventListener('click', function(event) {
+                    var btn = event.target.closest('.tab-btn');
+                    if (!btn) return;
+                    var targetId = btn.getAttribute('data-tab');
+                    if (!targetId) return;
+
+                    document.querySelectorAll('.tab-btn').forEach(function(b) {
+                        b.classList.remove('border-blue-500', 'text-white');
+                        b.classList.add('border-transparent', 'text-gray-400');
+                    });
+                    document.querySelectorAll('.tab-content').forEach(function(c) {
+                        c.classList.remove('active');
+                    });
+                    btn.classList.add('border-blue-500', 'text-white');
+                    btn.classList.remove('border-transparent', 'text-gray-400');
+                    var target = document.getElementById(targetId);
+                    if (target) target.classList.add('active');
+                });
+                console.log('[MetaGen] Tab switching installed ✓');
+            } else {
+                console.error('[MetaGen] tabs-header not found!');
+            }
+
+            // ============ API STATUS (fallback, tidak butuh module) ============
+            var apiKeyInput = document.getElementById('api-key');
+            if (apiKeyInput) {
+                apiKeyInput.addEventListener('input', function() {
+                    var key = apiKeyInput.value.trim();
+                    var status = document.getElementById('api-status');
+                    if (!status) return;
+                    if (key.length > 20) {
+                        status.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Key Stored';
+                        status.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-green-900/30 text-green-400 border border-green-800/50';
+                    } else {
+                        status.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Missing API Key';
+                        status.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-red-900/30 text-red-400 border border-red-800/50';
+                    }
+                    // Trigger generate button update if available
+                    if (typeof window.updateGenerateButton === 'function') window.updateGenerateButton();
+                });
+                console.log('[MetaGen] API status listener installed ✓');
+            }
+        });
+    </script>
+
+    <!-- ============================================================
+         SCRIPT 2: MODULE — Gemini SDK, semua fungsi generate
+         ============================================================ -->
     <script type="module">
         import { GoogleGenAI, Type } from 'https://esm.run/@google/genai';
 
@@ -196,23 +258,14 @@
         const RESPONSE_SCHEMA = {
             type: Type.OBJECT,
             properties: {
-                keywords: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Exactly 50 unique keywords, comma separated equivalent. Lowercase." },
-                adobe_title: { type: Type.STRING, description: "Max 70 chars." },
-                adobe_cat: { type: Type.STRING, description: "Must exactly match one from adobe list provided." },
-                ss_desc: { type: Type.STRING, description: "Max 2048 chars." },
-                ss_cat: { type: Type.STRING, description: "Must exactly match one from ss list." },
-                ss_cat2: { type: Type.STRING, description: "Optional secondary category from ss list. Can be empty." },
-                vz_title: { type: Type.STRING },
-                vz_desc: { type: Type.STRING },
-                vz_cat: { type: Type.STRING },
-                mg_title: { type: Type.STRING, description: "35-100 chars, no extensions, no dates." },
-                mg_desc: { type: Type.STRING },
-                mg_type: { type: Type.STRING },
-                p5_title: { type: Type.STRING, description: "40-80 chars." },
-                p5_desc: { type: Type.STRING },
-                p5_cat: { type: Type.STRING }
+                keywords: { type: Type.ARRAY, items: { type: Type.STRING } },
+                adobe_title: { type: Type.STRING }, adobe_cat: { type: Type.STRING },
+                ss_desc: { type: Type.STRING }, ss_cat: { type: Type.STRING }, ss_cat2: { type: Type.STRING },
+                vz_title: { type: Type.STRING }, vz_desc: { type: Type.STRING }, vz_cat: { type: Type.STRING },
+                mg_title: { type: Type.STRING }, mg_desc: { type: Type.STRING }, mg_type: { type: Type.STRING },
+                p5_title: { type: Type.STRING }, p5_desc: { type: Type.STRING }, p5_cat: { type: Type.STRING }
             },
-            required: ["keywords", "adobe_title", "adobe_cat", "ss_desc", "ss_cat", "vz_title", "vz_desc", "vz_cat", "mg_title", "mg_type", "p5_title", "p5_desc", "p5_cat"]
+            required: ["keywords","adobe_title","adobe_cat","ss_desc","ss_cat","vz_title","vz_desc","vz_cat","mg_title","mg_type","p5_title","p5_desc","p5_cat"]
         };
 
         const PROMPT_BASE = `You are a senior microstock SEO expert. Look carefully at the attached image(s) (frames of ONE asset) and describe ONLY what is clearly visible. The file name is meaningless: never use it. Never invent brands, trademarks, real names, places or dates.
@@ -234,53 +287,77 @@ vz_cat: ${JSON.stringify(VZ_CATS)}
 mg_type: ${JSON.stringify(MG_TYPES)}
 p5_cat: ${JSON.stringify(P5_CATS)}`;
 
-        let appState = {
-            queue: [],
-            isProcessing: false,
-            db: null,
-            isApiValid: false
-        };
+        let appState = { queue: [], isProcessing: false, db: null, isApiValid: false };
 
-        const initDB = () => {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open('MicroStockMetaGenDB', 1);
-                request.onerror = () => reject(request.error);
-                request.onsuccess = (e) => { appState.db = e.target.result; resolve(); };
-                request.onupgradeneeded = (e) => {
-                    const db = e.target.result;
-                    if (!db.objectStoreNames.contains('results')) {
-                        db.createObjectStore('results', { keyPath: 'filename' });
-                    }
-                };
-            });
-        };
+        const initDB = () => new Promise((resolve, reject) => {
+            const req = indexedDB.open('MicroStockMetaGenDB', 1);
+            req.onerror = () => reject(req.error);
+            req.onsuccess = (e) => { appState.db = e.target.result; resolve(); };
+            req.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains('results')) db.createObjectStore('results', { keyPath: 'filename' });
+            };
+        });
 
-        const saveToDB = async (filename, resultData) => {
+        const saveToDB = async (filename, data) => {
             if (!appState.db) return;
-            return new Promise((resolve, reject) => {
+            return new Promise((res, rej) => {
                 const tx = appState.db.transaction(['results'], 'readwrite');
-                tx.objectStore('results').put({ filename, ...resultData });
-                tx.oncomplete = () => resolve();
-                tx.onerror = () => reject(tx.error);
+                tx.objectStore('results').put({ filename, ...data });
+                tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error);
             });
         };
 
         const loadFromDB = async () => {
             if (!appState.db) return [];
-            return new Promise((resolve) => {
-                const request = appState.db.transaction(['results'], 'readonly').objectStore('results').getAll();
-                request.onsuccess = () => resolve(request.result);
+            return new Promise((res) => {
+                const req = appState.db.transaction(['results'], 'readonly').objectStore('results').getAll();
+                req.onsuccess = () => res(req.result);
             });
         };
 
         const clearDB = async () => {
             if (!appState.db) return;
-            return new Promise((resolve) => {
+            return new Promise((res) => {
                 const tx = appState.db.transaction(['results'], 'readwrite');
                 tx.objectStore('results').clear();
-                tx.oncomplete = () => resolve();
+                tx.oncomplete = () => res();
             });
         };
+
+        const showToast = (msg, type = 'info') => {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = msg;
+            document.getElementById('toast-icon').textContent = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+            t.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), 3000);
+        };
+
+        const updateApiStatus = (key, forceState = null) => {
+            if (forceState !== null) appState.isApiValid = forceState;
+            const hasKey = (key && key.length > 20) || appState.isApiValid;
+            const st = document.getElementById('api-status');
+            if (hasKey) {
+                st.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Key Stored';
+                st.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-green-900/30 text-green-400 border border-green-800/50';
+            } else {
+                st.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Missing API Key';
+                st.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-red-900/30 text-red-400 border border-red-800/50';
+            }
+        };
+
+        const updateGenerateButton = () => {
+            const key = document.getElementById('api-key').value.trim();
+            const hasKey = appState.isApiValid || key.length > 20;
+            const pending = appState.queue.filter(i => ['waiting','error'].includes(i.status)).length;
+            const btn = document.getElementById('btn-generate');
+            btn.disabled = !hasKey || pending === 0 || appState.isProcessing;
+            btn.textContent = appState.isProcessing ? 'Processing...' : 'Generate Metadata';
+            const ce = document.getElementById('cost-estimate');
+            if (pending > 0 && hasKey) { ce.classList.remove('hidden'); ce.textContent = `Est: ${pending} API calls`; }
+            else ce.classList.add('hidden');
+        };
+        window.updateGenerateButton = updateGenerateButton;
 
         const loadSettings = () => {
             document.getElementById('api-key').value = localStorage.getItem('mmg_api_key') || '';
@@ -290,10 +367,9 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             document.getElementById('toggle-editorial').checked = localStorage.getItem('mmg_editorial') === 'true';
             document.getElementById('ai-model-name').value = localStorage.getItem('mmg_ai_model_name') || '';
             document.getElementById('ai-prompt-text').value = localStorage.getItem('mmg_ai_prompt_text') || '';
-            
-            const savedKey = document.getElementById('api-key').value.trim();
-            if (savedKey.length > 20) appState.isApiValid = true;
-            updateApiStatus(savedKey);
+            const k = document.getElementById('api-key').value.trim();
+            if (k.length > 20) appState.isApiValid = true;
+            updateApiStatus(k);
             toggleMagnificSettings();
         };
 
@@ -305,816 +381,439 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             localStorage.setItem('mmg_editorial', document.getElementById('toggle-editorial').checked);
             localStorage.setItem('mmg_ai_model_name', document.getElementById('ai-model-name').value);
             localStorage.setItem('mmg_ai_prompt_text', document.getElementById('ai-prompt-text').value);
-            
-            updateApiStatus(document.getElementById('api-key').value);
             updateGenerateButton();
             toggleMagnificSettings();
         };
 
         const toggleMagnificSettings = () => {
-            const aiSettings = document.getElementById('ai-magnific-settings');
+            const s = document.getElementById('ai-magnific-settings');
             if (document.getElementById('toggle-ai').checked) {
-                aiSettings.classList.remove('opacity-50', 'pointer-events-none');
+                s.classList.remove('opacity-50', 'pointer-events-none');
             } else {
-                aiSettings.classList.add('opacity-50', 'pointer-events-none');
+                s.classList.add('opacity-50', 'pointer-events-none');
             }
         };
 
-        const els = {
-            apiKey: document.getElementById('api-key'),
-            apiStatus: document.getElementById('api-status'),
-            dropzone: document.getElementById('dropzone'),
-            fileInput: document.getElementById('file-input'),
-            queueList: document.getElementById('queue-list'),
-            queueCount: document.getElementById('queue-count'),
-            emptyState: document.getElementById('queue-empty-state'),
-            btnGenerate: document.getElementById('btn-generate'),
-            costEstimate: document.getElementById('cost-estimate'),
-            validationList: document.getElementById('validation-list'),
-            validationBadge: document.getElementById('validation-badge')
-        };
-
-        // ===== TAB SWITCHING =====
-        // Event delegation di parent container - paling robust untuk semua browser
-        document.getElementById('tabs-header').addEventListener('click', (event) => {
-            const btn = event.target.closest('.tab-btn');
-            if (!btn) return;
-            const targetId = btn.getAttribute('data-tab');
-            if (!targetId) return;
-
-            document.querySelectorAll('.tab-btn').forEach(b => {
-                b.classList.remove('border-blue-500', 'text-white');
-                b.classList.add('border-transparent', 'text-gray-400');
-            });
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
-            btn.classList.add('border-blue-500', 'text-white');
-            btn.classList.remove('border-transparent', 'text-gray-400');
-
-            const target = document.getElementById(targetId);
-            if (target) target.classList.add('active');
-        });
-
-        ['api-key', 'model-select', 'global-context', 'ai-model-name', 'ai-prompt-text'].forEach(id => {
+        ['api-key','model-select','global-context','ai-model-name','ai-prompt-text'].forEach(id => {
             document.getElementById(id).addEventListener('input', saveSettings);
         });
-        ['toggle-ai', 'toggle-editorial'].forEach(id => {
+        ['toggle-ai','toggle-editorial'].forEach(id => {
             document.getElementById(id).addEventListener('change', saveSettings);
         });
 
-        els.dropzone.addEventListener('dragover', (e) => { e.preventDefault(); els.dropzone.classList.add('dropzone-active'); });
-        els.dropzone.addEventListener('dragleave', () => els.dropzone.classList.remove('dropzone-active'));
-        els.dropzone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            els.dropzone.classList.remove('dropzone-active');
-            handleFiles(e.dataTransfer.files);
-        });
-        els.fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+        const dz = document.getElementById('dropzone');
+        dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('dropzone-active'); });
+        dz.addEventListener('dragleave', () => dz.classList.remove('dropzone-active'));
+        dz.addEventListener('drop', (e) => { e.preventDefault(); dz.classList.remove('dropzone-active'); handleFiles(e.dataTransfer.files); });
+        document.getElementById('file-input').addEventListener('change', (e) => handleFiles(e.target.files));
 
         document.getElementById('btn-clear-queue').addEventListener('click', () => {
             if (appState.isProcessing) return showToast('Cannot clear while processing', 'error');
-            appState.queue = [];
-            renderQueue();
-            updateGenerateButton();
+            appState.queue = []; renderQueue(); updateGenerateButton();
         });
 
         document.getElementById('btn-clear-data').addEventListener('click', async () => {
-            if(confirm("Are you sure you want to clear all settings and processed results?")) {
-                localStorage.clear();
-                await clearDB();
-                location.reload();
+            if (confirm("Clear all settings and processed results?")) {
+                localStorage.clear(); await clearDB(); location.reload();
             }
         });
 
         document.getElementById('btn-test-key').addEventListener('click', async () => {
-            const key = els.apiKey.value.trim();
+            const key = document.getElementById('api-key').value.trim();
             if (!key) return showToast('Enter API key first', 'error');
-            
             const model = document.getElementById('model-select').value;
             const ai = new GoogleGenAI({ apiKey: key });
-            
             try {
                 showToast('Testing key...', 'info');
-                await ai.models.generateContent({
-                    model: model,
-                    contents: "Respond with exactly the word 'OK'."
-                });
+                await ai.models.generateContent({ model: model, contents: "Respond with exactly the word 'OK'." });
                 showToast('API Key is valid!', 'success');
-                appState.isApiValid = true;
-                updateApiStatus(key, true);
-                updateGenerateButton();
+                appState.isApiValid = true; updateApiStatus(key, true); updateGenerateButton();
             } catch (e) {
                 showToast('API Key test failed: ' + e.message, 'error');
-                appState.isApiValid = false;
-                updateApiStatus(key, false);
-                updateGenerateButton();
+                appState.isApiValid = false; updateApiStatus(key, false); updateGenerateButton();
             }
         });
 
-        const generateId = () => Math.random().toString(36).substr(2, 9);
-        const formatBytes = (bytes) => {
-            if (bytes === 0) return '0 Bytes';
-            const i = Math.floor(Math.log(bytes) / Math.log(1024));
-            return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + ['B', 'KB', 'MB', 'GB'][i];
+        const genId = () => Math.random().toString(36).substr(2, 9);
+        const fmtBytes = (b) => {
+            if (b === 0) return '0 B';
+            const i = Math.floor(Math.log(b) / Math.log(1024));
+            return parseFloat((b / Math.pow(1024, i)).toFixed(2)) + ' ' + ['B','KB','MB','GB'][i];
         };
 
-        const showToast = (msg, type = 'info') => {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-message').textContent = msg;
-            document.getElementById('toast-icon').textContent = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
-        };
-
-        const updateApiStatus = (key, forceState = null) => {
-            if (forceState !== null) {
-                appState.isApiValid = forceState;
-            }
-            const hasKey = (key && key.length > 20) || appState.isApiValid;
-            if (hasKey) {
-                els.apiStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Key Stored`;
-                els.apiStatus.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-green-900/30 text-green-400 border border-green-800/50';
-            } else {
-                els.apiStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Missing API Key`;
-                els.apiStatus.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-red-900/30 text-red-400 border border-red-800/50';
-            }
-        };
-
-        const updateGenerateButton = () => {
-            const hasKey = appState.isApiValid || els.apiKey.value.trim().length > 20;
-            const pendingItems = appState.queue.filter(i => ['waiting', 'error'].includes(i.status)).length;
-            
-            els.btnGenerate.disabled = !hasKey || pendingItems === 0 || appState.isProcessing;
-            els.btnGenerate.textContent = appState.isProcessing ? 'Processing...' : 'Generate Metadata';
-            
-            if (pendingItems > 0 && hasKey) {
-                els.costEstimate.classList.remove('hidden');
-                els.costEstimate.textContent = `Est: ${pendingItems} API calls`;
-            } else {
-                els.costEstimate.classList.add('hidden');
-            }
-        };
-
-        const resizeImageToBase64 = (file, maxDim = 1024) => {
-            return new Promise((resolve, reject) => {
-                const isSvg = file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg');
-                let timeoutId = null;
-
-                if (isSvg) {
-                    timeoutId = setTimeout(() => {
-                        reject(new Error("SVG rendered empty — try exporting as PNG"));
-                    }, 5000);
-                }
-
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = (e) => {
-                    const img = new Image();
-                    
-                    img.onload = () => {
-                        if (isSvg) clearTimeout(timeoutId);
-
-                        let width = img.naturalWidth || img.width;
-                        let height = img.naturalHeight || img.height;
-                        
-                        if (!width || !height) {
-                            width = 1024;
-                            height = 1024;
-                        }
-
-                        if (width > maxDim || height > maxDim) {
-                            if (width > height) { height *= maxDim / width; width = maxDim; } 
-                            else { width *= maxDim / height; height = maxDim; }
-                        }
-                        const canvas = document.getElementById('processing-canvas');
-                        canvas.width = width; canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.clearRect(0, 0, width, height);
-                        ctx.drawImage(img, 0, 0, width, height);
-                        
-                        if (isSvg) {
-                            if (width === 0 || height === 0) {
-                                return reject(new Error("SVG rendered empty — try exporting as PNG"));
-                            }
-                            try {
-                                const imageData = ctx.getImageData(0, 0, width, height).data;
-                                let isEmpty = true;
-                                for (let i = 3; i < imageData.length; i += 4) {
-                                    if (imageData[i] > 0) {
-                                        isEmpty = false;
-                                        break;
-                                    }
-                                }
-                                if (isEmpty) {
-                                    return reject(new Error("SVG rendered empty — try exporting as PNG"));
-                                }
-                            } catch (err) {
-                                console.warn(`[SVG] Pixel check failed (CORS?): ${err.message}`);
-                            }
-                        }
-
-                        resolve({
-                            data: canvas.toDataURL('image/jpeg', 0.85).split(',')[1],
-                            mimeType: 'image/jpeg',
-                            thumb: canvas.toDataURL('image/jpeg', 0.2)
-                        });
-                    };
-                    img.onerror = (err) => {
-                        if (isSvg) {
-                            clearTimeout(timeoutId);
-                            reject(new Error("SVG rendered empty — try exporting as PNG"));
-                        } else {
-                            reject(err);
-                        }
-                    };
-                    img.src = e.target.result;
+        const resizeImg = (file, maxDim = 1024) => new Promise((res, rej) => {
+            const isSvg = file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg');
+            let to = null;
+            if (isSvg) to = setTimeout(() => rej(new Error("SVG rendered empty")), 5000);
+            const rd = new FileReader();
+            rd.readAsDataURL(file);
+            rd.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    if (isSvg) clearTimeout(to);
+                    let w = img.naturalWidth || img.width || 1024;
+                    let h = img.naturalHeight || img.height || 1024;
+                    if (!w || !h) { w = 1024; h = 1024; }
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) { h *= maxDim / w; w = maxDim; } else { w *= maxDim / h; h = maxDim; }
+                    }
+                    const cv = document.getElementById('processing-canvas');
+                    cv.width = w; cv.height = h;
+                    const ctx = cv.getContext('2d');
+                    ctx.clearRect(0, 0, w, h);
+                    ctx.drawImage(img, 0, 0, w, h);
+                    if (isSvg) {
+                        try {
+                            const d = ctx.getImageData(0, 0, w, h).data;
+                            let empty = true;
+                            for (let i = 3; i < d.length; i += 4) { if (d[i] > 0) { empty = false; break; } }
+                            if (empty) return rej(new Error("SVG rendered empty"));
+                        } catch (err) {}
+                    }
+                    res({ data: cv.toDataURL('image/jpeg', 0.85).split(',')[1], mimeType: 'image/jpeg', thumb: cv.toDataURL('image/jpeg', 0.2) });
                 };
-                reader.onerror = reject;
+                img.onerror = () => { if (isSvg) clearTimeout(to); rej(new Error("Image load failed")); };
+                img.src = e.target.result;
+            };
+            rd.onerror = rej;
+        });
+
+        const extractVideo = (file) => new Promise((res, rej) => {
+            const v = document.createElement('video');
+            v.src = URL.createObjectURL(file); v.muted = true;
+            const frames = []; let thumb = null;
+            v.addEventListener('loadedmetadata', async () => {
+                const dur = v.duration;
+                if (dur < 5) showToast(`Warning: ${file.name} is under 5s`, 'error');
+                const pts = [dur * 0.15, dur * 0.5, dur * 0.85];
+                const cv = document.getElementById('processing-canvas');
+                const ctx = cv.getContext('2d');
+                let w = v.videoWidth, h = v.videoHeight;
+                const mx = 768;
+                if (w > mx || h > mx) { if (w > h) { h *= mx / w; w = mx; } else { w *= mx / h; h = mx; } }
+                cv.width = w; cv.height = h;
+                for (let i = 0; i < pts.length; i++) {
+                    await new Promise(r => {
+                        v.currentTime = pts[i];
+                        const on = () => {
+                            ctx.drawImage(v, 0, 0, w, h);
+                            const b64 = cv.toDataURL('image/jpeg', 0.8).split(',')[1];
+                            frames.push({ data: b64, mimeType: 'image/jpeg' });
+                            if (i === 1) thumb = cv.toDataURL('image/jpeg', 0.2);
+                            v.removeEventListener('seeked', on); r();
+                        };
+                        v.addEventListener('seeked', on);
+                    });
+                }
+                URL.revokeObjectURL(v.src);
+                res({ frames, thumb, duration: dur });
             });
-        };
-
-        const extractVideoFrames = (file) => {
-            return new Promise((resolve, reject) => {
-                const video = document.createElement('video');
-                video.src = URL.createObjectURL(file);
-                video.muted = true;
-                const frames = [];
-                let thumb = null;
-
-                video.addEventListener('loadedmetadata', async () => {
-                    const duration = video.duration;
-                    
-                    if (duration < 5) {
-                        showToast(`Warning: ${file.name} is shorter than 5 seconds (${duration.toFixed(1)}s). Pond5 requires minimum 5s.`, 'error');
-                    }
-
-                    const points = [duration * 0.15, duration * 0.50, duration * 0.85];
-                    const canvas = document.getElementById('processing-canvas');
-                    const ctx = canvas.getContext('2d');
-                    
-                    let w = video.videoWidth, h = video.videoHeight;
-                    const max = 768;
-                    if (w > max || h > max) {
-                        if (w > h) { h *= max / w; w = max; } else { w *= max / h; h = max; }
-                    }
-                    canvas.width = w; canvas.height = h;
-
-                    for (let i = 0; i < points.length; i++) {
-                        await new Promise(res => {
-                            video.currentTime = points[i];
-                            const onSeek = () => {
-                                ctx.drawImage(video, 0, 0, w, h);
-                                const b64 = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
-                                frames.push({ data: b64, mimeType: 'image/jpeg' });
-                                if (i === 1) thumb = canvas.toDataURL('image/jpeg', 0.2); 
-                                video.removeEventListener('seeked', onSeek);
-                                res();
-                            };
-                            video.addEventListener('seeked', onSeek);
-                        });
-                    }
-                    URL.revokeObjectURL(video.src);
-                    resolve({ frames, thumb, duration });
-                });
-                video.addEventListener('error', () => reject(new Error("Video load failed")));
-            });
-        };
+            v.addEventListener('error', () => rej(new Error("Video load failed")));
+        });
 
         const handleFiles = async (files) => {
             const groups = {};
             for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const lastDot = file.name.lastIndexOf('.');
-                if (lastDot === -1) continue;
-                const ext = file.name.substring(lastDot + 1).toLowerCase();
-                const stem = file.name.substring(0, lastDot);
+                const f = files[i];
+                const ld = f.name.lastIndexOf('.');
+                if (ld === -1) continue;
+                const ext = f.name.substring(ld + 1).toLowerCase();
+                const stem = f.name.substring(0, ld);
                 if (!groups[stem]) groups[stem] = {};
-                groups[stem][ext] = file;
+                groups[stem][ext] = f;
             }
-
-            for (let stem in groups) {
-                const group = groups[stem];
-                
-                const vectorExts = ['eps', 'ai', 'psd'];
-                let vectorFile = null;
-                for (let e of vectorExts) {
-                    if (group[e]) { vectorFile = group[e]; break; }
-                }
-                
-                const previewFile = group['jpg'] || group['jpeg'] || group['png'];
-                const videoFile = group['mp4'] || group['mov'];
-                const svgFile = group['svg'];
-                const rasterImgFile = group['jpg'] || group['jpeg'] || group['png'] || group['webp'] || group['gif'];
-
-                if (vectorFile) {
-                    if (previewFile) {
-                        await addQueueItem(vectorFile, previewFile);
-                    } else {
-                        showToast(`${vectorFile.name}: Need a JPG/PNG preview uploaded together.`, 'info');
-                    }
-                } else if (videoFile) {
-                    await addQueueItem(videoFile, null);
-                } else if (svgFile) {
-                    await addQueueItem(svgFile, previewFile || null);
-                } else if (rasterImgFile && !vectorFile) {
-                    await addQueueItem(rasterImgFile, null);
-                }
+            for (const stem in groups) {
+                const g = groups[stem];
+                const vEx = ['eps','ai','psd'].find(e => g[e]);
+                const pv = g['jpg'] || g['jpeg'] || g['png'];
+                const vd = g['mp4'] || g['mov'];
+                const sv = g['svg'];
+                const rg = g['jpg'] || g['jpeg'] || g['png'] || g['webp'] || g['gif'];
+                if (vEx) {
+                    if (pv) await addItem(g[vEx], pv);
+                    else showToast(`${g[vEx].name}: Need JPG/PNG preview`, 'info');
+                } else if (vd) await addItem(vd, null);
+                else if (sv) await addItem(sv, pv || null);
+                else if (rg) await addItem(rg, null);
             }
             updateGenerateButton();
         };
 
-        const addQueueItem = async (targetFile, previewFile) => {
-            const ext = targetFile.name.split('.').pop().toLowerCase();
-            const isVideo = ['mp4', 'mov'].includes(ext);
-            const isVector = ['eps', 'ai', 'psd'].includes(ext);
+        const addItem = async (tf, pf) => {
+            const ext = tf.name.split('.').pop().toLowerCase();
+            const isV = ['mp4','mov'].includes(ext);
+            const isVec = ['eps','ai','psd'].includes(ext);
             const isSvg = ext === 'svg';
-            
-            let maxSize = 20 * 1024 * 1024;
-            let typeLabel = "Image";
-            
-            if (isVideo) {
-                maxSize = 500 * 1024 * 1024;
-                typeLabel = "Video";
-            } else if (isVector || isSvg) {
-                maxSize = 100 * 1024 * 1024;
-                typeLabel = "Vector";
-            }
-
-            if (targetFile.size > maxSize) {
-                return showToast(`${targetFile.name} exceeds max size (${maxSize / (1024 * 1024)}MB for ${typeLabel}). Skipping.`, 'error');
-            }
-            
-            if (appState.queue.find(q => q.filename === targetFile.name)) return;
-
-            let fileType = 'image';
-            if (isVideo) fileType = 'video';
-            else if (isVector) fileType = 'vector';
-
-            const item = {
-                id: generateId(),
-                filename: targetFile.name,
-                targetFile: targetFile,
-                previewFile: previewFile || targetFile,
-                type: fileType,
-                status: 'waiting', 
-                progress: 0,
-                size: targetFile.size,
-                result: null,
-                error: null,
-                thumb: null,
-                validationErrors: []
-            };
-
-            appState.queue.push(item);
+            let mx = 20 * 1024 * 1024, lbl = "Image";
+            if (isV) { mx = 500 * 1024 * 1024; lbl = "Video"; }
+            else if (isVec || isSvg) { mx = 100 * 1024 * 1024; lbl = "Vector"; }
+            if (tf.size > mx) return showToast(`${tf.name} exceeds ${mx/(1024*1024)}MB (${lbl})`, 'error');
+            if (appState.queue.find(q => q.filename === tf.name)) return;
+            let ft = 'image';
+            if (isV) ft = 'video'; else if (isVec) ft = 'vector';
+            appState.queue.push({
+                id: genId(), filename: tf.name, targetFile: tf, previewFile: pf || tf,
+                type: ft, status: 'waiting', progress: 0, size: tf.size,
+                result: null, error: null, thumb: null, validationErrors: []
+            });
             renderQueue();
         };
 
         const renderQueue = () => {
-            els.queueCount.textContent = appState.queue.length;
-            if (appState.queue.length === 0) {
-                els.emptyState.style.display = 'block';
-                els.queueList.innerHTML = '';
-                return;
-            }
-            
-            els.emptyState.style.display = 'none';
-            els.queueList.innerHTML = appState.queue.map(item => `
-                <div class="bg-gray-800 rounded-lg p-3 flex items-center gap-3 border border-gray-700 transition-colors ${item.status === 'error' ? 'border-red-900/50' : item.status === 'done' ? 'border-green-900/50' : ''}">
+            document.getElementById('queue-count').textContent = appState.queue.length;
+            const list = document.getElementById('queue-list');
+            const empty = document.getElementById('queue-empty-state');
+            if (appState.queue.length === 0) { empty.style.display = 'block'; list.innerHTML = ''; return; }
+            empty.style.display = 'none';
+            list.innerHTML = appState.queue.map(item => `
+                <div class="bg-gray-800 rounded-lg p-3 flex items-center gap-3 border border-gray-700 ${item.status === 'error' ? 'border-red-900/50' : item.status === 'done' ? 'border-green-900/50' : ''}">
                     <div class="w-10 h-10 rounded bg-gray-900 shrink-0 overflow-hidden border border-gray-700">
                         ${item.thumb ? `<img src="${item.thumb}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-xs text-gray-500">${item.type === 'video' ? '🎬' : '🖼️'}</div>`}
                     </div>
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-medium text-gray-200 truncate" title="${item.filename}">${item.filename}</p>
                         <div class="flex justify-between items-center mt-1">
-                            <span class="text-xs text-gray-500">${formatBytes(item.size)}</span>
-                            <span class="text-xs font-medium ${
-                                item.status === 'done' ? 'text-green-400' : 
-                                item.status === 'error' ? 'text-red-400' : 
-                                item.status === 'processing' ? 'text-blue-400' : 'text-gray-400'
-                            }">
-                                ${item.status === 'waiting' ? 'Waiting' : 
-                                  item.status === 'processing' ? 'Analyzing...' : 
-                                  item.status === 'error' ? 'Failed' : 'Done'}
+                            <span class="text-xs text-gray-500">${fmtBytes(item.size)}</span>
+                            <span class="text-xs font-medium ${item.status === 'done' ? 'text-green-400' : item.status === 'error' ? 'text-red-400' : item.status === 'processing' ? 'text-blue-400' : 'text-gray-400'}">
+                                ${item.status === 'waiting' ? 'Waiting' : item.status === 'processing' ? 'Analyzing...' : item.status === 'error' ? 'Failed' : 'Done'}
                             </span>
                         </div>
-                        ${item.status === 'processing' ? `
-                            <div class="w-full bg-gray-700 rounded-full h-1 mt-1.5 overflow-hidden">
-                                <div class="bg-blue-500 h-1 rounded-full animate-pulse" style="width: 100%"></div>
-                            </div>
-                        ` : ''}
-                        ${item.error ? `<p class="text-[10px] text-red-400 mt-1 truncate" title="${item.error}">${item.error}</p>` : ''}
+                        ${item.error ? `<p class="text-[10px] text-red-400 mt-1 truncate">${item.error}</p>` : ''}
                     </div>
                 </div>
             `).join('');
         };
 
-        const validateMetadata = (data) => {
-            const errors = [];
-            if (!data.keywords || !Array.isArray(data.keywords) || data.keywords.length < 48) {
-                errors.push(`Keywords count is ${data.keywords?.length || 0}, must be around 50 (min 48).`);
-            }
-            if (data.adobe_title?.length > 70) errors.push("adobe_title exceeds 70 chars.");
-            if (!ADOBE_CATS.includes(data.adobe_cat)) errors.push(`adobe_cat '${data.adobe_cat}' is invalid.`);
-            if (!SS_CATS.includes(data.ss_cat)) errors.push(`ss_cat '${data.ss_cat}' is invalid.`);
-            if (data.ss_cat2 && !SS_CATS.includes(data.ss_cat2)) errors.push(`ss_cat2 '${data.ss_cat2}' is invalid.`);
-            if (!VZ_CATS.includes(data.vz_cat)) errors.push(`vz_cat '${data.vz_cat}' is invalid.`);
-            if (!MG_TYPES.includes(data.mg_type)) errors.push(`mg_type '${data.mg_type}' is invalid.`);
-            if (!P5_CATS.includes(data.p5_cat)) errors.push(`p5_cat '${data.p5_cat}' is invalid.`);
-            
-            const mgLen = data.mg_title?.length || 0;
-            if (mgLen < 35 || mgLen > 100) errors.push(`mg_title length ${mgLen} is not between 35-100.`);
-            const p5Len = data.p5_title?.length || 0;
-            if (p5Len < 40 || p5Len > 80) errors.push(`p5_title length ${p5Len} is not between 40-80.`);
-            if (!data.ss_desc || data.ss_desc.length === 0) errors.push("ss_desc is empty.");
-            
-            return errors;
+        const validate = (d) => {
+            const e = [];
+            if (!d.keywords || d.keywords.length < 48) e.push(`Keywords ${d.keywords?.length || 0}, need 50`);
+            if (d.adobe_title?.length > 70) e.push("adobe_title > 70");
+            if (!ADOBE_CATS.includes(d.adobe_cat)) e.push(`adobe_cat '${d.adobe_cat}' invalid`);
+            if (!SS_CATS.includes(d.ss_cat)) e.push(`ss_cat '${d.ss_cat}' invalid`);
+            if (d.ss_cat2 && !SS_CATS.includes(d.ss_cat2)) e.push(`ss_cat2 invalid`);
+            if (!VZ_CATS.includes(d.vz_cat)) e.push(`vz_cat invalid`);
+            if (!MG_TYPES.includes(d.mg_type)) e.push(`mg_type invalid`);
+            if (!P5_CATS.includes(d.p5_cat)) e.push(`p5_cat invalid`);
+            const ml = d.mg_title?.length || 0;
+            if (ml < 35 || ml > 100) e.push(`mg_title ${ml} chars`);
+            const pl = d.p5_title?.length || 0;
+            if (pl < 40 || pl > 80) e.push(`p5_title ${pl} chars`);
+            if (!d.ss_desc) e.push("ss_desc empty");
+            return e;
         };
 
-        const callGeminiWithRetry = async (ai, payload, maxRetries = 5) => {
-            let attempt = 0;
-            while (attempt < maxRetries) {
-                try {
-                    return await ai.models.generateContent(payload);
-                } catch (error) {
-                    attempt++;
-                    const status = error.status || (error.message.includes('429') ? 429 : error.message.includes('503') ? 503 : 500);
-                    if (status === 400 && error.message.includes('API key not valid')) {
-                        throw new Error("INVALID_API_KEY");
-                    }
-                    if ([429, 503].includes(status) && attempt < maxRetries) {
-                        const waitTime = Math.pow(2, attempt) * 2000 + (Math.random() * 1000); 
-                        console.warn(`API Rate limit/Unavailable. Retrying in ${Math.round(waitTime/1000)}s...`);
-                        await new Promise(r => setTimeout(r, waitTime));
-                    } else {
-                        throw error;
-                    }
+        const callGemini = async (ai, payload, maxRetries = 5) => {
+            let a = 0;
+            while (a < maxRetries) {
+                try { return await ai.models.generateContent(payload); }
+                catch (err) {
+                    a++;
+                    const st = err.status || (err.message.includes('429') ? 429 : err.message.includes('503') ? 503 : 500);
+                    if (st === 400 && err.message.includes('API key not valid')) throw new Error("INVALID_API_KEY");
+                    if ([429,503].includes(st) && a < maxRetries) {
+                        await new Promise(r => setTimeout(r, Math.pow(2, a) * 2000));
+                    } else throw err;
                 }
             }
-            throw new Error("Max network retries exceeded");
+            throw new Error("Max retries");
         };
 
-        const processFile = async (itemIndex) => {
-            const item = appState.queue[itemIndex];
-            item.status = 'processing';
-            renderQueue();
-
+        const processFile = async (idx) => {
+            const item = appState.queue[idx];
+            item.status = 'processing'; renderQueue();
             try {
-                let inlineDataParts = [];
+                let parts = [];
                 if (item.type === 'video') {
-                    const extracted = await extractVideoFrames(item.previewFile);
-                    item.thumb = extracted.thumb;
-                    inlineDataParts = extracted.frames.map(f => ({ inlineData: f }));
+                    const ex = await extractVideo(item.previewFile);
+                    item.thumb = ex.thumb;
+                    parts = ex.frames.map(f => ({ inlineData: f }));
                 } else {
-                    const resized = await resizeImageToBase64(item.previewFile);
-                    item.thumb = resized.thumb;
-                    inlineDataParts = [{ inlineData: { data: resized.data, mimeType: resized.mimeType } }];
+                    const rz = await resizeImg(item.previewFile);
+                    item.thumb = rz.thumb;
+                    parts = [{ inlineData: { data: rz.data, mimeType: rz.mimeType } }];
                 }
-                renderQueue(); 
-
-                const apiKey = document.getElementById('api-key').value.trim();
-                const modelName = document.getElementById('model-select').value;
-                const ai = new GoogleGenAI({ apiKey: apiKey });
-
-                const globalContext = document.getElementById('global-context').value.trim();
-                let promptText = PROMPT_BASE;
-                if (globalContext) promptText += `\n\nGlobal Context for this batch: ${globalContext}`;
-
-                let currentErrors = [];
-                let generatedData = null;
-                let validationAttempt = 0;
-                const maxValidationRetries = 3;
-
-                while (validationAttempt <= maxValidationRetries) {
-                    let attemptPrompt = promptText;
-                    if (currentErrors.length > 0) {
-                        attemptPrompt += `\n\nCRITICAL FIXES REQUIRED FROM PREVIOUS ATTEMPT:\n- ${currentErrors.join('\n- ')}\nEnsure exact category matches, string lengths, and keyword counts.`;
-                    }
-
+                renderQueue();
+                const ai = new GoogleGenAI({ apiKey: document.getElementById('api-key').value.trim() });
+                const model = document.getElementById('model-select').value;
+                const gc = document.getElementById('global-context').value.trim();
+                let prompt = PROMPT_BASE;
+                if (gc) prompt += `\n\nGlobal Context: ${gc}`;
+                let errs = [], data = null, att = 0;
+                while (att <= 3) {
+                    let p = prompt;
+                    if (errs.length) p += `\n\nFIX:\n- ${errs.join('\n- ')}`;
                     const payload = {
-                        model: modelName,
-                        contents: [{ role: 'user', parts: [{ text: attemptPrompt }, ...inlineDataParts] }],
-                        config: {
-                            responseMimeType: "application/json",
-                            responseSchema: RESPONSE_SCHEMA,
-                            temperature: 0.2 
-                        }
+                        model, contents: [{ role: 'user', parts: [{ text: p }, ...parts] }],
+                        config: { responseMimeType: "application/json", responseSchema: RESPONSE_SCHEMA, temperature: 0.2 }
                     };
-
-                    const response = await callGeminiWithRetry(ai, payload);
-                    const jsonText = response.text;
-                    
-                    try {
-                        generatedData = JSON.parse(jsonText);
-                        currentErrors = validateMetadata(generatedData);
-                        if (currentErrors.length === 0) break; 
-                    } catch (parseErr) {
-                        currentErrors = ["Failed to parse JSON response."];
-                    }
-                    validationAttempt++;
+                    const r = await callGemini(ai, payload);
+                    try { data = JSON.parse(r.text); errs = validate(data); if (!errs.length) break; }
+                    catch (pe) { errs = ["Parse fail"]; }
+                    att++;
                 }
-
-                if (currentErrors.length > 0) {
-                    item.status = 'error';
-                    item.error = "Failed validation after retries";
-                    item.validationErrors = currentErrors;
+                if (errs.length) {
+                    item.status = 'error'; item.error = "Validation failed"; item.validationErrors = errs;
                 } else {
-                    item.status = 'done';
-                    item.result = generatedData;
-                    item.error = null;
-                    await saveToDB(item.filename, {
-                        result: generatedData,
-                        thumb: item.thumb,
-                        timestamp: Date.now()
-                    });
+                    item.status = 'done'; item.result = data; item.error = null;
+                    await saveToDB(item.filename, { result: data, thumb: item.thumb, timestamp: Date.now() });
                 }
-
-            } catch (error) {
+            } catch (err) {
                 item.status = 'error';
-                if (error.message === 'INVALID_API_KEY') {
+                if (err.message === 'INVALID_API_KEY') {
                     item.error = "Invalid API Key";
-                    appState.isProcessing = false; 
-                    showToast('Invalid API Key. Please check settings.', 'error');
-                } else {
-                    item.error = error.message || "Unknown error occurred";
-                }
+                    appState.isProcessing = false;
+                    showToast('Invalid API Key', 'error');
+                } else item.error = err.message || "Unknown error";
             }
-
-            renderQueue();
-            updateResultsUI();
+            renderQueue(); updateResultsUI();
         };
 
-        els.btnGenerate.addEventListener('click', async () => {
+        document.getElementById('btn-generate').addEventListener('click', async () => {
             if (appState.isProcessing) return;
-            appState.isProcessing = true;
-            updateGenerateButton();
-
+            appState.isProcessing = true; updateGenerateButton();
             for (let i = 0; i < appState.queue.length; i++) {
                 if (!appState.isProcessing) break;
-                if (appState.queue[i].status === 'waiting' || appState.queue[i].status === 'error') {
-                    await processFile(i);
-                }
+                if (['waiting','error'].includes(appState.queue[i].status)) await processFile(i);
             }
-
-            appState.isProcessing = false;
-            updateGenerateButton();
+            appState.isProcessing = false; updateGenerateButton();
             showToast('Processing complete', 'success');
         });
 
-        const escapeHtml = (unsafe) => {
-            return (unsafe || "").toString()
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+        const esc = (u) => (u || "").toString().replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+
+        window.copyText = (el) => {
+            const t = el.getAttribute('data-copy');
+            const ta = document.createElement("textarea");
+            ta.value = t; document.body.appendChild(ta); ta.select();
+            try { document.execCommand('copy'); showToast('Copied', 'success'); } catch(e) { showToast('Copy failed', 'error'); }
+            document.body.removeChild(ta);
         };
 
-        window.copyText = (buttonElem) => {
-            const textToCopy = buttonElem.getAttribute('data-copy');
-            const textArea = document.createElement("textarea");
-            textArea.value = textToCopy;
-            document.body.appendChild(textArea);
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                showToast('Copied to clipboard', 'success');
-            } catch (err) {
-                showToast('Failed to copy', 'error');
-            }
-            document.body.removeChild(textArea);
-        };
-
-        const createCell = (text, maxWidth, badgeHtml = '') => {
-            const safeText = String(text || '');
-            const escapedHTML = escapeHtml(safeText);
-            return `<td class="px-4 py-2 border-r border-gray-800 relative group max-w-[${maxWidth}]">
+        const cell = (txt, w, badge = '') => {
+            const s = String(txt || '');
+            const h = esc(s);
+            return `<td class="px-4 py-2 border-r border-gray-800 relative group max-w-[${w}]">
                 <div class="flex justify-between items-center gap-2 h-full">
-                    <div class="truncate flex-1 flex items-center gap-2 min-w-0" title="${escapedHTML}">
-                        <span class="truncate block text-sm text-gray-200">${escapedHTML}</span>
-                        ${badgeHtml}
+                    <div class="truncate flex-1 flex items-center gap-2 min-w-0" title="${h}">
+                        <span class="truncate block text-sm text-gray-200">${h}</span>${badge}
                     </div>
-                    <button class="copy-btn opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-white shrink-0 p-1 bg-gray-700/50 hover:bg-blue-600 rounded" data-copy="${escapedHTML}" onclick="copyText(this)" title="Copy text">
+                    <button class="copy-btn opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-white shrink-0 p-1 bg-gray-700/50 hover:bg-blue-600 rounded" data-copy="${h}" onclick="copyText(this)">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                     </button>
                 </div>
             </td>`;
         };
 
-        const getKeywordBadge = (result, platform) => {
-            const kws = result.keywords || [];
-            let displayCount = kws.length;
-            
-            if (platform === 'magnific' && document.getElementById('toggle-ai').checked) {
-                let temp = kws.filter(k => k !== '_ai_generated').slice(0, 49);
-                displayCount = temp.length + 1;
-            } else {
-                displayCount = Math.min(kws.length, 50);
-            }
-
-            let color = displayCount === 50 ? 'bg-green-500' : (displayCount >= 40 ? 'bg-yellow-500' : 'bg-red-500');
-            return `<span class="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[10px] font-bold text-white shadow-sm ${color} leading-none shrink-0" style="height: 18px;" title="Keyword Count">${displayCount}/50</span>`;
+        const kwBadge = (r, p) => {
+            const k = r.keywords || [];
+            let c = k.length;
+            if (p === 'magnific' && document.getElementById('toggle-ai').checked) {
+                let t = k.filter(x => x !== '_ai_generated').slice(0, 49); c = t.length + 1;
+            } else c = Math.min(k.length, 50);
+            const col = c === 50 ? 'bg-green-500' : c >= 40 ? 'bg-yellow-500' : 'bg-red-500';
+            return `<span class="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[10px] font-bold text-white ${col} leading-none shrink-0" style="height:18px;">${c}/50</span>`;
         };
 
-        const getKeywords = (result, platform) => {
-            let kw = [...(result.keywords || [])];
-            const isAI = document.getElementById('toggle-ai').checked;
-            
-            if (platform === 'magnific' && isAI) {
-                kw = kw.filter(k => k !== '_ai_generated');
-                kw = kw.slice(0, 49);
-                kw.push('_ai_generated');
-            } else {
-                kw = kw.slice(0, 50);
-            }
-            return kw.join(',');
+        const getKw = (r, p) => {
+            let k = [...(r.keywords || [])];
+            const ai = document.getElementById('toggle-ai').checked;
+            if (p === 'magnific' && ai) { k = k.filter(x => x !== '_ai_generated').slice(0, 49); k.push('_ai_generated'); }
+            else k = k.slice(0, 50);
+            return k.join(',');
         };
 
         const updateResultsUI = () => {
-            const doneItems = appState.queue.filter(i => i.status === 'done' && i.result);
-            
-            document.getElementById('table-adobe').innerHTML = doneItems.map(i => `
-                <tr class="hover:bg-gray-800/50">
-                    ${createCell(i.filename, '150px')}
-                    ${createCell(i.result.adobe_title, '200px')}
-                    ${createCell(getKeywords(i.result, 'adobe'), '300px', getKeywordBadge(i.result, 'adobe'))}
-                    ${createCell(i.result.adobe_cat, '150px')}
-                </tr>
-            `).join('');
-
-            document.getElementById('table-shutterstock').innerHTML = doneItems.map(i => {
-                const cats = [i.result.ss_cat, i.result.ss_cat2].filter(Boolean).join(',');
-                return `<tr class="hover:bg-gray-800/50">
-                    ${createCell(i.filename, '150px')}
-                    ${createCell(i.result.ss_desc, '250px')}
-                    ${createCell(getKeywords(i.result, 'shutterstock'), '250px', getKeywordBadge(i.result, 'shutterstock'))}
-                    ${createCell(cats, '150px')}
-                </tr>`;
+            const done = appState.queue.filter(i => i.status === 'done' && i.result);
+            document.getElementById('table-adobe').innerHTML = done.map(i => `<tr class="hover:bg-gray-800/50">${cell(i.filename,'150px')}${cell(i.result.adobe_title,'200px')}${cell(getKw(i.result,'adobe'),'300px',kwBadge(i.result,'adobe'))}${cell(i.result.adobe_cat,'150px')}</tr>`).join('');
+            document.getElementById('table-shutterstock').innerHTML = done.map(i => {
+                const c = [i.result.ss_cat, i.result.ss_cat2].filter(Boolean).join(',');
+                return `<tr class="hover:bg-gray-800/50">${cell(i.filename,'150px')}${cell(i.result.ss_desc,'250px')}${cell(getKw(i.result,'shutterstock'),'250px',kwBadge(i.result,'shutterstock'))}${cell(c,'150px')}</tr>`;
             }).join('');
-
-            document.getElementById('table-vecteezy').innerHTML = doneItems.map(i => `
-                <tr class="hover:bg-gray-800/50">
-                    ${createCell(i.filename, '150px')}
-                    ${createCell(i.result.vz_title, '150px')}
-                    ${createCell(i.result.vz_desc, '200px')}
-                    ${createCell(getKeywords(i.result, 'vecteezy'), '200px', getKeywordBadge(i.result, 'vecteezy'))}
-                    ${createCell(i.result.vz_cat, '150px')}
-                </tr>
-            `).join('');
-
-            document.getElementById('table-magnific').innerHTML = doneItems.map(i => `
-                <tr class="hover:bg-gray-800/50">
-                    ${createCell(i.filename, '150px')}
-                    ${createCell(i.result.mg_title, '200px')}
-                    ${createCell(getKeywords(i.result, 'magnific'), '300px', getKeywordBadge(i.result, 'magnific'))}
-                    ${createCell(i.result.mg_type, '150px')}
-                </tr>
-            `).join('');
-
-            document.getElementById('table-pond5').innerHTML = doneItems.map(i => `
-                <tr class="hover:bg-gray-800/50">
-                    ${createCell(i.filename, '150px')}
-                    ${createCell(i.result.p5_title, '150px')}
-                    ${createCell(i.result.p5_desc, '200px')}
-                    ${createCell(getKeywords(i.result, 'pond5'), '200px', getKeywordBadge(i.result, 'pond5'))}
-                    ${createCell(i.result.p5_cat, '150px')}
-                </tr>
-            `).join('');
-
-            let allErrors = [];
-            let totalIssuesCount = 0;
-            
+            document.getElementById('table-vecteezy').innerHTML = done.map(i => `<tr class="hover:bg-gray-800/50">${cell(i.filename,'150px')}${cell(i.result.vz_title,'150px')}${cell(i.result.vz_desc,'200px')}${cell(getKw(i.result,'vecteezy'),'200px',kwBadge(i.result,'vecteezy'))}${cell(i.result.vz_cat,'150px')}</tr>`).join('');
+            document.getElementById('table-magnific').innerHTML = done.map(i => `<tr class="hover:bg-gray-800/50">${cell(i.filename,'150px')}${cell(i.result.mg_title,'200px')}${cell(getKw(i.result,'magnific'),'300px',kwBadge(i.result,'magnific'))}${cell(i.result.mg_type,'150px')}</tr>`).join('');
+            document.getElementById('table-pond5').innerHTML = done.map(i => `<tr class="hover:bg-gray-800/50">${cell(i.filename,'150px')}${cell(i.result.p5_title,'150px')}${cell(i.result.p5_desc,'200px')}${cell(getKw(i.result,'pond5'),'200px',kwBadge(i.result,'pond5'))}${cell(i.result.p5_cat,'150px')}</tr>`).join('');
+            let errs = [], tot = 0;
             appState.queue.forEach(i => {
-                if (i.validationErrors && i.validationErrors.length > 0) {
-                    allErrors.push({ file: i.filename, errors: i.validationErrors });
-                    totalIssuesCount += i.validationErrors.length;
-                }
+                if (i.validationErrors?.length) { errs.push({ file: i.filename, errors: i.validationErrors }); tot += i.validationErrors.length; }
             });
-            
-            if (allErrors.length > 0) {
-                els.validationBadge.textContent = totalIssuesCount;
-                els.validationBadge.classList.remove('hidden');
-                els.validationList.innerHTML = allErrors.map(e => `
-                    <div class="bg-red-900/20 border border-red-900/50 rounded p-3">
-                        <p class="text-sm font-medium text-red-400 mb-1">${e.file}</p>
-                        <ul class="list-disc list-inside text-xs text-gray-400 space-y-1">
-                            ${e.errors.map(err => `<li>${err}</li>`).join('')}
-                        </ul>
-                    </div>
-                `).join('');
+            const b = document.getElementById('validation-badge');
+            if (errs.length) {
+                b.textContent = tot; b.classList.remove('hidden');
+                document.getElementById('validation-list').innerHTML = errs.map(e => `<div class="bg-red-900/20 border border-red-900/50 rounded p-3"><p class="text-sm font-medium text-red-400 mb-1">${e.file}</p><ul class="list-disc list-inside text-xs text-gray-400 space-y-1">${e.errors.map(x => `<li>${x}</li>`).join('')}</ul></div>`).join('');
             } else {
-                els.validationBadge.classList.add('hidden');
-                els.validationList.innerHTML = '<div class="text-gray-500 text-sm text-center pt-8">No validation errors.</div>';
+                b.classList.add('hidden');
+                document.getElementById('validation-list').innerHTML = '<div class="text-gray-500 text-sm text-center pt-8">No validation errors.</div>';
             }
         };
 
-        const downloadCSV = (content, filename) => {
+        const download = (content, filename) => {
             const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', filename);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const l = document.createElement('a'); const u = URL.createObjectURL(blob);
+            l.setAttribute('href', u); l.setAttribute('download', filename); l.style.visibility = 'hidden';
+            document.body.appendChild(l); l.click(); document.body.removeChild(l);
         };
 
-        const escapeCSV = (str, delimiter = ',') => {
-            if (str === null || str === undefined) return '';
-            const s = String(str).replace(/"/g, '""');
-            const needsQuotes = new RegExp(`[${delimiter}"\\n\\r]`).test(s);
-            if (needsQuotes) return `"${s}"`;
-            return s;
+        const eC = (s, d = ',') => {
+            if (s === null || s === undefined) return '';
+            const x = String(s).replace(/"/g, '""');
+            return new RegExp(`[${d}"\\n\\r]`).test(x) ? `"${x}"` : x;
         };
 
         window.exportCSV = (platform) => {
-            const doneItems = appState.queue.filter(i => i.status === 'done' && i.result);
-            if (doneItems.length === 0) return showToast('No processed items to export.', 'error');
-
+            const done = appState.queue.filter(i => i.status === 'done' && i.result);
+            if (!done.length) return showToast('No processed items', 'error');
             showToast(`Exporting ${platform} CSV...`, 'info');
-
-            const isAI = document.getElementById('toggle-ai').checked;
-            const isEd = document.getElementById('toggle-editorial').checked;
-            let csv = '';
-            let ext = isAI ? '_ai' : '';
-
+            const ai = document.getElementById('toggle-ai').checked;
+            const ed = document.getElementById('toggle-editorial').checked;
+            let csv = '', ext = ai ? '_ai' : '';
             if (platform === 'adobe') {
                 csv = 'Filename,Title,Keywords,Category,Is generative AI\n';
-                doneItems.forEach(i => {
-                    let row = [i.filename, i.result.adobe_title, getKeywords(i.result, 'adobe'), i.result.adobe_cat, isAI ? 'yes' : 'no'];
-                    csv += row.map(v => escapeCSV(v)).join(',') + '\n';
-                });
-                downloadCSV(csv, `adobe_stock${ext}.csv`);
-            }
-            else if (platform === 'shutterstock') {
+                done.forEach(i => { csv += [i.filename, i.result.adobe_title, getKw(i.result,'adobe'), i.result.adobe_cat, ai ? 'yes' : 'no'].map(v => eC(v)).join(',') + '\n'; });
+                download(csv, `adobe_stock${ext}.csv`);
+            } else if (platform === 'shutterstock') {
                 csv = 'Filename,Description,Keywords,Categories,Editorial,Mature content,illustration\n';
-                doneItems.forEach(i => {
-                    const cats = [i.result.ss_cat, i.result.ss_cat2].filter(Boolean).join(',');
-                    const isVector = i.filename.toLowerCase().match(/\.(eps|ai|svg)$/) ? 'yes' : 'no';
-                    let row = [i.filename, i.result.ss_desc, getKeywords(i.result, 'shutterstock'), cats, isEd ? 'yes' : 'no', 'no', isVector];
-                    csv += row.map(v => escapeCSV(v)).join(',') + '\n';
+                done.forEach(i => {
+                    const c = [i.result.ss_cat, i.result.ss_cat2].filter(Boolean).join(',');
+                    const isVec = i.filename.toLowerCase().match(/\.(eps|ai|svg)$/) ? 'yes' : 'no';
+                    csv += [i.filename, i.result.ss_desc, getKw(i.result,'shutterstock'), c, ed ? 'yes' : 'no', 'no', isVec].map(v => eC(v)).join(',') + '\n';
                 });
-                downloadCSV(csv, `shutterstock${ext}.csv`);
-            }
-            else if (platform === 'vecteezy') {
+                download(csv, `shutterstock${ext}.csv`);
+            } else if (platform === 'vecteezy') {
                 csv = 'Filename,Title,Description,Keywords\n';
-                doneItems.forEach(i => {
-                    let row = [i.filename, i.result.vz_title, i.result.vz_desc, getKeywords(i.result, 'vecteezy')];
-                    csv += row.map(v => escapeCSV(v)).join(',') + '\n';
+                done.forEach(i => { csv += [i.filename, i.result.vz_title, i.result.vz_desc, getKw(i.result,'vecteezy')].map(v => eC(v)).join(',') + '\n'; });
+                download(csv, `vecteezy${ext}.csv`);
+            } else if (platform === 'magnific') {
+                const p = document.getElementById('ai-prompt-text').value.trim() || "";
+                const m = document.getElementById('ai-model-name').value.trim() || "";
+                csv = 'filename;title;keywords' + (ai ? ';prompt;model' : '') + '\n';
+                done.forEach(i => {
+                    let r = [i.filename, i.result.mg_title, getKw(i.result,'magnific')];
+                    if (ai) { r.push(p); r.push(m); }
+                    csv += r.map(v => eC(v, ';')).join(';') + '\n';
                 });
-                downloadCSV(csv, `vecteezy${ext}.csv`);
-            }
-            else if (platform === 'magnific') {
-                const aiPrompt = document.getElementById('ai-prompt-text').value.trim() || "";
-                const aiModel = document.getElementById('ai-model-name').value.trim() || "";
-                csv = 'filename;title;keywords' + (isAI ? ';prompt;model' : '') + '\n';
-                doneItems.forEach(i => {
-                    let row = [i.filename, i.result.mg_title, getKeywords(i.result, 'magnific')];
-                    if (isAI) { row.push(aiPrompt); row.push(aiModel); }
-                    csv += row.map(v => escapeCSV(v, ';')).join(';') + '\n';
-                });
-                downloadCSV(csv, `magnific${ext}.csv`);
-            }
-            else if (platform === 'pond5') {
+                download(csv, `magnific${ext}.csv`);
+            } else if (platform === 'pond5') {
                 csv = 'originalfilename,title,description,keywords,copyright,location,price,pricelarge,priceweb,setpriceforme,aspectratio,specifysource,datecreated,containsaudio,cameraspeed,curatornote,PrimaryCategory\n';
-                doneItems.forEach(i => {
-                    let row = [i.filename, i.result.p5_title, i.result.p5_desc, getKeywords(i.result, 'pond5'), '', '', '', '', '', '', '', '', '', '', '', '', i.result.p5_cat];
-                    csv += row.map(v => escapeCSV(v)).join(',') + '\n';
+                done.forEach(i => {
+                    csv += [i.filename, i.result.p5_title, i.result.p5_desc, getKw(i.result,'pond5'), '', '', '', '', '', '', '', '', '', '', '', '', i.result.p5_cat].map(v => eC(v)).join(',') + '\n';
                 });
-                downloadCSV(csv, `pond5${ext}.csv`);
+                download(csv, `pond5${ext}.csv`);
             }
         };
 
-        const initApp = async () => {
+        (async () => {
             loadSettings();
             try {
                 await initDB();
-                const pastResults = await loadFromDB();
-                if (pastResults && pastResults.length > 0) {
-                    appState.queue = pastResults.map(p => ({
-                        id: generateId(),
-                        filename: p.filename,
-                        type: 'unknown',
-                        status: 'done',
-                        progress: 100,
-                        size: 0,
-                        result: p.result,
-                        thumb: p.thumb,
-                        error: null,
-                        validationErrors: []
-                    }));
-                    renderQueue();
-                    updateResultsUI();
-                    showToast(`Restored ${pastResults.length} previous results.`, 'info');
+                const past = await loadFromDB();
+                if (past && past.length > 0) {
+                    appState.queue = past.map(p => ({ id: genId(), filename: p.filename, type: 'unknown', status: 'done', progress: 100, size: 0, result: p.result, thumb: p.thumb, error: null, validationErrors: [] }));
+                    renderQueue(); updateResultsUI();
+                    showToast(`Restored ${past.length} results`, 'info');
                 }
-            } catch (e) {
-                console.error("DB Init failed:", e);
-                showToast("Local storage unavailable for persistence.", "error");
-            }
-        };
-
-        window.onload = initApp;
-
+            } catch (e) { console.error(e); }
+            updateGenerateButton();
+        })();
     </script>
 </body>
 </html>
