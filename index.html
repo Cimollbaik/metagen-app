@@ -109,9 +109,7 @@
                     <h3 class="text-sm font-medium text-gray-400">Queue (<span id="queue-count">0</span>)</h3>
                     <button id="btn-clear-queue" class="text-xs text-red-400 hover:text-red-300">Clear Queue</button>
                 </div>
-                <div id="queue-list" class="flex-1 overflow-y-auto custom-scrollbar px-4 pb-4 space-y-2">
-                    <div id="queue-empty-state" class="text-center text-gray-600 text-sm py-8">Queue is empty</div>
-                </div>
+                <div id="queue-list" class="flex-1 overflow-y-auto custom-scrollbar px-4 pb-4 space-y-2"></div>
             </div>
 
             <div class="h-1/2 flex flex-col bg-gray-900">
@@ -337,6 +335,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             const ce = document.getElementById('cost-estimate');
             if (pending > 0 && hasKey) { ce.classList.remove('hidden'); ce.textContent = `Est: ${pending} API calls`; }
             else ce.classList.add('hidden');
+            console.log('[MetaGen] updateGenerateButton: hasKey=' + hasKey + ' pending=' + pending + ' disabled=' + btn.disabled);
         };
         window.updateGenerateButton = updateGenerateButton;
 
@@ -352,6 +351,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             if (k.length > 20) appState.isApiValid = true;
             updateApiStatus(k);
             toggleMagnificSettings();
+            updateGenerateButton();
         };
 
         const saveSettings = () => {
@@ -493,6 +493,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
         });
 
         const handleFiles = async (files) => {
+            console.log('[MetaGen] handleFiles called with', files.length, 'files');
             const groups = {};
             for (let i = 0; i < files.length; i++) {
                 const f = files[i];
@@ -502,7 +503,9 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 const stem = f.name.substring(0, ld);
                 if (!groups[stem]) groups[stem] = {};
                 groups[stem][ext] = f;
+                console.log('[MetaGen] file:', f.name, '→ stem:', stem, 'ext:', ext);
             }
+            console.log('[MetaGen] groups:', Object.keys(groups).length);
             for (const stem in groups) {
                 const g = groups[stem];
                 const vEx = ['eps','ai','psd'].find(e => g[e]);
@@ -528,8 +531,12 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             let mx = 20 * 1024 * 1024, lbl = "Image";
             if (isV) { mx = 500 * 1024 * 1024; lbl = "Video"; }
             else if (isVec || isSvg) { mx = 100 * 1024 * 1024; lbl = "Vector"; }
-            if (tf.size > mx) return showToast(`${tf.name} exceeds ${mx/(1024*1024)}MB (${lbl})`, 'error');
-            if (appState.queue.find(q => q.filename === tf.name)) return;
+            if (tf.size > mx) { showToast(`${tf.name} exceeds ${mx/(1024*1024)}MB (${lbl})`, 'error'); return; }
+            if (appState.queue.find(q => q.filename === tf.name)) {
+                console.log('[MetaGen] Skipping duplicate:', tf.name);
+                showToast(`${tf.name} sudah ada di queue (duplikat di-skip)`, 'info');
+                return;
+            }
             let ft = 'image';
             if (isV) ft = 'video'; else if (isVec) ft = 'vector';
             appState.queue.push({
@@ -537,15 +544,18 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 type: ft, status: 'waiting', progress: 0, size: tf.size,
                 result: null, error: null, thumb: null, validationErrors: []
             });
+            console.log('[MetaGen] Added:', tf.name, '| queue size:', appState.queue.length);
             renderQueue();
+            updateGenerateButton();
         };
 
         const renderQueue = () => {
             document.getElementById('queue-count').textContent = appState.queue.length;
             const list = document.getElementById('queue-list');
-            const empty = document.getElementById('queue-empty-state');
-            if (appState.queue.length === 0) { empty.style.display = 'block'; list.innerHTML = ''; return; }
-            empty.style.display = 'none';
+            if (appState.queue.length === 0) {
+                list.innerHTML = '<div class="text-center text-gray-600 text-sm py-8">Queue is empty</div>';
+                return;
+            }
             list.innerHTML = appState.queue.map(item => `
                 <div class="bg-gray-800 rounded-lg p-3 flex items-center gap-3 border border-gray-700 ${item.status === 'error' ? 'border-red-900/50' : item.status === 'done' ? 'border-green-900/50' : ''}">
                     <div class="w-10 h-10 rounded bg-gray-900 shrink-0 overflow-hidden border border-gray-700">
