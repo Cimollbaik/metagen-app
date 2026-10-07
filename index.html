@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MicroStock MetaGen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { gray: { 850: '#1f2937', 900: '#111827', 950: '#030712' } }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #030712; color: #f3f4f6; }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1f2937; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .dropzone-active { border-color: #3b82f6; background-color: rgba(59, 130, 246, 0.1); }
+        .btn-generate { background-size: 200% auto; transition: 0.5s; }
+        .btn-generate:hover:not(:disabled) { background-position: right center; }
+        .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
+        @media (hover: none) { .copy-btn { opacity: 1 !important; } }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <header class="border-b border-gray-800 bg-gray-900/50 backdrop-blur-md px-6 py-4 flex items-center justify-between shrink-0 z-10">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold text-white shadow-lg">M</div>
+            <h1 class="text-xl font-semibold tracking-tight">MicroStock MetaGen</h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <span id="api-status" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-red-900/30 text-red-400 border border-red-800/50">
+                <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Missing API Key
+            </span>
+            <button id="btn-clear-data" class="text-sm text-gray-400 hover:text-white transition-colors">Reset All Data</button>
+        </div>
+    </header>
+
+    <main class="flex-1 flex overflow-hidden">
+        <aside class="w-80 border-r border-gray-800 bg-gray-900 overflow-y-auto custom-scrollbar flex flex-col shrink-0">
+            <div class="p-6 space-y-6">
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-sm font-medium text-gray-300">Gemini API Key</label>
+                        <button id="btn-test-key" class="text-xs text-blue-400 hover:text-blue-300 bg-blue-900/30 px-2 py-0.5 rounded border border-blue-800/50 transition-colors">Test Key</button>
+                    </div>
+                    <input type="password" id="api-key" placeholder="AIzaSy..." class="w-full bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                    <p class="text-xs text-gray-500">Stored locally in your browser.</p>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-300">AI Model</label>
+                    <select id="model-select" class="w-full bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-all">
+                        <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite (Fast/Stable)</option>
+                        <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</option>
+                        <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-300">Global Context (Optional)</label>
+                    <textarea id="global-context" rows="3" placeholder="e.g., 'Flat vector illustration style, vibrant colors' - applied to all items" class="w-full bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-all custom-scrollbar resize-none"></textarea>
+                </div>
+
+                <div class="space-y-4 pt-2 border-t border-gray-800">
+                    <label class="flex items-center justify-between cursor-pointer group">
+                        <span class="text-sm text-gray-300 group-hover:text-white transition-colors">All assets are AI-generated</span>
+                        <div class="relative">
+                            <input type="checkbox" id="toggle-ai" class="sr-only peer">
+                            <div class="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
+                        </div>
+                    </label>
+                    <label class="flex items-center justify-between cursor-pointer group">
+                        <span class="text-sm text-gray-300 group-hover:text-white transition-colors">All assets are Editorial</span>
+                        <div class="relative">
+                            <input type="checkbox" id="toggle-editorial" class="sr-only peer">
+                            <div class="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
+                        </div>
+                    </label>
+                </div>
+
+                <div id="ai-magnific-settings" class="space-y-3 pt-2 border-t border-gray-800 transition-opacity">
+                    <label class="block text-sm font-medium text-gray-300">Magnific AI Settings (Export)</label>
+                    <input type="text" id="ai-model-name" placeholder="AI Model Name (e.g. Midjourney v6)" class="w-full bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-all">
+                    <textarea id="ai-prompt-text" rows="2" placeholder="AI Prompt used..." class="w-full bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-all custom-scrollbar resize-none"></textarea>
+                </div>
+
+                <div class="pt-4">
+                    <button id="btn-generate" disabled class="btn-generate w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white font-medium py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transition-all">
+                        Generate Metadata
+                    </button>
+                    <p id="cost-estimate" class="text-center text-xs text-gray-500 mt-2 hidden">Est: 0 API calls</p>
+                </div>
+            </div>
+        </aside>
+
+        <div class="flex-1 flex flex-col min-w-0 bg-gray-950">
+            <div class="h-1/2 border-b border-gray-800 flex flex-col">
+                <div id="dropzone" class="m-4 border-2 border-dashed border-gray-700 rounded-xl flex-1 flex flex-col items-center justify-center p-6 text-center transition-all bg-gray-900/50 hover:bg-gray-900 cursor-pointer relative overflow-hidden group">
+                    <input type="file" id="file-input" multiple accept="image/jpeg, image/png, image/webp, image/gif, video/mp4, video/quicktime, image/svg+xml, .eps, .ai, .psd" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                    <div class="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                    </div>
+                    <p class="text-lg font-medium text-gray-300">Drag & drop files here</p>
+                    <p class="text-sm text-gray-500 mt-2">Supports JPG, PNG, WEBP, MP4, MOV, SVG</p>
+                    <p class="text-xs text-gray-600 mt-1">EPS/AI/PSD require a matching JPG/PNG preview uploaded together</p>
+                </div>
+
+                <div class="px-4 pb-2 flex justify-between items-center shrink-0">
+                    <h3 class="text-sm font-medium text-gray-400">Queue (<span id="queue-count">0</span>)</h3>
+                    <button id="btn-clear-queue" class="text-xs text-red-400 hover:text-red-300">Clear Queue</button>
+                </div>
+                <div id="queue-list" class="flex-1 overflow-y-auto custom-scrollbar px-4 pb-4 space-y-2">
+                    <div id="queue-empty-state" class="text-center text-gray-600 text-sm py-8">Queue is empty</div>
+                </div>
+            </div>
+
+            <div class="h-1/2 flex flex-col bg-gray-900">
+                <div id="tabs-header" class="flex border-b border-gray-800 shrink-0 px-2 overflow-x-auto custom-scrollbar pt-2">
+                    <button data-tab="tab-adobe" class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-blue-500 text-white">Adobe Stock</button>
+                    <button data-tab="tab-shutterstock" class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400">Shutterstock</button>
+                    <button data-tab="tab-vecteezy" class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400">Vecteezy</button>
+                    <button data-tab="tab-magnific" class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400">Magnific</button>
+                    <button data-tab="tab-pond5" class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400">Pond5</button>
+                    <button data-tab="tab-validation" class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400">⚠️ Validation <span id="validation-badge" class="hidden ml-1 bg-red-500 text-white text-[10px] px-1.5 rounded-full">0</span></button>
+                </div>
+
+                <div class="flex-1 overflow-hidden relative">
+                    <div id="tab-adobe" class="tab-content active h-full flex flex-col">
+                        <div class="p-2 border-b border-gray-800 flex justify-end shrink-0">
+                            <button onclick="exportCSV('adobe')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded shadow transition-colors">Export Adobe CSV</button>
+                        </div>
+                        <div class="flex-1 overflow-auto custom-scrollbar"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-gray-800/50 text-gray-400 sticky top-0 z-10"><tr><th class="px-4 py-2 font-medium">Filename</th><th class="px-4 py-2 font-medium">Title</th><th class="px-4 py-2 font-medium">Keywords</th><th class="px-4 py-2 font-medium">Category</th></tr></thead><tbody id="table-adobe" class="divide-y divide-gray-800"></tbody></table></div>
+                    </div>
+                    <div id="tab-shutterstock" class="tab-content h-full flex flex-col">
+                        <div class="p-2 border-b border-gray-800 flex justify-end shrink-0">
+                            <button onclick="exportCSV('shutterstock')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded shadow transition-colors">Export Shutterstock CSV</button>
+                        </div>
+                        <div class="flex-1 overflow-auto custom-scrollbar"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-gray-800/50 text-gray-400 sticky top-0 z-10"><tr><th class="px-4 py-2 font-medium">Filename</th><th class="px-4 py-2 font-medium">Description</th><th class="px-4 py-2 font-medium">Keywords</th><th class="px-4 py-2 font-medium">Categories</th></tr></thead><tbody id="table-shutterstock" class="divide-y divide-gray-800"></tbody></table></div>
+                    </div>
+                    <div id="tab-vecteezy" class="tab-content h-full flex flex-col">
+                        <div class="p-2 border-b border-gray-800 flex justify-end shrink-0">
+                            <button onclick="exportCSV('vecteezy')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded shadow transition-colors">Export Vecteezy CSV</button>
+                        </div>
+                        <div class="flex-1 overflow-auto custom-scrollbar"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-gray-800/50 text-gray-400 sticky top-0 z-10"><tr><th class="px-4 py-2 font-medium">Filename</th><th class="px-4 py-2 font-medium">Title</th><th class="px-4 py-2 font-medium">Description</th><th class="px-4 py-2 font-medium">Keywords</th><th class="px-4 py-2 font-medium">Category</th></tr></thead><tbody id="table-vecteezy" class="divide-y divide-gray-800"></tbody></table></div>
+                    </div>
+                    <div id="tab-magnific" class="tab-content h-full flex flex-col">
+                        <div class="p-2 border-b border-gray-800 flex justify-end shrink-0">
+                            <button onclick="exportCSV('magnific')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded shadow transition-colors">Export Magnific CSV</button>
+                        </div>
+                        <div class="flex-1 overflow-auto custom-scrollbar"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-gray-800/50 text-gray-400 sticky top-0 z-10"><tr><th class="px-4 py-2 font-medium">Filename</th><th class="px-4 py-2 font-medium">Title</th><th class="px-4 py-2 font-medium">Keywords</th><th class="px-4 py-2 font-medium">Type</th></tr></thead><tbody id="table-magnific" class="divide-y divide-gray-800"></tbody></table></div>
+                    </div>
+                    <div id="tab-pond5" class="tab-content h-full flex flex-col">
+                        <div class="p-2 border-b border-gray-800 flex justify-end shrink-0">
+                            <button onclick="exportCSV('pond5')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded shadow transition-colors">Export Pond5 CSV</button>
+                        </div>
+                        <div class="flex-1 overflow-auto custom-scrollbar"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-gray-800/50 text-gray-400 sticky top-0 z-10"><tr><th class="px-4 py-2 font-medium">Filename</th><th class="px-4 py-2 font-medium">Title</th><th class="px-4 py-2 font-medium">Description</th><th class="px-4 py-2 font-medium">Keywords</th><th class="px-4 py-2 font-medium">Category</th></tr></thead><tbody id="table-pond5" class="divide-y divide-gray-800"></tbody></table></div>
+                    </div>
+                    <div id="tab-validation" class="tab-content h-full flex flex-col">
+                        <div class="flex-1 overflow-auto custom-scrollbar p-4 space-y-3" id="validation-list">
+                            <div class="text-gray-500 text-sm text-center pt-8">No validation errors.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <canvas id="processing-canvas" class="hidden"></canvas>
+    
+    <div id="toast" class="fixed bottom-4 right-4 bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded shadow-xl transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-2">
+        <span id="toast-icon">ℹ️</span>
+        <span id="toast-message" class="text-sm">Notification</span>
+    </div>
+
+    <script type="module">
+        import { GoogleGenAI, Type } from 'https://esm.run/@google/genai';
+
+        const ADOBE_CATS = ["Animals","Buildings and architecture","Business","Drinks","The environment","States of mind","Food","Graphic resources","Hobbies and leisure","Industry","Landscape","Lifestyle","People","Plants and flowers","Culture and religion","Science","Social issues","Sports","Technology","Transport","Travel"];
+        const SS_CATS = ["Abstract","Animals/Wildlife","The Arts","Backgrounds/Textures","Beauty/Fashion","Buildings/Landmarks","Business/Finance","Celebrities","Education","Food and Drink","Healthcare/Medical","Holidays","Industrial","Interiors","Miscellaneous","Nature","Objects","Parks/Outdoor","People","Religion","Science","Signs/Symbols","Sports/Recreation","Technology","Transportation","Vintage"];
+        const VZ_CATS = ["Animals and Plants","Activity and Events","Composition","Food and Drink","Location","Objects and Colors","People"];
+        const MG_TYPES = ["Photo","Vector","PSD","Mockup","AI Image"];
+        const P5_CATS = ["abstract","aerials","alpha channel/greenscreen","archival","animation","animals/wildlife","buildings and monuments","business","celebrities","current events","education","food and drink","healthcare/medical","industry","landscapes","lifestyle","medical & health","nature","people","religion","science","sports","technology","transportation","vintage","other"];
+
+        const RESPONSE_SCHEMA = {
+            type: Type.OBJECT,
+            properties: {
+                keywords: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Exactly 50 unique keywords, comma separated equivalent. Lowercase." },
+                adobe_title: { type: Type.STRING, description: "Max 70 chars." },
+                adobe_cat: { type: Type.STRING, description: "Must exactly match one from adobe list provided." },
+                ss_desc: { type: Type.STRING, description: "Max 2048 chars." },
+                ss_cat: { type: Type.STRING, description: "Must exactly match one from ss list." },
+                ss_cat2: { type: Type.STRING, description: "Optional secondary category from ss list. Can be empty." },
+                vz_title: { type: Type.STRING },
+                vz_desc: { type: Type.STRING },
+                vz_cat: { type: Type.STRING },
+                mg_title: { type: Type.STRING, description: "35-100 chars, no extensions, no dates." },
+                mg_desc: { type: Type.STRING },
+                mg_type: { type: Type.STRING },
+                p5_title: { type: Type.STRING, description: "40-80 chars." },
+                p5_desc: { type: Type.STRING },
+                p5_cat: { type: Type.STRING }
+            },
+            required: ["keywords", "adobe_title", "adobe_cat", "ss_desc", "ss_cat", "vz_title", "vz_desc", "vz_cat", "mg_title", "mg_type", "p5_title", "p5_desc", "p5_cat"]
+        };
+
+        const PROMPT_BASE = `You are a senior microstock SEO expert. Look carefully at the attached image(s) (frames of ONE asset) and describe ONLY what is clearly visible. The file name is meaningless: never use it. Never invent brands, trademarks, real names, places or dates.
+
+Rules:
+- English only. Accurate, relevant, no keyword spam, no trademarks, no personal info.
+- If identifiable faces, children, brand logos, or copyrighted property are visible, mention briefly in ss_desc and add tags "_model_release_needed" or "_property_release_needed" at end of keywords.
+
+keywords: exactly 50 (min 48), ordered by importance. Top 10 = main visual elements. Include at least 5 abstract concepts. Include shot type/style if relevant. Include dominant colors. Lowercase, no plural duplicates.
+adobe_title: max 70 chars, clear.
+ss_desc: one natural descriptive sentence.
+mg_title: 35-100 chars. NO file types/digits.
+p5_title: 40-80 chars (+ HD/4K if video).
+
+Categories MUST be exact matches from these lists:
+adobe_cat: ${JSON.stringify(ADOBE_CATS)}
+ss_cat and ss_cat2: ${JSON.stringify(SS_CATS)}
+vz_cat: ${JSON.stringify(VZ_CATS)}
+mg_type: ${JSON.stringify(MG_TYPES)}
+p5_cat: ${JSON.stringify(P5_CATS)}`;
+
+        let appState = {
+            queue: [],
+            isProcessing: false,
+            db: null,
+            isApiValid: false
+        };
+
+        const initDB = () => {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('MicroStockMetaGenDB', 1);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = (e) => { appState.db = e.target.result; resolve(); };
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains('results')) {
+                        db.createObjectStore('results', { keyPath: 'filename' });
+                    }
+                };
+            });
+        };
+
+        const saveToDB = async (filename, resultData) => {
+            if (!appState.db) return;
+            return new Promise((resolve, reject) => {
+                const tx = appState.db.transaction(['results'], 'readwrite');
+                tx.objectStore('results').put({ filename, ...resultData });
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
+        };
+
+        const loadFromDB = async () => {
+            if (!appState.db) return [];
+            return new Promise((resolve) => {
+                const request = appState.db.transaction(['results'], 'readonly').objectStore('results').getAll();
+                request.onsuccess = () => resolve(request.result);
+            });
+        };
+
+        const clearDB = async () => {
+            if (!appState.db) return;
+            return new Promise((resolve) => {
+                const tx = appState.db.transaction(['results'], 'readwrite');
+                tx.objectStore('results').clear();
+                tx.oncomplete = () => resolve();
+            });
+        };
+
+        const loadSettings = () => {
+            document.getElementById('api-key').value = localStorage.getItem('mmg_api_key') || '';
+            document.getElementById('model-select').value = localStorage.getItem('mmg_model') || 'gemini-3.1-flash-lite';
+            document.getElementById('global-context').value = localStorage.getItem('mmg_context') || '';
+            document.getElementById('toggle-ai').checked = localStorage.getItem('mmg_ai') === 'true';
+            document.getElementById('toggle-editorial').checked = localStorage.getItem('mmg_editorial') === 'true';
+            document.getElementById('ai-model-name').value = localStorage.getItem('mmg_ai_model_name') || '';
+            document.getElementById('ai-prompt-text').value = localStorage.getItem('mmg_ai_prompt_text') || '';
+            
+            const savedKey = document.getElementById('api-key').value.trim();
+            if (savedKey.length > 20) appState.isApiValid = true;
+            updateApiStatus(savedKey);
+            toggleMagnificSettings();
+        };
+
+        const saveSettings = () => {
+            localStorage.setItem('mmg_api_key', document.getElementById('api-key').value.trim());
+            localStorage.setItem('mmg_model', document.getElementById('model-select').value);
+            localStorage.setItem('mmg_context', document.getElementById('global-context').value);
+            localStorage.setItem('mmg_ai', document.getElementById('toggle-ai').checked);
+            localStorage.setItem('mmg_editorial', document.getElementById('toggle-editorial').checked);
+            localStorage.setItem('mmg_ai_model_name', document.getElementById('ai-model-name').value);
+            localStorage.setItem('mmg_ai_prompt_text', document.getElementById('ai-prompt-text').value);
+            
+            updateApiStatus(document.getElementById('api-key').value);
+            updateGenerateButton();
+            toggleMagnificSettings();
+        };
+
+        const toggleMagnificSettings = () => {
+            const aiSettings = document.getElementById('ai-magnific-settings');
+            if (document.getElementById('toggle-ai').checked) {
+                aiSettings.classList.remove('opacity-50', 'pointer-events-none');
+            } else {
+                aiSettings.classList.add('opacity-50', 'pointer-events-none');
+            }
+        };
+
+        const els = {
+            apiKey: document.getElementById('api-key'),
+            apiStatus: document.getElementById('api-status'),
+            dropzone: document.getElementById('dropzone'),
+            fileInput: document.getElementById('file-input'),
+            queueList: document.getElementById('queue-list'),
+            queueCount: document.getElementById('queue-count'),
+            emptyState: document.getElementById('queue-empty-state'),
+            btnGenerate: document.getElementById('btn-generate'),
+            costEstimate: document.getElementById('cost-estimate'),
+            validationList: document.getElementById('validation-list'),
+            validationBadge: document.getElementById('validation-badge')
+        };
+
+        // ===== TAB SWITCHING =====
+        // Event delegation di parent container - paling robust untuk semua browser
+        document.getElementById('tabs-header').addEventListener('click', (event) => {
+            const btn = event.target.closest('.tab-btn');
+            if (!btn) return;
+            const targetId = btn.getAttribute('data-tab');
+            if (!targetId) return;
+
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('border-blue-500', 'text-white');
+                b.classList.add('border-transparent', 'text-gray-400');
+            });
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            btn.classList.add('border-blue-500', 'text-white');
+            btn.classList.remove('border-transparent', 'text-gray-400');
+
+            const target = document.getElementById(targetId);
+            if (target) target.classList.add('active');
+        });
+
+        ['api-key', 'model-select', 'global-context', 'ai-model-name', 'ai-prompt-text'].forEach(id => {
+            document.getElementById(id).addEventListener('input', saveSettings);
+        });
+        ['toggle-ai', 'toggle-editorial'].forEach(id => {
+            document.getElementById(id).addEventListener('change', saveSettings);
+        });
+
+        els.dropzone.addEventListener('dragover', (e) => { e.preventDefault(); els.dropzone.classList.add('dropzone-active'); });
+        els.dropzone.addEventListener('dragleave', () => els.dropzone.classList.remove('dropzone-active'));
+        els.dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            els.dropzone.classList.remove('dropzone-active');
+            handleFiles(e.dataTransfer.files);
+        });
+        els.fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+        document.getElementById('btn-clear-queue').addEventListener('click', () => {
+            if (appState.isProcessing) return showToast('Cannot clear while processing', 'error');
+            appState.queue = [];
+            renderQueue();
+            updateGenerateButton();
+        });
+
+        document.getElementById('btn-clear-data').addEventListener('click', async () => {
+            if(confirm("Are you sure you want to clear all settings and processed results?")) {
+                localStorage.clear();
+                await clearDB();
+                location.reload();
+            }
+        });
+
+        document.getElementById('btn-test-key').addEventListener('click', async () => {
+            const key = els.apiKey.value.trim();
+            if (!key) return showToast('Enter API key first', 'error');
+            
+            const model = document.getElementById('model-select').value;
+            const ai = new GoogleGenAI({ apiKey: key });
+            
+            try {
+                showToast('Testing key...', 'info');
+                await ai.models.generateContent({
+                    model: model,
+                    contents: "Respond with exactly the word 'OK'."
+                });
+                showToast('API Key is valid!', 'success');
+                appState.isApiValid = true;
+                updateApiStatus(key, true);
+                updateGenerateButton();
+            } catch (e) {
+                showToast('API Key test failed: ' + e.message, 'error');
+                appState.isApiValid = false;
+                updateApiStatus(key, false);
+                updateGenerateButton();
+            }
+        });
+
+        const generateId = () => Math.random().toString(36).substr(2, 9);
+        const formatBytes = (bytes) => {
+            if (bytes === 0) return '0 Bytes';
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + ['B', 'KB', 'MB', 'GB'][i];
+        };
+
+        const showToast = (msg, type = 'info') => {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = msg;
+            document.getElementById('toast-icon').textContent = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
+        };
+
+        const updateApiStatus = (key, forceState = null) => {
+            if (forceState !== null) {
+                appState.isApiValid = forceState;
+            }
+            const hasKey = (key && key.length > 20) || appState.isApiValid;
+            if (hasKey) {
+                els.apiStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Key Stored`;
+                els.apiStatus.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-green-900/30 text-green-400 border border-green-800/50';
+            } else {
+                els.apiStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Missing API Key`;
+                els.apiStatus.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-red-900/30 text-red-400 border border-red-800/50';
+            }
+        };
+
+        const updateGenerateButton = () => {
+            const hasKey = appState.isApiValid || els.apiKey.value.trim().length > 20;
+            const pendingItems = appState.queue.filter(i => ['waiting', 'error'].includes(i.status)).length;
+            
+            els.btnGenerate.disabled = !hasKey || pendingItems === 0 || appState.isProcessing;
+            els.btnGenerate.textContent = appState.isProcessing ? 'Processing...' : 'Generate Metadata';
+            
+            if (pendingItems > 0 && hasKey) {
+                els.costEstimate.classList.remove('hidden');
+                els.costEstimate.textContent = `Est: ${pendingItems} API calls`;
+            } else {
+                els.costEstimate.classList.add('hidden');
+            }
+        };
+
+        const resizeImageToBase64 = (file, maxDim = 1024) => {
+            return new Promise((resolve, reject) => {
+                const isSvg = file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg');
+                let timeoutId = null;
+
+                if (isSvg) {
+                    timeoutId = setTimeout(() => {
+                        reject(new Error("SVG rendered empty — try exporting as PNG"));
+                    }, 5000);
+                }
+
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    const img = new Image();
+                    
+                    img.onload = () => {
+                        if (isSvg) clearTimeout(timeoutId);
+
+                        let width = img.naturalWidth || img.width;
+                        let height = img.naturalHeight || img.height;
+                        
+                        if (!width || !height) {
+                            width = 1024;
+                            height = 1024;
+                        }
+
+                        if (width > maxDim || height > maxDim) {
+                            if (width > height) { height *= maxDim / width; width = maxDim; } 
+                            else { width *= maxDim / height; height = maxDim; }
+                        }
+                        const canvas = document.getElementById('processing-canvas');
+                        canvas.width = width; canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.clearRect(0, 0, width, height);
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        if (isSvg) {
+                            if (width === 0 || height === 0) {
+                                return reject(new Error("SVG rendered empty — try exporting as PNG"));
+                            }
+                            try {
+                                const imageData = ctx.getImageData(0, 0, width, height).data;
+                                let isEmpty = true;
+                                for (let i = 3; i < imageData.length; i += 4) {
+                                    if (imageData[i] > 0) {
+                                        isEmpty = false;
+                                        break;
+                                    }
+                                }
+                                if (isEmpty) {
+                                    return reject(new Error("SVG rendered empty — try exporting as PNG"));
+                                }
+                            } catch (err) {
+                                console.warn(`[SVG] Pixel check failed (CORS?): ${err.message}`);
+                            }
+                        }
+
+                        resolve({
+                            data: canvas.toDataURL('image/jpeg', 0.85).split(',')[1],
+                            mimeType: 'image/jpeg',
+                            thumb: canvas.toDataURL('image/jpeg', 0.2)
+                        });
+                    };
+                    img.onerror = (err) => {
+                        if (isSvg) {
+                            clearTimeout(timeoutId);
+                            reject(new Error("SVG rendered empty — try exporting as PNG"));
+                        } else {
+                            reject(err);
+                        }
+                    };
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+            });
+        };
+
+        const extractVideoFrames = (file) => {
+            return new Promise((resolve, reject) => {
+                const video = document.createElement('video');
+                video.src = URL.createObjectURL(file);
+                video.muted = true;
+                const frames = [];
+                let thumb = null;
+
+                video.addEventListener('loadedmetadata', async () => {
+                    const duration = video.duration;
+                    
+                    if (duration < 5) {
+                        showToast(`Warning: ${file.name} is shorter than 5 seconds (${duration.toFixed(1)}s). Pond5 requires minimum 5s.`, 'error');
+                    }
+
+                    const points = [duration * 0.15, duration * 0.50, duration * 0.85];
+                    const canvas = document.getElementById('processing-canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    let w = video.videoWidth, h = video.videoHeight;
+                    const max = 768;
+                    if (w > max || h > max) {
+                        if (w > h) { h *= max / w; w = max; } else { w *= max / h; h = max; }
+                    }
+                    canvas.width = w; canvas.height = h;
+
+                    for (let i = 0; i < points.length; i++) {
+                        await new Promise(res => {
+                            video.currentTime = points[i];
+                            const onSeek = () => {
+                                ctx.drawImage(video, 0, 0, w, h);
+                                const b64 = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+                                frames.push({ data: b64, mimeType: 'image/jpeg' });
+                                if (i === 1) thumb = canvas.toDataURL('image/jpeg', 0.2); 
+                                video.removeEventListener('seeked', onSeek);
+                                res();
+                            };
+                            video.addEventListener('seeked', onSeek);
+                        });
+                    }
+                    URL.revokeObjectURL(video.src);
+                    resolve({ frames, thumb, duration });
+                });
+                video.addEventListener('error', () => reject(new Error("Video load failed")));
+            });
+        };
+
+        const handleFiles = async (files) => {
+            const groups = {};
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const lastDot = file.name.lastIndexOf('.');
+                if (lastDot === -1) continue;
+                const ext = file.name.substring(lastDot + 1).toLowerCase();
+                const stem = file.name.substring(0, lastDot);
+                if (!groups[stem]) groups[stem] = {};
+                groups[stem][ext] = file;
+            }
+
+            for (let stem in groups) {
+                const group = groups[stem];
+                
+                const vectorExts = ['eps', 'ai', 'psd'];
+                let vectorFile = null;
+                for (let e of vectorExts) {
+                    if (group[e]) { vectorFile = group[e]; break; }
+                }
+                
+                const previewFile = group['jpg'] || group['jpeg'] || group['png'];
+                const videoFile = group['mp4'] || group['mov'];
+                const svgFile = group['svg'];
+                const rasterImgFile = group['jpg'] || group['jpeg'] || group['png'] || group['webp'] || group['gif'];
+
+                if (vectorFile) {
+                    if (previewFile) {
+                        await addQueueItem(vectorFile, previewFile);
+                    } else {
+                        showToast(`${vectorFile.name}: Need a JPG/PNG preview uploaded together.`, 'info');
+                    }
+                } else if (videoFile) {
+                    await addQueueItem(videoFile, null);
+                } else if (svgFile) {
+                    await addQueueItem(svgFile, previewFile || null);
+                } else if (rasterImgFile && !vectorFile) {
+                    await addQueueItem(rasterImgFile, null);
+                }
+            }
+            updateGenerateButton();
+        };
+
+        const addQueueItem = async (targetFile, previewFile) => {
+            const ext = targetFile.name.split('.').pop().toLowerCase();
+            const isVideo = ['mp4', 'mov'].includes(ext);
+            const isVector = ['eps', 'ai', 'psd'].includes(ext);
+            const isSvg = ext === 'svg';
+            
+            let maxSize = 20 * 1024 * 1024;
+            let typeLabel = "Image";
+            
+            if (isVideo) {
+                maxSize = 500 * 1024 * 1024;
+                typeLabel = "Video";
+            } else if (isVector || isSvg) {
+                maxSize = 100 * 1024 * 1024;
+                typeLabel = "Vector";
+            }
+
+            if (targetFile.size > maxSize) {
+                return showToast(`${targetFile.name} exceeds max size (${maxSize / (1024 * 1024)}MB for ${typeLabel}). Skipping.`, 'error');
+            }
+            
+            if (appState.queue.find(q => q.filename === targetFile.name)) return;
+
+            let fileType = 'image';
+            if (isVideo) fileType = 'video';
+            else if (isVector) fileType = 'vector';
+
+            const item = {
+                id: generateId(),
+                filename: targetFile.name,
+                targetFile: targetFile,
+                previewFile: previewFile || targetFile,
+                type: fileType,
+                status: 'waiting', 
+                progress: 0,
+                size: targetFile.size,
+                result: null,
+                error: null,
+                thumb: null,
+                validationErrors: []
+            };
+
+            appState.queue.push(item);
+            renderQueue();
+        };
+
+        const renderQueue = () => {
+            els.queueCount.textContent = appState.queue.length;
+            if (appState.queue.length === 0) {
+                els.emptyState.style.display = 'block';
+                els.queueList.innerHTML = '';
+                return;
+            }
+            
+            els.emptyState.style.display = 'none';
+            els.queueList.innerHTML = appState.queue.map(item => `
+                <div class="bg-gray-800 rounded-lg p-3 flex items-center gap-3 border border-gray-700 transition-colors ${item.status === 'error' ? 'border-red-900/50' : item.status === 'done' ? 'border-green-900/50' : ''}">
+                    <div class="w-10 h-10 rounded bg-gray-900 shrink-0 overflow-hidden border border-gray-700">
+                        ${item.thumb ? `<img src="${item.thumb}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-xs text-gray-500">${item.type === 'video' ? '🎬' : '🖼️'}</div>`}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-200 truncate" title="${item.filename}">${item.filename}</p>
+                        <div class="flex justify-between items-center mt-1">
+                            <span class="text-xs text-gray-500">${formatBytes(item.size)}</span>
+                            <span class="text-xs font-medium ${
+                                item.status === 'done' ? 'text-green-400' : 
+                                item.status === 'error' ? 'text-red-400' : 
+                                item.status === 'processing' ? 'text-blue-400' : 'text-gray-400'
+                            }">
+                                ${item.status === 'waiting' ? 'Waiting' : 
+                                  item.status === 'processing' ? 'Analyzing...' : 
+                                  item.status === 'error' ? 'Failed' : 'Done'}
+                            </span>
+                        </div>
+                        ${item.status === 'processing' ? `
+                            <div class="w-full bg-gray-700 rounded-full h-1 mt-1.5 overflow-hidden">
+                                <div class="bg-blue-500 h-1 rounded-full animate-pulse" style="width: 100%"></div>
+                            </div>
+                        ` : ''}
+                        ${item.error ? `<p class="text-[10px] text-red-400 mt-1 truncate" title="${item.error}">${item.error}</p>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        const validateMetadata = (data) => {
+            const errors = [];
+            if (!data.keywords || !Array.isArray(data.keywords) || data.keywords.length < 48) {
+                errors.push(`Keywords count is ${data.keywords?.length || 0}, must be around 50 (min 48).`);
+            }
+            if (data.adobe_title?.length > 70) errors.push("adobe_title exceeds 70 chars.");
+            if (!ADOBE_CATS.includes(data.adobe_cat)) errors.push(`adobe_cat '${data.adobe_cat}' is invalid.`);
+            if (!SS_CATS.includes(data.ss_cat)) errors.push(`ss_cat '${data.ss_cat}' is invalid.`);
+            if (data.ss_cat2 && !SS_CATS.includes(data.ss_cat2)) errors.push(`ss_cat2 '${data.ss_cat2}' is invalid.`);
+            if (!VZ_CATS.includes(data.vz_cat)) errors.push(`vz_cat '${data.vz_cat}' is invalid.`);
+            if (!MG_TYPES.includes(data.mg_type)) errors.push(`mg_type '${data.mg_type}' is invalid.`);
+            if (!P5_CATS.includes(data.p5_cat)) errors.push(`p5_cat '${data.p5_cat}' is invalid.`);
+            
+            const mgLen = data.mg_title?.length || 0;
+            if (mgLen < 35 || mgLen > 100) errors.push(`mg_title length ${mgLen} is not between 35-100.`);
+            const p5Len = data.p5_title?.length || 0;
+            if (p5Len < 40 || p5Len > 80) errors.push(`p5_title length ${p5Len} is not between 40-80.`);
+            if (!data.ss_desc || data.ss_desc.length === 0) errors.push("ss_desc is empty.");
+            
+            return errors;
+        };
+
+        const callGeminiWithRetry = async (ai, payload, maxRetries = 5) => {
+            let attempt = 0;
+            while (attempt < maxRetries) {
+                try {
+                    return await ai.models.generateContent(payload);
+                } catch (error) {
+                    attempt++;
+                    const status = error.status || (error.message.includes('429') ? 429 : error.message.includes('503') ? 503 : 500);
+                    if (status === 400 && error.message.includes('API key not valid')) {
+                        throw new Error("INVALID_API_KEY");
+                    }
+                    if ([429, 503].includes(status) && attempt < maxRetries) {
+                        const waitTime = Math.pow(2, attempt) * 2000 + (Math.random() * 1000); 
+                        console.warn(`API Rate limit/Unavailable. Retrying in ${Math.round(waitTime/1000)}s...`);
+                        await new Promise(r => setTimeout(r, waitTime));
+                    } else {
+                        throw error;
+                    }
+                }
+            }
+            throw new Error("Max network retries exceeded");
+        };
+
+        const processFile = async (itemIndex) => {
+            const item = appState.queue[itemIndex];
+            item.status = 'processing';
+            renderQueue();
+
+            try {
+                let inlineDataParts = [];
+                if (item.type === 'video') {
+                    const extracted = await extractVideoFrames(item.previewFile);
+                    item.thumb = extracted.thumb;
+                    inlineDataParts = extracted.frames.map(f => ({ inlineData: f }));
+                } else {
+                    const resized = await resizeImageToBase64(item.previewFile);
+                    item.thumb = resized.thumb;
+                    inlineDataParts = [{ inlineData: { data: resized.data, mimeType: resized.mimeType } }];
+                }
+                renderQueue(); 
+
+                const apiKey = document.getElementById('api-key').value.trim();
+                const modelName = document.getElementById('model-select').value;
+                const ai = new GoogleGenAI({ apiKey: apiKey });
+
+                const globalContext = document.getElementById('global-context').value.trim();
+                let promptText = PROMPT_BASE;
+                if (globalContext) promptText += `\n\nGlobal Context for this batch: ${globalContext}`;
+
+                let currentErrors = [];
+                let generatedData = null;
+                let validationAttempt = 0;
+                const maxValidationRetries = 3;
+
+                while (validationAttempt <= maxValidationRetries) {
+                    let attemptPrompt = promptText;
+                    if (currentErrors.length > 0) {
+                        attemptPrompt += `\n\nCRITICAL FIXES REQUIRED FROM PREVIOUS ATTEMPT:\n- ${currentErrors.join('\n- ')}\nEnsure exact category matches, string lengths, and keyword counts.`;
+                    }
+
+                    const payload = {
+                        model: modelName,
+                        contents: [{ role: 'user', parts: [{ text: attemptPrompt }, ...inlineDataParts] }],
+                        config: {
+                            responseMimeType: "application/json",
+                            responseSchema: RESPONSE_SCHEMA,
+                            temperature: 0.2 
+                        }
+                    };
+
+                    const response = await callGeminiWithRetry(ai, payload);
+                    const jsonText = response.text;
+                    
+                    try {
+                        generatedData = JSON.parse(jsonText);
+                        currentErrors = validateMetadata(generatedData);
+                        if (currentErrors.length === 0) break; 
+                    } catch (parseErr) {
+                        currentErrors = ["Failed to parse JSON response."];
+                    }
+                    validationAttempt++;
+                }
+
+                if (currentErrors.length > 0) {
+                    item.status = 'error';
+                    item.error = "Failed validation after retries";
+                    item.validationErrors = currentErrors;
+                } else {
+                    item.status = 'done';
+                    item.result = generatedData;
+                    item.error = null;
+                    await saveToDB(item.filename, {
+                        result: generatedData,
+                        thumb: item.thumb,
+                        timestamp: Date.now()
+                    });
+                }
+
+            } catch (error) {
+                item.status = 'error';
+                if (error.message === 'INVALID_API_KEY') {
+                    item.error = "Invalid API Key";
+                    appState.isProcessing = false; 
+                    showToast('Invalid API Key. Please check settings.', 'error');
+                } else {
+                    item.error = error.message || "Unknown error occurred";
+                }
+            }
+
+            renderQueue();
+            updateResultsUI();
+        };
+
+        els.btnGenerate.addEventListener('click', async () => {
+            if (appState.isProcessing) return;
+            appState.isProcessing = true;
+            updateGenerateButton();
+
+            for (let i = 0; i < appState.queue.length; i++) {
+                if (!appState.isProcessing) break;
+                if (appState.queue[i].status === 'waiting' || appState.queue[i].status === 'error') {
+                    await processFile(i);
+                }
+            }
+
+            appState.isProcessing = false;
+            updateGenerateButton();
+            showToast('Processing complete', 'success');
+        });
+
+        const escapeHtml = (unsafe) => {
+            return (unsafe || "").toString()
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        };
+
+        window.copyText = (buttonElem) => {
+            const textToCopy = buttonElem.getAttribute('data-copy');
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Copied to clipboard', 'success');
+            } catch (err) {
+                showToast('Failed to copy', 'error');
+            }
+            document.body.removeChild(textArea);
+        };
+
+        const createCell = (text, maxWidth, badgeHtml = '') => {
+            const safeText = String(text || '');
+            const escapedHTML = escapeHtml(safeText);
+            return `<td class="px-4 py-2 border-r border-gray-800 relative group max-w-[${maxWidth}]">
+                <div class="flex justify-between items-center gap-2 h-full">
+                    <div class="truncate flex-1 flex items-center gap-2 min-w-0" title="${escapedHTML}">
+                        <span class="truncate block text-sm text-gray-200">${escapedHTML}</span>
+                        ${badgeHtml}
+                    </div>
+                    <button class="copy-btn opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-white shrink-0 p-1 bg-gray-700/50 hover:bg-blue-600 rounded" data-copy="${escapedHTML}" onclick="copyText(this)" title="Copy text">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    </button>
+                </div>
+            </td>`;
+        };
+
+        const getKeywordBadge = (result, platform) => {
+            const kws = result.keywords || [];
+            let displayCount = kws.length;
+            
+            if (platform === 'magnific' && document.getElementById('toggle-ai').checked) {
+                let temp = kws.filter(k => k !== '_ai_generated').slice(0, 49);
+                displayCount = temp.length + 1;
+            } else {
+                displayCount = Math.min(kws.length, 50);
+            }
+
+            let color = displayCount === 50 ? 'bg-green-500' : (displayCount >= 40 ? 'bg-yellow-500' : 'bg-red-500');
+            return `<span class="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[10px] font-bold text-white shadow-sm ${color} leading-none shrink-0" style="height: 18px;" title="Keyword Count">${displayCount}/50</span>`;
+        };
+
+        const getKeywords = (result, platform) => {
+            let kw = [...(result.keywords || [])];
+            const isAI = document.getElementById('toggle-ai').checked;
+            
+            if (platform === 'magnific' && isAI) {
+                kw = kw.filter(k => k !== '_ai_generated');
+                kw = kw.slice(0, 49);
+                kw.push('_ai_generated');
+            } else {
+                kw = kw.slice(0, 50);
+            }
+            return kw.join(',');
+        };
+
+        const updateResultsUI = () => {
+            const doneItems = appState.queue.filter(i => i.status === 'done' && i.result);
+            
+            document.getElementById('table-adobe').innerHTML = doneItems.map(i => `
+                <tr class="hover:bg-gray-800/50">
+                    ${createCell(i.filename, '150px')}
+                    ${createCell(i.result.adobe_title, '200px')}
+                    ${createCell(getKeywords(i.result, 'adobe'), '300px', getKeywordBadge(i.result, 'adobe'))}
+                    ${createCell(i.result.adobe_cat, '150px')}
+                </tr>
+            `).join('');
+
+            document.getElementById('table-shutterstock').innerHTML = doneItems.map(i => {
+                const cats = [i.result.ss_cat, i.result.ss_cat2].filter(Boolean).join(',');
+                return `<tr class="hover:bg-gray-800/50">
+                    ${createCell(i.filename, '150px')}
+                    ${createCell(i.result.ss_desc, '250px')}
+                    ${createCell(getKeywords(i.result, 'shutterstock'), '250px', getKeywordBadge(i.result, 'shutterstock'))}
+                    ${createCell(cats, '150px')}
+                </tr>`;
+            }).join('');
+
+            document.getElementById('table-vecteezy').innerHTML = doneItems.map(i => `
+                <tr class="hover:bg-gray-800/50">
+                    ${createCell(i.filename, '150px')}
+                    ${createCell(i.result.vz_title, '150px')}
+                    ${createCell(i.result.vz_desc, '200px')}
+                    ${createCell(getKeywords(i.result, 'vecteezy'), '200px', getKeywordBadge(i.result, 'vecteezy'))}
+                    ${createCell(i.result.vz_cat, '150px')}
+                </tr>
+            `).join('');
+
+            document.getElementById('table-magnific').innerHTML = doneItems.map(i => `
+                <tr class="hover:bg-gray-800/50">
+                    ${createCell(i.filename, '150px')}
+                    ${createCell(i.result.mg_title, '200px')}
+                    ${createCell(getKeywords(i.result, 'magnific'), '300px', getKeywordBadge(i.result, 'magnific'))}
+                    ${createCell(i.result.mg_type, '150px')}
+                </tr>
+            `).join('');
+
+            document.getElementById('table-pond5').innerHTML = doneItems.map(i => `
+                <tr class="hover:bg-gray-800/50">
+                    ${createCell(i.filename, '150px')}
+                    ${createCell(i.result.p5_title, '150px')}
+                    ${createCell(i.result.p5_desc, '200px')}
+                    ${createCell(getKeywords(i.result, 'pond5'), '200px', getKeywordBadge(i.result, 'pond5'))}
+                    ${createCell(i.result.p5_cat, '150px')}
+                </tr>
+            `).join('');
+
+            let allErrors = [];
+            let totalIssuesCount = 0;
+            
+            appState.queue.forEach(i => {
+                if (i.validationErrors && i.validationErrors.length > 0) {
+                    allErrors.push({ file: i.filename, errors: i.validationErrors });
+                    totalIssuesCount += i.validationErrors.length;
+                }
+            });
+            
+            if (allErrors.length > 0) {
+                els.validationBadge.textContent = totalIssuesCount;
+                els.validationBadge.classList.remove('hidden');
+                els.validationList.innerHTML = allErrors.map(e => `
+                    <div class="bg-red-900/20 border border-red-900/50 rounded p-3">
+                        <p class="text-sm font-medium text-red-400 mb-1">${e.file}</p>
+                        <ul class="list-disc list-inside text-xs text-gray-400 space-y-1">
+                            ${e.errors.map(err => `<li>${err}</li>`).join('')}
+                        </ul>
+                    </div>
+                `).join('');
+            } else {
+                els.validationBadge.classList.add('hidden');
+                els.validationList.innerHTML = '<div class="text-gray-500 text-sm text-center pt-8">No validation errors.</div>';
+            }
+        };
+
+        const downloadCSV = (content, filename) => {
+            const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+
+        const escapeCSV = (str, delimiter = ',') => {
+            if (str === null || str === undefined) return '';
+            const s = String(str).replace(/"/g, '""');
+            const needsQuotes = new RegExp(`[${delimiter}"\\n\\r]`).test(s);
+            if (needsQuotes) return `"${s}"`;
+            return s;
+        };
+
+        window.exportCSV = (platform) => {
+            const doneItems = appState.queue.filter(i => i.status === 'done' && i.result);
+            if (doneItems.length === 0) return showToast('No processed items to export.', 'error');
+
+            showToast(`Exporting ${platform} CSV...`, 'info');
+
+            const isAI = document.getElementById('toggle-ai').checked;
+            const isEd = document.getElementById('toggle-editorial').checked;
+            let csv = '';
+            let ext = isAI ? '_ai' : '';
+
+            if (platform === 'adobe') {
+                csv = 'Filename,Title,Keywords,Category,Is generative AI\n';
+                doneItems.forEach(i => {
+                    let row = [i.filename, i.result.adobe_title, getKeywords(i.result, 'adobe'), i.result.adobe_cat, isAI ? 'yes' : 'no'];
+                    csv += row.map(v => escapeCSV(v)).join(',') + '\n';
+                });
+                downloadCSV(csv, `adobe_stock${ext}.csv`);
+            }
+            else if (platform === 'shutterstock') {
+                csv = 'Filename,Description,Keywords,Categories,Editorial,Mature content,illustration\n';
+                doneItems.forEach(i => {
+                    const cats = [i.result.ss_cat, i.result.ss_cat2].filter(Boolean).join(',');
+                    const isVector = i.filename.toLowerCase().match(/\.(eps|ai|svg)$/) ? 'yes' : 'no';
+                    let row = [i.filename, i.result.ss_desc, getKeywords(i.result, 'shutterstock'), cats, isEd ? 'yes' : 'no', 'no', isVector];
+                    csv += row.map(v => escapeCSV(v)).join(',') + '\n';
+                });
+                downloadCSV(csv, `shutterstock${ext}.csv`);
+            }
+            else if (platform === 'vecteezy') {
+                csv = 'Filename,Title,Description,Keywords\n';
+                doneItems.forEach(i => {
+                    let row = [i.filename, i.result.vz_title, i.result.vz_desc, getKeywords(i.result, 'vecteezy')];
+                    csv += row.map(v => escapeCSV(v)).join(',') + '\n';
+                });
+                downloadCSV(csv, `vecteezy${ext}.csv`);
+            }
+            else if (platform === 'magnific') {
+                const aiPrompt = document.getElementById('ai-prompt-text').value.trim() || "";
+                const aiModel = document.getElementById('ai-model-name').value.trim() || "";
+                csv = 'filename;title;keywords' + (isAI ? ';prompt;model' : '') + '\n';
+                doneItems.forEach(i => {
+                    let row = [i.filename, i.result.mg_title, getKeywords(i.result, 'magnific')];
+                    if (isAI) { row.push(aiPrompt); row.push(aiModel); }
+                    csv += row.map(v => escapeCSV(v, ';')).join(';') + '\n';
+                });
+                downloadCSV(csv, `magnific${ext}.csv`);
+            }
+            else if (platform === 'pond5') {
+                csv = 'originalfilename,title,description,keywords,copyright,location,price,pricelarge,priceweb,setpriceforme,aspectratio,specifysource,datecreated,containsaudio,cameraspeed,curatornote,PrimaryCategory\n';
+                doneItems.forEach(i => {
+                    let row = [i.filename, i.result.p5_title, i.result.p5_desc, getKeywords(i.result, 'pond5'), '', '', '', '', '', '', '', '', '', '', '', '', i.result.p5_cat];
+                    csv += row.map(v => escapeCSV(v)).join(',') + '\n';
+                });
+                downloadCSV(csv, `pond5${ext}.csv`);
+            }
+        };
+
+        const initApp = async () => {
+            loadSettings();
+            try {
+                await initDB();
+                const pastResults = await loadFromDB();
+                if (pastResults && pastResults.length > 0) {
+                    appState.queue = pastResults.map(p => ({
+                        id: generateId(),
+                        filename: p.filename,
+                        type: 'unknown',
+                        status: 'done',
+                        progress: 100,
+                        size: 0,
+                        result: p.result,
+                        thumb: p.thumb,
+                        error: null,
+                        validationErrors: []
+                    }));
+                    renderQueue();
+                    updateResultsUI();
+                    showToast(`Restored ${pastResults.length} previous results.`, 'info');
+                }
+            } catch (e) {
+                console.error("DB Init failed:", e);
+                showToast("Local storage unavailable for persistence.", "error");
+            }
+        };
+
+        window.onload = initApp;
+
+    </script>
+</body>
+</html>
