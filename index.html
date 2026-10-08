@@ -139,7 +139,7 @@
                         <div class="p-2 border-b border-gray-800 flex justify-end shrink-0">
                             <button onclick="exportCSV('adobe')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded shadow transition-colors">Export Adobe CSV</button>
                         </div>
-                        <div class="flex-1 overflow-auto custom-scrollbar"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-gray-800/50 text-gray-400 sticky top-0 z-10"><tr><th class="px-4 py-2 font-medium">Filename</th><th class="px-4 py-2 font-medium">Title</th><th class="px-4 py-2 font-medium">Keywords</th><th class="px-4 py-2 font-medium">Category</th></tr></thead><tbody id="table-adobe" class="divide-y divide-gray-800"></tbody></table></div>
+                        <div class="flex-1 overflow-auto custom-scrollbar"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-gray-800/50 text-gray-400 sticky top-0 z-10"><tr><th class="px-4 py-2 font-medium">Filename</th><th class="px-4 py-2 font-medium">Title</th><th class="px-4 py-2 font-medium">Keywords</th><th class="px-4 py-2 font-medium">Category (ID)</th></tr></thead><tbody id="table-adobe" class="divide-y divide-gray-800"></tbody></table></div>
                     </div>
                     <div id="tab-shutterstock" class="tab-content h-full flex-col">
                         <div class="p-2 border-b border-gray-800 flex justify-end shrink-0">
@@ -241,6 +241,29 @@
         import { GoogleGenAI, Type } from 'https://esm.run/@google/genai';
 
         const ADOBE_CATS = ["Animals","Buildings and architecture","Business","Drinks","The environment","States of mind","Food","Graphic resources","Hobbies and leisure","Industry","Landscape","Lifestyle","People","Plants and flowers","Culture and religion","Science","Social issues","Sports","Technology","Transport","Travel"];
+        const ADOBE_CAT_IDS = {
+            "Animals": 1,
+            "Buildings and architecture": 2,
+            "Business": 3,
+            "Drinks": 4,
+            "The environment": 5,
+            "States of mind": 6,
+            "Food": 7,
+            "Graphic resources": 8,
+            "Hobbies and leisure": 9,
+            "Industry": 10,
+            "Landscape": 11,
+            "Lifestyle": 12,
+            "People": 13,
+            "Plants and flowers": 14,
+            "Culture and religion": 15,
+            "Science": 16,
+            "Social issues": 17,
+            "Sports": 18,
+            "Technology": 19,
+            "Transport": 20,
+            "Travel": 21
+        };
         const SS_CATS = ["Abstract","Animals/Wildlife","The Arts","Backgrounds/Textures","Beauty/Fashion","Buildings/Landmarks","Business/Finance","Celebrities","Education","Food and Drink","Healthcare/Medical","Holidays","Industrial","Interiors","Miscellaneous","Nature","Objects","Parks/Outdoor","People","Religion","Science","Signs/Symbols","Sports/Recreation","Technology","Transportation","Vintage"];
         const VZ_CATS = ["Animals and Plants","Activity and Events","Composition","Food and Drink","Location","Objects and Colors","People"];
         const MG_TYPES = ["Photo","Vector","PSD","Mockup","AI Image"];
@@ -266,10 +289,11 @@ Rules:
 - If identifiable faces, children, brand logos, or copyrighted property are visible, mention briefly in ss_desc and add tags "_model_release_needed" or "_property_release_needed" at end of keywords.
 
 keywords: exactly 50 (min 48), ordered by importance. Top 10 = main visual elements. Include at least 5 abstract concepts. Include shot type/style if relevant. Include dominant colors. Lowercase, no plural duplicates.
-adobe_title: max 70 chars, clear.
-ss_desc: one natural descriptive sentence.
-mg_title: 35-100 chars. NO file types/digits.
-p5_title: 40-80 chars (+ HD/4K if video).
+adobe_title: max 70 chars, clear. NO commas allowed.
+ss_desc: one natural descriptive sentence. NO commas allowed.
+mg_title: 35-100 chars. NO file types/digits. NO commas allowed.
+p5_title: 40-80 chars (+ HD/4K if video). NO commas allowed.
+p5_desc: detailed scene description. NO commas allowed.
 
 Categories MUST be exact matches from these lists:
 adobe_cat: ${JSON.stringify(ADOBE_CATS)}
@@ -513,7 +537,6 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
         });
 
         const handleFiles = async (files) => {
-            console.log('[MetaGen] handleFiles received', files.length, 'files');
             const parsed = [];
             for (let i = 0; i < files.length; i++) {
                 const f = files[i];
@@ -521,15 +544,12 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 const ext = ld === -1 ? '' : f.name.substring(ld + 1).toLowerCase();
                 const stem = ld === -1 ? f.name : f.name.substring(0, ld);
                 parsed.push({ file: f, ext: ext, stem: stem });
-                console.log(`[MetaGen] file[${i}]: ${f.name} (ext=${ext})`);
             }
             
             const vectors = parsed.filter(p => ['eps','ai','psd'].includes(p.ext));
             const videos = parsed.filter(p => ['mp4','mov'].includes(p.ext));
             const svgs = parsed.filter(p => p.ext === 'svg');
             const rasters = parsed.filter(p => ['jpg','jpeg','png','webp','gif'].includes(p.ext));
-            
-            console.log(`[MetaGen] vectors=${vectors.length} videos=${videos.length} svgs=${svgs.length} rasters=${rasters.length}`);
             
             const usedRasters = new Set();
             
@@ -806,7 +826,11 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
 
         const updateResultsUI = () => {
             const done = appState.queue.filter(i => i.status === 'done' && i.result);
-            document.getElementById('table-adobe').innerHTML = done.map(i => `<tr class="hover:bg-gray-800/50">${cell(i.filename,'150px')}${cell(i.result.adobe_title,'200px')}${cell(getKw(i.result,'adobe'),'300px',kwBadge(i.result,'adobe'))}${cell(i.result.adobe_cat,'150px')}</tr>`).join('');
+            document.getElementById('table-adobe').innerHTML = done.map(i => {
+                const catId = ADOBE_CAT_IDS[i.result.adobe_cat] || '';
+                const catDisplay = catId ? `${i.result.adobe_cat} (${catId})` : i.result.adobe_cat;
+                return `<tr class="hover:bg-gray-800/50">${cell(i.filename,'150px')}${cell(i.result.adobe_title,'200px')}${cell(getKw(i.result,'adobe'),'300px',kwBadge(i.result,'adobe'))}${cell(catDisplay,'200px')}</tr>`;
+            }).join('');
             document.getElementById('table-shutterstock').innerHTML = done.map(i => {
                 const c = [i.result.ss_cat, i.result.ss_cat2].filter(Boolean).join(',');
                 return `<tr class="hover:bg-gray-800/50">${cell(i.filename,'150px')}${cell(i.result.ss_desc,'250px')}${cell(getKw(i.result,'shutterstock'),'250px',kwBadge(i.result,'shutterstock'))}${cell(c,'150px')}</tr>`;
@@ -862,9 +886,11 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             let ext = ai ? '_ai' : '';
             
             if (platform === 'adobe') {
+                // FIX: Adobe pakai NOMOR kategori, bukan nama
                 csv = 'Filename,Title,Keywords,Category,Is generative AI\n';
                 done.forEach(i => {
-                    csv += [i.filename, i.result.adobe_title, getKw(i.result,'adobe'), i.result.adobe_cat, ai ? 'yes' : 'no'].map(v => eC(v)).join(',') + '\n';
+                    const catId = ADOBE_CAT_IDS[i.result.adobe_cat] || i.result.adobe_cat;
+                    csv += [i.filename, i.result.adobe_title, getKw(i.result,'adobe'), catId, ai ? 'yes' : 'no'].map(v => eC(v)).join(',') + '\n';
                 });
                 download(csv, `adobe_stock${ext}.csv`);
             }
@@ -878,6 +904,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 download(csv, `shutterstock${ext}.csv`);
             }
             else if (platform === 'vecteezy') {
+                // FIX: Vecteezy pakai underscore bukan spasi
                 csv = 'Filename,Title,Description,Keywords\n';
                 done.forEach(i => {
                     const safeFilename = i.filename.replace(/ /g, '_');
