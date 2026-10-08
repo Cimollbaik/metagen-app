@@ -14,45 +14,35 @@
             --container-bg: #FAF8F3;
             --card-bg: #FFFFFF;
             --card-hover: #FDFCFA;
-
             --indigo: #6B6FD9;
             --indigo-hover: #585DC7;
             --indigo-soft: #EBEBFB;
             --indigo-soft-border: #D5D5F5;
-
             --sage: #7BA878;
             --sage-soft: #E5F0E1;
             --sage-soft-border: #C5DDC1;
-
             --peach: #D49478;
             --peach-soft: #FBEEE6;
             --peach-soft-border: #EBCDB8;
-
             --rose: #C57B93;
             --rose-soft: #F7E4EC;
             --rose-soft-border: #E5B8C8;
-
             --text-primary: #1A1A2E;
             --text-secondary: #56566B;
             --text-muted: #9090A0;
             --text-on-accent: #FFFFFF;
-
             --border: #E8E4DC;
             --border-strong: #D4CFC4;
-
             --shadow-sm: 0 1px 3px rgba(26, 26, 46, 0.04), 0 1px 2px rgba(26, 26, 46, 0.02);
             --shadow-md: 0 4px 16px rgba(26, 26, 46, 0.06), 0 1px 3px rgba(26, 26, 46, 0.04);
             --shadow-lg: 0 20px 48px rgba(26, 26, 46, 0.10), 0 4px 12px rgba(26, 26, 46, 0.05);
             --shadow-xl: 0 32px 64px rgba(26, 26, 46, 0.14);
-
             --radius-sm: 10px;
             --radius: 14px;
             --radius-lg: 20px;
             --radius-xl: 28px;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--bg-outer);
@@ -64,8 +54,6 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
-
-        /* ============ APP CONTAINER ============ */
         .app {
             max-width: 1280px;
             margin: 0 auto;
@@ -77,8 +65,6 @@
             flex-direction: column;
             overflow: hidden;
         }
-
-        /* ============ HEADER ============ */
         .header {
             display: flex;
             align-items: center;
@@ -88,949 +74,438 @@
             background: var(--card-bg);
             flex-shrink: 0;
         }
-
-        .logo-group {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
+        .logo-group { display: flex; align-items: center; gap: 14px; }
         .logo-mark {
-            width: 40px;
-            height: 40px;
+            width: 40px; height: 40px;
             background: linear-gradient(135deg, var(--indigo) 0%, #8B8FE8 100%);
             border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             color: white;
             font-family: 'Plus Jakarta Sans', sans-serif;
-            font-weight: 800;
-            font-size: 18px;
+            font-weight: 800; font-size: 18px;
             box-shadow: 0 4px 12px rgba(107, 111, 217, 0.3);
         }
-
         .logo-text {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            font-weight: 700;
-            font-size: 18px;
-            color: var(--text-primary);
-            letter-spacing: -0.02em;
+            font-weight: 700; font-size: 18px;
+            color: var(--text-primary); letter-spacing: -0.02em;
         }
-
         .logo-sub {
-            font-size: 11px;
-            color: var(--text-muted);
-            font-weight: 500;
-            letter-spacing: 0.02em;
+            font-size: 11px; color: var(--text-muted);
+            font-weight: 500; letter-spacing: 0.02em;
             text-transform: uppercase;
         }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
+        .header-actions { display: flex; align-items: center; gap: 12px; }
         .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 7px 14px;
-            border-radius: 100px;
-            font-size: 12px;
-            font-weight: 600;
-            background: var(--sage-soft);
-            color: var(--sage);
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 7px 14px; border-radius: 100px;
+            font-size: 12px; font-weight: 600;
+            background: var(--sage-soft); color: var(--sage);
             border: 1px solid var(--sage-soft-border);
             transition: all 0.2s ease;
         }
-
         .status-badge.offline {
-            background: var(--rose-soft);
-            color: var(--rose);
+            background: var(--rose-soft); color: var(--rose);
             border-color: var(--rose-soft-border);
         }
-
         .status-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: currentColor;
-            box-shadow: 0 0 8px currentColor;
+            width: 7px; height: 7px; border-radius: 50%;
+            background: currentColor; box-shadow: 0 0 8px currentColor;
         }
-
         .btn-icon {
-            padding: 8px 14px;
-            border-radius: 100px;
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            font-family: inherit;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
+            padding: 8px 14px; border-radius: 100px;
+            background: transparent; border: 1px solid var(--border);
+            color: var(--text-secondary); font-family: inherit;
+            font-size: 12px; font-weight: 600; cursor: pointer;
             transition: all 0.2s ease;
         }
-
         .btn-icon:hover {
-            background: var(--card-bg);
-            border-color: var(--border-strong);
+            background: var(--card-bg); border-color: var(--border-strong);
             color: var(--text-primary);
         }
-
-        /* ============ MAIN ============ */
         .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 24px 28px;
-            gap: 20px;
-            overflow-y: auto;
+            flex: 1; display: flex; flex-direction: column;
+            padding: 24px 28px; gap: 20px; overflow-y: auto;
         }
-
-        /* ============ SETTINGS SECTION ============ */
         .settings {
-            background: var(--card-bg);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow-sm);
+            background: var(--card-bg); border-radius: var(--radius-lg);
+            border: 1px solid var(--border); box-shadow: var(--shadow-sm);
             overflow: hidden;
         }
-
         .settings-header {
-            padding: 16px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            user-select: none;
+            padding: 16px 20px; display: flex;
+            align-items: center; justify-content: space-between;
+            cursor: pointer; user-select: none;
             transition: background 0.2s ease;
         }
-
-        .settings-header:hover {
-            background: var(--card-hover);
-        }
-
+        .settings-header:hover { background: var(--card-hover); }
         .settings-title {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            font-weight: 700;
-            font-size: 14px;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-weight: 700; font-size: 14px; color: var(--text-primary);
+            display: flex; align-items: center; gap: 10px;
         }
-
         .settings-title-icon {
-            width: 24px;
-            height: 24px;
-            border-radius: 8px;
+            width: 24px; height: 24px; border-radius: 8px;
             background: var(--indigo-soft);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             font-size: 12px;
         }
-
         .settings-toggle-arrow {
-            color: var(--text-muted);
-            transition: transform 0.3s ease;
-            font-size: 12px;
+            color: var(--text-muted); transition: transform 0.3s ease; font-size: 12px;
         }
-
-        .settings.collapsed .settings-toggle-arrow {
-            transform: rotate(-90deg);
-        }
-
+        .settings.collapsed .settings-toggle-arrow { transform: rotate(-90deg); }
         .settings-body {
             padding: 0 20px 20px 20px;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 18px;
-            max-height: 1000px;
-            overflow: hidden;
+            max-height: 1000px; overflow: hidden;
             transition: max-height 0.4s ease, padding 0.3s ease, opacity 0.2s ease;
             opacity: 1;
         }
-
         .settings.collapsed .settings-body {
-            max-height: 0;
-            padding-top: 0;
-            padding-bottom: 0;
-            opacity: 0;
+            max-height: 0; padding-top: 0; padding-bottom: 0; opacity: 0;
         }
-
-        /* ============ FORM FIELDS ============ */
-        .field {
-            display: flex;
-            flex-direction: column;
-            gap: 7px;
-        }
-
+        .field { display: flex; flex-direction: column; gap: 7px; }
         .field-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            font-size: 11px; font-weight: 600; color: var(--text-secondary);
+            letter-spacing: 0.04em; text-transform: uppercase;
+            display: flex; align-items: center; justify-content: space-between;
         }
-
         .field-label-hint {
-            font-size: 10px;
-            font-weight: 500;
-            color: var(--text-muted);
-            text-transform: none;
-            letter-spacing: 0;
+            font-size: 10px; font-weight: 500; color: var(--text-muted);
+            text-transform: none; letter-spacing: 0;
         }
-
-        .input,
-        .textarea,
-        .select {
-            width: 100%;
-            padding: 11px 14px;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            background: var(--container-bg);
-            font-family: inherit;
-            font-size: 13px;
-            color: var(--text-primary);
-            transition: all 0.2s ease;
-            outline: none;
+        .input, .textarea, .select {
+            width: 100%; padding: 11px 14px;
+            border-radius: var(--radius); border: 1px solid var(--border);
+            background: var(--container-bg); font-family: inherit;
+            font-size: 13px; color: var(--text-primary);
+            transition: all 0.2s ease; outline: none;
         }
-
-        .input:focus,
-        .textarea:focus,
-        .select:focus {
-            border-color: var(--indigo);
-            background: var(--card-bg);
+        .input:focus, .textarea:focus, .select:focus {
+            border-color: var(--indigo); background: var(--card-bg);
             box-shadow: 0 0 0 4px var(--indigo-soft);
         }
-
         .textarea {
-            resize: vertical;
-            min-height: 70px;
-            font-family: inherit;
+            resize: vertical; min-height: 70px; font-family: inherit;
         }
-
         .select {
-            cursor: pointer;
-            appearance: none;
+            cursor: pointer; appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239090A0' stroke-width='2.5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 14px center;
+            background-repeat: no-repeat; background-position: right 14px center;
             padding-right: 38px;
         }
-
-        .input-group {
-            display: flex;
-            gap: 8px;
-        }
-
-        .input-group .input {
-            flex: 1;
-        }
-
+        .input-group { display: flex; gap: 8px; }
+        .input-group .input { flex: 1; }
         .btn-test {
-            padding: 11px 16px;
-            border-radius: var(--radius);
-            background: var(--indigo-soft);
-            color: var(--indigo);
+            padding: 11px 16px; border-radius: var(--radius);
+            background: var(--indigo-soft); color: var(--indigo);
             border: 1px solid var(--indigo-soft-border);
-            font-family: inherit;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s ease;
+            font-family: inherit; font-size: 12px; font-weight: 600;
+            cursor: pointer; white-space: nowrap; transition: all 0.2s ease;
         }
-
         .btn-test:hover {
-            background: var(--indigo);
-            color: white;
-            border-color: var(--indigo);
+            background: var(--indigo); color: white; border-color: var(--indigo);
         }
-
-        /* ============ TOGGLES ============ */
-        .toggles-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
+        .toggles-group { display: flex; flex-direction: column; gap: 10px; }
         .toggle-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 14px;
-            border-radius: var(--radius);
-            background: var(--container-bg);
-            border: 1px solid var(--border);
-            cursor: pointer;
-            transition: all 0.2s ease;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 14px; border-radius: var(--radius);
+            background: var(--container-bg); border: 1px solid var(--border);
+            cursor: pointer; transition: all 0.2s ease;
         }
-
         .toggle-row:hover {
-            background: var(--card-bg);
-            border-color: var(--border-strong);
+            background: var(--card-bg); border-color: var(--border-strong);
         }
-
-        .toggle-label {
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
+        .toggle-label { font-size: 13px; font-weight: 500; color: var(--text-primary); }
         .toggle-switch {
-            position: relative;
-            width: 42px;
-            height: 24px;
-            flex-shrink: 0;
+            position: relative; width: 42px; height: 24px; flex-shrink: 0;
         }
-
         .toggle-switch input {
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-            z-index: 2;
-            margin: 0;
+            position: absolute; opacity: 0; width: 100%; height: 100%;
+            cursor: pointer; z-index: 2; margin: 0;
         }
-
         .toggle-track {
-            position: absolute;
-            inset: 0;
-            background: var(--border-strong);
-            border-radius: 100px;
-            transition: all 0.25s ease;
+            position: absolute; inset: 0; background: var(--border-strong);
+            border-radius: 100px; transition: all 0.25s ease;
         }
-
         .toggle-track::after {
-            content: '';
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            content: ''; position: absolute; top: 3px; left: 3px;
+            width: 18px; height: 18px; border-radius: 50%;
+            background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
             transition: all 0.25s ease;
         }
-
-        .toggle-switch input:checked + .toggle-track {
-            background: var(--indigo);
-        }
-
-        .toggle-switch input:checked + .toggle-track::after {
-            transform: translateX(18px);
-        }
-
-        /* ============ MAGNIFIC SETTINGS ============ */
+        .toggle-switch input:checked + .toggle-track { background: var(--indigo); }
+        .toggle-switch input:checked + .toggle-track::after { transform: translateX(18px); }
         .magnific-section {
-            grid-column: 1 / -1;
-            padding: 16px;
-            background: var(--indigo-soft);
-            border: 1px solid var(--indigo-soft-border);
+            grid-column: 1 / -1; padding: 16px;
+            background: var(--indigo-soft); border: 1px solid var(--indigo-soft-border);
             border-radius: var(--radius);
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
-            transition: all 0.3s ease;
+            gap: 12px; transition: all 0.3s ease;
         }
-
-        .magnific-section.disabled {
-            opacity: 0.4;
-            pointer-events: none;
-        }
-
-        /* ============ DROPZONE ============ */
+        .magnific-section.disabled { opacity: 0.4; pointer-events: none; }
         .dropzone {
-            background: var(--card-bg);
-            border: 2px dashed var(--border-strong);
-            border-radius: var(--radius-lg);
-            padding: 48px 24px;
-            text-align: center;
-            cursor: pointer;
-            position: relative;
-            transition: all 0.3s ease;
-            overflow: hidden;
+            background: var(--card-bg); border: 2px dashed var(--border-strong);
+            border-radius: var(--radius-lg); padding: 48px 24px;
+            text-align: center; cursor: pointer;
+            position: relative; transition: all 0.3s ease; overflow: hidden;
         }
-
         .dropzone::before {
-            content: '';
-            position: absolute;
-            inset: 0;
+            content: ''; position: absolute; inset: 0;
             background: linear-gradient(135deg, var(--indigo-soft) 0%, transparent 50%, var(--sage-soft) 100%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
+            opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
         }
-
-        .dropzone:hover::before,
-        .dropzone.active::before {
-            opacity: 0.5;
-        }
-
+        .dropzone:hover::before, .dropzone.active::before { opacity: 0.5; }
         .dropzone:hover {
-            border-color: var(--indigo);
-            transform: translateY(-2px);
+            border-color: var(--indigo); transform: translateY(-2px);
             box-shadow: var(--shadow-md);
         }
-
-        .dropzone.active {
-            border-color: var(--indigo);
-            background: var(--indigo-soft);
-        }
-
+        .dropzone.active { border-color: var(--indigo); background: var(--indigo-soft); }
         .dropzone input[type="file"] {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            cursor: pointer;
-            z-index: 2;
+            position: absolute; inset: 0; opacity: 0;
+            cursor: pointer; z-index: 2;
         }
-
-        .dropzone-inner {
-            position: relative;
-            z-index: 1;
-            pointer-events: none;
-        }
-
+        .dropzone-inner { position: relative; z-index: 1; pointer-events: none; }
         .dropzone-icon {
-            width: 64px;
-            height: 64px;
-            margin: 0 auto 16px;
+            width: 64px; height: 64px; margin: 0 auto 16px;
             border-radius: 18px;
             background: linear-gradient(135deg, var(--indigo) 0%, #8B8FE8 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             box-shadow: 0 8px 24px rgba(107, 111, 217, 0.3);
         }
-
-        .dropzone-icon svg {
-            width: 30px;
-            height: 30px;
-            color: white;
-        }
-
+        .dropzone-icon svg { width: 30px; height: 30px; color: white; }
         .dropzone-title {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            font-weight: 700;
-            font-size: 17px;
-            color: var(--text-primary);
+            font-weight: 700; font-size: 17px; color: var(--text-primary);
             margin-bottom: 6px;
         }
-
         .dropzone-hint {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
+            font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;
         }
-
-        .dropzone-subhint {
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
-        /* ============ ACTION BAR ============ */
+        .dropzone-subhint { font-size: 11px; color: var(--text-muted); }
         .action-bar {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            justify-content: space-between;
+            display: flex; gap: 12px;
+            align-items: center; justify-content: space-between;
             flex-wrap: wrap;
         }
-
-        .queue-info {
-            font-size: 13px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
+        .queue-info { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
         .queue-info strong {
-            color: var(--text-primary);
-            font-weight: 700;
+            color: var(--text-primary); font-weight: 700;
             font-family: 'JetBrains Mono', monospace;
         }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
+        .action-buttons { display: flex; gap: 10px; align-items: center; }
         .btn {
-            padding: 12px 22px;
-            border-radius: 100px;
-            font-family: inherit;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            padding: 12px 22px; border-radius: 100px;
+            font-family: inherit; font-size: 13px; font-weight: 600;
+            cursor: pointer; border: none; transition: all 0.2s ease;
+            display: inline-flex; align-items: center; gap: 8px;
             white-space: nowrap;
         }
-
         .btn-primary {
             background: linear-gradient(135deg, var(--indigo) 0%, #7C7FE0 100%);
             color: white;
             box-shadow: 0 4px 14px rgba(107, 111, 217, 0.35);
         }
-
         .btn-primary:hover:not(:disabled) {
             transform: translateY(-1px);
             box-shadow: 0 6px 20px rgba(107, 111, 217, 0.45);
         }
-
         .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
-            filter: grayscale(0.4);
+            opacity: 0.5; cursor: not-allowed; box-shadow: none;
+            transform: none; filter: grayscale(0.4);
         }
-
         .btn-ghost {
-            background: transparent;
-            color: var(--text-secondary);
+            background: transparent; color: var(--text-secondary);
             border: 1px solid var(--border);
         }
-
         .btn-ghost:hover {
-            background: var(--card-bg);
-            color: var(--text-primary);
+            background: var(--card-bg); color: var(--text-primary);
             border-color: var(--border-strong);
         }
-
         .cost-estimate {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            color: var(--text-muted);
-            font-weight: 500;
+            font-size: 11px; color: var(--text-muted); font-weight: 500;
         }
-
-        /* ============ QUEUE ============ */
         .queue-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            max-height: 280px;
-            overflow-y: auto;
-            padding-right: 4px;
+            display: flex; flex-direction: column; gap: 8px;
+            max-height: 280px; overflow-y: auto; padding-right: 4px;
         }
-
         .queue-list::-webkit-scrollbar { width: 6px; }
         .queue-list::-webkit-scrollbar-track { background: transparent; }
         .queue-list::-webkit-scrollbar-thumb {
-            background: var(--border-strong);
-            border-radius: 10px;
+            background: var(--border-strong); border-radius: 10px;
         }
-
         .queue-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 16px;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
+            display: flex; align-items: center; gap: 14px;
+            padding: 12px 16px; background: var(--card-bg);
+            border: 1px solid var(--border); border-radius: var(--radius);
             transition: all 0.2s ease;
         }
-
-        .queue-item:hover {
-            border-color: var(--border-strong);
-            box-shadow: var(--shadow-sm);
-        }
-
+        .queue-item:hover { border-color: var(--border-strong); box-shadow: var(--shadow-sm); }
         .queue-item.done {
             border-color: var(--sage-soft-border);
             background: linear-gradient(to right, var(--sage-soft) 0%, var(--card-bg) 20%);
         }
-
         .queue-item.error {
             border-color: var(--rose-soft-border);
             background: linear-gradient(to right, var(--rose-soft) 0%, var(--card-bg) 20%);
         }
-
         .queue-thumb {
-            width: 44px;
-            height: 44px;
-            border-radius: 10px;
-            background: var(--container-bg);
-            border: 1px solid var(--border);
-            flex-shrink: 0;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 44px; height: 44px; border-radius: 10px;
+            background: var(--container-bg); border: 1px solid var(--border);
+            flex-shrink: 0; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
             font-size: 18px;
         }
-
-        .queue-thumb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .queue-info-block {
-            flex: 1;
-            min-width: 0;
-        }
-
+        .queue-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .queue-info-block { flex: 1; min-width: 0; }
         .queue-filename {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-primary);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            font-size: 13px; font-weight: 600; color: var(--text-primary);
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
             margin-bottom: 3px;
         }
-
         .queue-meta {
-            font-size: 11px;
-            color: var(--text-muted);
-            display: flex;
-            gap: 10px;
-            align-items: center;
+            font-size: 11px; color: var(--text-muted);
+            display: flex; gap: 10px; align-items: center;
         }
-
         .queue-status {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 100px;
-            letter-spacing: 0.02em;
+            font-size: 11px; font-weight: 600; padding: 4px 10px;
+            border-radius: 100px; letter-spacing: 0.02em;
         }
-
-        .queue-status.waiting {
-            background: var(--peach-soft);
-            color: var(--peach);
-        }
-
-        .queue-status.processing {
-            background: var(--indigo-soft);
-            color: var(--indigo);
-        }
-
-        .queue-status.done {
-            background: var(--sage-soft);
-            color: var(--sage);
-        }
-
-        .queue-status.error {
-            background: var(--rose-soft);
-            color: var(--rose);
-        }
-
-        /* ============ EMPTY STATE ============ */
+        .queue-status.waiting { background: var(--peach-soft); color: var(--peach); }
+        .queue-status.processing { background: var(--indigo-soft); color: var(--indigo); }
+        .queue-status.done { background: var(--sage-soft); color: var(--sage); }
+        .queue-status.error { background: var(--rose-soft); color: var(--rose); }
         .empty-state {
-            padding: 40px 20px;
-            text-align: center;
-            font-size: 13px;
-            color: var(--text-muted);
+            padding: 40px 20px; text-align: center;
+            font-size: 13px; color: var(--text-muted);
         }
-
-        /* ============ TABS ============ */
         .tabs-container {
-            background: var(--card-bg);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow-sm);
+            background: var(--card-bg); border-radius: var(--radius-lg);
+            border: 1px solid var(--border); box-shadow: var(--shadow-sm);
             overflow: hidden;
         }
-
         .tabs-header {
-            display: flex;
-            padding: 8px;
-            gap: 4px;
+            display: flex; padding: 8px; gap: 4px;
             border-bottom: 1px solid var(--border);
-            overflow-x: auto;
-            scrollbar-width: none;
+            overflow-x: auto; scrollbar-width: none;
         }
-
         .tabs-header::-webkit-scrollbar { display: none; }
-
         .tab-btn {
-            padding: 10px 18px;
-            border-radius: 100px;
-            background: transparent;
-            border: none;
-            font-family: inherit;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            gap: 7px;
+            padding: 10px 18px; border-radius: 100px;
+            background: transparent; border: none;
+            font-family: inherit; font-size: 13px; font-weight: 600;
+            color: var(--text-secondary); cursor: pointer;
+            transition: all 0.2s ease; white-space: nowrap;
+            display: flex; align-items: center; gap: 7px;
         }
-
-        .tab-btn:hover {
-            background: var(--container-bg);
-            color: var(--text-primary);
-        }
-
+        .tab-btn:hover { background: var(--container-bg); color: var(--text-primary); }
         .tab-btn.active {
-            background: var(--indigo);
-            color: white;
+            background: var(--indigo); color: white;
             box-shadow: 0 2px 8px rgba(107, 111, 217, 0.3);
         }
-
         .validation-badge {
-            background: var(--rose);
-            color: white;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 7px;
-            border-radius: 100px;
-            min-width: 18px;
-            text-align: center;
+            background: var(--rose); color: white;
+            font-size: 10px; font-weight: 700; padding: 2px 7px;
+            border-radius: 100px; min-width: 18px; text-align: center;
         }
-
-        /* ============ TAB CONTENT ============ */
-        .tab-content {
-            display: none !important;
-        }
-
-        .tab-content.active {
-            display: block !important;
-        }
-
+        .tab-content { display: none !important; }
+        .tab-content.active { display: block !important; }
         .tab-toolbar {
-            padding: 14px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--border);
-            background: var(--card-bg);
+            padding: 14px 20px; display: flex;
+            align-items: center; justify-content: space-between;
+            border-bottom: 1px solid var(--border); background: var(--card-bg);
         }
-
-        .tab-toolbar-info {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
+        .tab-toolbar-info { font-size: 12px; color: var(--text-muted); font-weight: 500; }
         .btn-export {
-            padding: 8px 16px;
-            border-radius: 100px;
-            background: var(--indigo-soft);
-            color: var(--indigo);
+            padding: 8px 16px; border-radius: 100px;
+            background: var(--indigo-soft); color: var(--indigo);
             border: 1px solid var(--indigo-soft-border);
-            font-family: inherit;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            font-family: inherit; font-size: 12px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s ease;
+            display: inline-flex; align-items: center; gap: 6px;
         }
-
         .btn-export:hover {
-            background: var(--indigo);
-            color: white;
-            border-color: var(--indigo);
+            background: var(--indigo); color: white; border-color: var(--indigo);
         }
-
-        .table-wrapper {
-            overflow-x: auto;
-            max-height: 400px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-
+        .table-wrapper { overflow-x: auto; max-height: 400px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
         thead th {
-            position: sticky;
-            top: 0;
-            background: var(--container-bg);
-            padding: 12px 16px;
-            text-align: left;
-            font-size: 10px;
-            font-weight: 700;
-            color: var(--text-muted);
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            border-bottom: 1px solid var(--border);
-            z-index: 1;
+            position: sticky; top: 0; background: var(--container-bg);
+            padding: 12px 16px; text-align: left;
+            font-size: 10px; font-weight: 700; color: var(--text-muted);
+            letter-spacing: 0.06em; text-transform: uppercase;
+            border-bottom: 1px solid var(--border); z-index: 1;
         }
-
         tbody td {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border);
-            color: var(--text-primary);
-            vertical-align: middle;
+            padding: 12px 16px; border-bottom: 1px solid var(--border);
+            color: var(--text-primary); vertical-align: middle;
         }
-
-        tbody tr:hover {
-            background: var(--container-bg);
-        }
-
-        tbody tr:last-child td {
-            border-bottom: none;
-        }
-
+        tbody tr:hover { background: var(--container-bg); }
+        tbody tr:last-child td { border-bottom: none; }
         .cell-content {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            max-width: 280px;
+            display: flex; align-items: center; gap: 8px; max-width: 280px;
         }
-
         .cell-text {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            font-size: 12px;
+            overflow: hidden; text-overflow: ellipsis;
+            white-space: nowrap; font-size: 12px;
         }
-
         .cell-filename {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            font-weight: 600;
+            font-size: 11px; font-weight: 600;
         }
-
         .copy-btn {
-            opacity: 0;
-            padding: 4px;
-            border-radius: 6px;
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: all 0.15s ease;
-            flex-shrink: 0;
+            opacity: 0; padding: 4px; border-radius: 6px;
+            background: transparent; border: none; color: var(--text-muted);
+            cursor: pointer; transition: all 0.15s ease; flex-shrink: 0;
         }
-
-        tr:hover .copy-btn,
-        .cell-content:hover .copy-btn {
-            opacity: 1;
-        }
-
-        .copy-btn:hover {
-            background: var(--indigo-soft);
-            color: var(--indigo);
-        }
-
-        @media (hover: none) {
-            .copy-btn { opacity: 0.5; }
-        }
-
+        tr:hover .copy-btn, .cell-content:hover .copy-btn { opacity: 1; }
+        .copy-btn:hover { background: var(--indigo-soft); color: var(--indigo); }
+        @media (hover: none) { .copy-btn { opacity: 0.5; } }
         .keyword-badge {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 100px;
-            flex-shrink: 0;
+            font-size: 10px; font-weight: 700; padding: 3px 8px;
+            border-radius: 100px; flex-shrink: 0;
         }
-
-        .keyword-badge.full {
-            background: var(--sage-soft);
-            color: var(--sage);
-        }
-
-        .keyword-badge.medium {
-            background: var(--peach-soft);
-            color: var(--peach);
-        }
-
-        .keyword-badge.low {
-            background: var(--rose-soft);
-            color: var(--rose);
-        }
-
-        /* ============ VALIDATION LIST ============ */
+        .keyword-badge.full { background: var(--sage-soft); color: var(--sage); }
+        .keyword-badge.medium { background: var(--peach-soft); color: var(--peach); }
+        .keyword-badge.low { background: var(--rose-soft); color: var(--rose); }
         .validation-list {
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            padding: 16px; display: flex; flex-direction: column; gap: 10px;
         }
-
         .validation-item {
-            padding: 14px 18px;
-            background: var(--rose-soft);
-            border: 1px solid var(--rose-soft-border);
-            border-radius: var(--radius);
+            padding: 14px 18px; background: var(--rose-soft);
+            border: 1px solid var(--rose-soft-border); border-radius: var(--radius);
         }
-
         .validation-file {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--rose);
+            font-size: 12px; font-weight: 600; color: var(--rose);
             margin-bottom: 8px;
         }
-
         .validation-errors {
-            list-style: none;
-            padding: 0;
-            font-size: 12px;
-            color: var(--text-secondary);
+            list-style: none; padding: 0;
+            font-size: 12px; color: var(--text-secondary);
         }
-
-        .validation-errors li {
-            padding: 3px 0 3px 14px;
-            position: relative;
-        }
-
+        .validation-errors li { padding: 3px 0 3px 14px; position: relative; }
         .validation-errors li::before {
-            content: '•';
-            position: absolute;
-            left: 0;
-            color: var(--rose);
-            font-weight: bold;
+            content: '•'; position: absolute; left: 0;
+            color: var(--rose); font-weight: bold;
         }
-
-        /* ============ TOAST ============ */
         .toast {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            padding: 14px 20px;
-            background: var(--text-primary);
-            color: white;
-            border-radius: var(--radius);
-            font-size: 13px;
-            font-weight: 500;
+            position: fixed; bottom: 24px; right: 24px;
+            padding: 14px 20px; background: var(--text-primary); color: white;
+            border-radius: var(--radius); font-size: 13px; font-weight: 500;
             box-shadow: var(--shadow-lg);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transform: translateY(100px);
-            opacity: 0;
+            display: flex; align-items: center; gap: 10px;
+            transform: translateY(100px); opacity: 0;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1000;
-            max-width: 320px;
+            z-index: 1000; max-width: 320px;
         }
-
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .toast-icon {
-            font-size: 16px;
-        }
-
-        /* ============ RESPONSIVE ============ */
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast-icon { font-size: 16px; }
         @media (max-width: 720px) {
             body { padding: 12px; }
             .app { border-radius: var(--radius-lg); min-height: calc(100vh - 24px); }
@@ -1045,24 +520,16 @@
             .btn { flex: 1; justify-content: center; }
             .logo-sub { display: none; }
         }
-
-        /* Animasi */
         @keyframes pulse-slow {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
-
-        .processing-pulse {
-            animation: pulse-slow 1.5s ease-in-out infinite;
-        }
-
-        /* Hidden helper */
+        .processing-pulse { animation: pulse-slow 1.5s ease-in-out infinite; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
     <div class="app">
-        <!-- ============ HEADER ============ -->
         <header class="header">
             <div class="logo-group">
                 <div class="logo-mark">M</div>
@@ -1080,9 +547,7 @@
             </div>
         </header>
 
-        <!-- ============ MAIN CONTENT ============ -->
         <main class="main">
-            <!-- Settings (collapsible) -->
             <section class="settings" id="settings-section">
                 <div class="settings-header" onclick="toggleSettings()">
                     <div class="settings-title">
@@ -1147,7 +612,6 @@
                 </div>
             </section>
 
-            <!-- Dropzone -->
             <section class="dropzone" id="dropzone">
                 <input type="file" id="file-input" multiple accept="image/jpeg, image/png, image/webp, image/gif, video/mp4, video/quicktime, image/svg+xml, .eps, .ai, .psd">
                 <div class="dropzone-inner">
@@ -1164,7 +628,6 @@
                 </div>
             </section>
 
-            <!-- Action bar -->
             <div class="action-bar">
                 <div class="queue-info">
                     Queue: <strong id="queue-count">0</strong> file · Est: <strong id="cost-estimate">0</strong> API calls
@@ -1177,12 +640,10 @@
                 </div>
             </div>
 
-            <!-- Queue list -->
             <div class="queue-list" id="queue-list">
                 <div class="empty-state">Queue is empty — drop files above to begin</div>
             </div>
 
-            <!-- Results tabs -->
             <section class="tabs-container">
                 <div class="tabs-header" id="tabs-header">
                     <button class="tab-btn active" data-tab="tab-adobe">Adobe Stock</button>
@@ -1288,7 +749,6 @@
     </div>
 
     <script>
-        // ============ TAB SWITCHING ============
         document.addEventListener('DOMContentLoaded', function() {
             var tabsHeader = document.getElementById('tabs-header');
             if (tabsHeader) {
@@ -1333,7 +793,14 @@
 
         const ADOBE_CATS = ["Animals","Buildings and architecture","Business","Drinks","The environment","States of mind","Food","Graphic resources","Hobbies and leisure","Industry","Landscape","Lifestyle","People","Plants and flowers","Culture and religion","Science","Social issues","Sports","Technology","Transport","Travel"];
         const ADOBE_CAT_IDS = { "Animals":1,"Buildings and architecture":2,"Business":3,"Drinks":4,"The environment":5,"States of mind":6,"Food":7,"Graphic resources":8,"Hobbies and leisure":9,"Industry":10,"Landscape":11,"Lifestyle":12,"People":13,"Plants and flowers":14,"Culture and religion":15,"Science":16,"Social issues":17,"Sports":18,"Technology":19,"Transport":20,"Travel":21 };
-        const SS_CATS = ["Abstract","Animals/Wildlife","The Arts","Backgrounds/Textures","Beauty/Fashion","Buildings/Landmarks","Business/Finance","Celebrities","Education","Food and Drink","Healthcare/Medical","Holidays","Industrial","Interiors","Miscellaneous","Nature","Objects","Parks/Outdoor","People","Religion","Science","Signs/Symbols","Sports/Recreation","Technology","Transportation","Vintage"];
+
+        // FIX: Shutterstock categories for IMAGES (all categories)
+        const SS_CATS_IMAGE = ["Abstract","Animals/Wildlife","The Arts","Backgrounds/Textures","Beauty/Fashion","Buildings/Landmarks","Business/Finance","Celebrities","Education","Food and Drink","Healthcare/Medical","Holidays","Industrial","Interiors","Miscellaneous","Nature","Objects","Parks/Outdoor","People","Religion","Science","Signs/Symbols","Sports/Recreation","Technology","Transportation","Vintage"];
+
+        // FIX: Shutterstock categories for VIDEO (exclude video-unavailable categories)
+        // Excluded: Abstract, Beauty/Fashion, Celebrities, Interiors, Miscellaneous, Parks/Outdoor, Vintage
+        const SS_CATS_VIDEO = ["Animals/Wildlife","The Arts","Backgrounds/Textures","Buildings/Landmarks","Business/Finance","Education","Food and Drink","Healthcare/Medical","Holidays","Industrial","Nature","Objects","People","Religion","Science","Signs/Symbols","Sports/Recreation","Technology","Transportation"];
+
         const VZ_CATS = ["Animals and Plants","Activity and Events","Composition","Food and Drink","Location","Objects and Colors","People"];
         const MG_TYPES = ["Photo","Vector","PSD","Mockup","AI Image"];
         const P5_CATS = ["abstract","aerials","alpha channel/greenscreen","archival","animation","animals/wildlife","buildings and monuments","business","celebrities","current events","education","food and drink","healthcare/medical","industry","landscapes","lifestyle","medical & health","nature","people","religion","science","sports","technology","transportation","vintage","other"];
@@ -1351,25 +818,34 @@
             required: ["keywords","adobe_title","adobe_cat","ss_desc","ss_cat","vz_title","vz_desc","vz_cat","mg_title","mg_type","p5_title","p5_desc","p5_cat"]
         };
 
-        const PROMPT_BASE = `You are a senior microstock SEO expert. Look carefully at the attached image(s) and describe ONLY what is clearly visible. The file name is meaningless.
+        function buildPrompt(isVideo) {
+            const ssList = isVideo ? SS_CATS_VIDEO : SS_CATS_IMAGE;
+            const ssNote = isVideo
+                ? "\n\nIMPORTANT: This is VIDEO content. Shutterstock does NOT accept these categories for video: Abstract, Beauty/Fashion, Celebrities, Interiors, Miscellaneous, Parks/Outdoor, Vintage. You MUST pick from the list above."
+                : "";
+            return `You are a senior microstock SEO expert. Look carefully at the attached image(s) (frames of ONE asset) and describe ONLY what is clearly visible. The file name is meaningless: never use it. Never invent brands, trademarks, real names, places or dates.
 
 Rules:
 - English only. Accurate, relevant, no keyword spam, no trademarks, no personal info.
-- If identifiable faces, children, brand logos, or copyrighted property are visible, add tags "_model_release_needed" or "_property_release_needed" at end of keywords.
+- If identifiable faces, children, brand logos, or copyrighted property are visible, mention briefly in ss_desc and add tags "_model_release_needed" or "_property_release_needed" at end of keywords.
 
-keywords: exactly 50 (min 48), ordered by importance. Top 10 = main visual elements. Include 5+ abstract concepts. Include shot type/style. Include dominant colors. Lowercase, no duplicates.
-adobe_title: max 70 chars, NO commas.
-ss_desc: one natural sentence, NO commas.
-mg_title: 35-100 chars, NO file types/digits/commas.
-p5_title: 40-80 chars, NO commas.
-p5_desc: detailed, NO commas.
+keywords: exactly 50 (min 48), ordered by importance. Top 10 = main visual elements. Include at least 5 abstract concepts. Include shot type/style if relevant. Include dominant colors. Lowercase, no plural duplicates.
+adobe_title: max 70 chars, clear. NO commas allowed.
+ss_desc: one natural descriptive sentence. NO commas allowed.
+mg_title: 35-100 chars. NO file types/digits. NO commas allowed.
+p5_title: 40-80 chars (+ HD/4K if video). NO commas allowed.
+p5_desc: detailed scene description. NO commas allowed.
 
-Categories MUST match EXACTLY:
+Categories MUST be exact matches from these lists:
 adobe_cat: ${JSON.stringify(ADOBE_CATS)}
-ss_cat and ss_cat2: ${JSON.stringify(SS_CATS)}
+ss_cat and ss_cat2: ${JSON.stringify(ssList)}${ssNote}
 vz_cat: ${JSON.stringify(VZ_CATS)}
 mg_type: ${JSON.stringify(MG_TYPES)}
 p5_cat: ${JSON.stringify(P5_CATS)}`;
+        }
+
+        const PROMPT_BASE_IMAGE = buildPrompt(false);
+        const PROMPT_BASE_VIDEO = buildPrompt(true);
 
         let appState = { queue: [], isProcessing: false, db: null, isApiValid: false };
 
@@ -1688,13 +1164,14 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             }).join('');
         };
 
-        const validate = (d) => {
+        const validate = (d, isVideo) => {
             const e = [];
+            const ssList = isVideo ? SS_CATS_VIDEO : SS_CATS_IMAGE;
             if (!d.keywords || d.keywords.length < 48) e.push(`Keywords count ${d.keywords?.length || 0} (need 50)`);
             if (d.adobe_title?.length > 70) e.push("adobe_title exceeds 70 chars");
             if (!ADOBE_CATS.includes(d.adobe_cat)) e.push(`adobe_cat '${d.adobe_cat}' invalid`);
-            if (!SS_CATS.includes(d.ss_cat)) e.push(`ss_cat '${d.ss_cat}' invalid`);
-            if (d.ss_cat2 && !SS_CATS.includes(d.ss_cat2)) e.push(`ss_cat2 invalid`);
+            if (!ssList.includes(d.ss_cat)) e.push(`ss_cat '${d.ss_cat}' invalid${isVideo ? ' for VIDEO' : ''}`);
+            if (d.ss_cat2 && !ssList.includes(d.ss_cat2)) e.push(`ss_cat2 '${d.ss_cat2}' invalid${isVideo ? ' for VIDEO' : ''}`);
             if (!VZ_CATS.includes(d.vz_cat)) e.push(`vz_cat invalid`);
             if (!MG_TYPES.includes(d.mg_type)) e.push(`mg_type invalid`);
             if (!P5_CATS.includes(d.p5_cat)) e.push(`p5_cat invalid`);
@@ -1725,9 +1202,10 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             const item = appState.queue[idx];
             item.status = 'processing';
             renderQueue();
+            const isVideo = item.type === 'video';
             try {
                 let parts = [];
-                if (item.type === 'video') {
+                if (isVideo) {
                     const ex = await extractVideo(item.previewFile);
                     item.thumb = ex.thumb;
                     parts = ex.frames.map(f => ({ inlineData: f }));
@@ -1740,7 +1218,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 const ai = new GoogleGenAI({ apiKey: document.getElementById('api-key').value.trim() });
                 const model = document.getElementById('model-select').value;
                 const gc = document.getElementById('global-context').value.trim();
-                let prompt = PROMPT_BASE;
+                let prompt = isVideo ? PROMPT_BASE_VIDEO : PROMPT_BASE_IMAGE;
                 if (gc) prompt += `\n\nGlobal Context: ${gc}`;
 
                 let errs = [], data = null, att = 0;
@@ -1755,7 +1233,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                     const r = await callGemini(ai, payload);
                     try {
                         data = JSON.parse(r.text);
-                        errs = validate(data);
+                        errs = validate(data, isVideo);
                         if (!errs.length) break;
                     } catch (pe) { errs = ["Parse fail"]; }
                     att++;
