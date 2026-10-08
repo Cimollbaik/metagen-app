@@ -1,200 +1,1294 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MicroStock MetaGen</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    colors: { gray: { 850: '#1f2937', 900: '#111827', 950: '#030712' } }
-                }
-            }
-        }
-    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #030712; color: #f3f4f6; }
-        .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #1f2937; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #6b7280; }
-        .tab-content { display: none !important; }
-        .tab-content.active { display: flex !important; }
-        .dropzone-active { border-color: #3b82f6; background-color: rgba(59, 130, 246, 0.1); }
-        .btn-generate { background-size: 200% auto; transition: 0.5s; }
-        .btn-generate:hover:not(:disabled) { background-position: right center; }
-        .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
-        @media (hover: none) { .copy-btn { opacity: 1 !important; } }
+        :root {
+            --bg-outer: #F0EAE0;
+            --bg-pattern-dot: rgba(107, 111, 217, 0.08);
+            --container-bg: #FAF8F3;
+            --card-bg: #FFFFFF;
+            --card-hover: #FDFCFA;
+
+            --indigo: #6B6FD9;
+            --indigo-hover: #585DC7;
+            --indigo-soft: #EBEBFB;
+            --indigo-soft-border: #D5D5F5;
+
+            --sage: #7BA878;
+            --sage-soft: #E5F0E1;
+            --sage-soft-border: #C5DDC1;
+
+            --peach: #D49478;
+            --peach-soft: #FBEEE6;
+            --peach-soft-border: #EBCDB8;
+
+            --rose: #C57B93;
+            --rose-soft: #F7E4EC;
+            --rose-soft-border: #E5B8C8;
+
+            --text-primary: #1A1A2E;
+            --text-secondary: #56566B;
+            --text-muted: #9090A0;
+            --text-on-accent: #FFFFFF;
+
+            --border: #E8E4DC;
+            --border-strong: #D4CFC4;
+
+            --shadow-sm: 0 1px 3px rgba(26, 26, 46, 0.04), 0 1px 2px rgba(26, 26, 46, 0.02);
+            --shadow-md: 0 4px 16px rgba(26, 26, 46, 0.06), 0 1px 3px rgba(26, 26, 46, 0.04);
+            --shadow-lg: 0 20px 48px rgba(26, 26, 46, 0.10), 0 4px 12px rgba(26, 26, 46, 0.05);
+            --shadow-xl: 0 32px 64px rgba(26, 26, 46, 0.14);
+
+            --radius-sm: 10px;
+            --radius: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-outer);
+            background-image: radial-gradient(circle, var(--bg-pattern-dot) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ============ APP CONTAINER ============ */
+        .app {
+            max-width: 1280px;
+            margin: 0 auto;
+            background: var(--container-bg);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            min-height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ============ HEADER ============ */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 28px;
+            border-bottom: 1px solid var(--border);
+            background: var(--card-bg);
+            flex-shrink: 0;
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo-mark {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--indigo) 0%, #8B8FE8 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(107, 111, 217, 0.3);
+        }
+
+        .logo-text {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .logo-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 14px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            background: var(--sage-soft);
+            color: var(--sage);
+            border: 1px solid var(--sage-soft-border);
+            transition: all 0.2s ease;
+        }
+
+        .status-badge.offline {
+            background: var(--rose-soft);
+            color: var(--rose);
+            border-color: var(--rose-soft-border);
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        .btn-icon {
+            padding: 8px 14px;
+            border-radius: 100px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-icon:hover {
+            background: var(--card-bg);
+            border-color: var(--border-strong);
+            color: var(--text-primary);
+        }
+
+        /* ============ MAIN ============ */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 28px;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        /* ============ SETTINGS SECTION ============ */
+        .settings {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .settings-header {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s ease;
+        }
+
+        .settings-header:hover {
+            background: var(--card-hover);
+        }
+
+        .settings-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings-title-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 8px;
+            background: var(--indigo-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .settings-toggle-arrow {
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+            font-size: 12px;
+        }
+
+        .settings.collapsed .settings-toggle-arrow {
+            transform: rotate(-90deg);
+        }
+
+        .settings-body {
+            padding: 0 20px 20px 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.3s ease, opacity 0.2s ease;
+            opacity: 1;
+        }
+
+        .settings.collapsed .settings-body {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            opacity: 0;
+        }
+
+        /* ============ FORM FIELDS ============ */
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .field-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .field-label-hint {
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        .input,
+        .textarea,
+        .select {
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--container-bg);
+            font-family: inherit;
+            font-size: 13px;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .input:focus,
+        .textarea:focus,
+        .select:focus {
+            border-color: var(--indigo);
+            background: var(--card-bg);
+            box-shadow: 0 0 0 4px var(--indigo-soft);
+        }
+
+        .textarea {
+            resize: vertical;
+            min-height: 70px;
+            font-family: inherit;
+        }
+
+        .select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239090A0' stroke-width='2.5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 38px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .input-group .input {
+            flex: 1;
+        }
+
+        .btn-test {
+            padding: 11px 16px;
+            border-radius: var(--radius);
+            background: var(--indigo-soft);
+            color: var(--indigo);
+            border: 1px solid var(--indigo-soft-border);
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .btn-test:hover {
+            background: var(--indigo);
+            color: white;
+            border-color: var(--indigo);
+        }
+
+        /* ============ TOGGLES ============ */
+        .toggles-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            border-radius: var(--radius);
+            background: var(--container-bg);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-row:hover {
+            background: var(--card-bg);
+            border-color: var(--border-strong);
+        }
+
+        .toggle-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 42px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 2;
+            margin: 0;
+        }
+
+        .toggle-track {
+            position: absolute;
+            inset: 0;
+            background: var(--border-strong);
+            border-radius: 100px;
+            transition: all 0.25s ease;
+        }
+
+        .toggle-track::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            transition: all 0.25s ease;
+        }
+
+        .toggle-switch input:checked + .toggle-track {
+            background: var(--indigo);
+        }
+
+        .toggle-switch input:checked + .toggle-track::after {
+            transform: translateX(18px);
+        }
+
+        /* ============ MAGNIFIC SETTINGS ============ */
+        .magnific-section {
+            grid-column: 1 / -1;
+            padding: 16px;
+            background: var(--indigo-soft);
+            border: 1px solid var(--indigo-soft-border);
+            border-radius: var(--radius);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .magnific-section.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        /* ============ DROPZONE ============ */
+        .dropzone {
+            background: var(--card-bg);
+            border: 2px dashed var(--border-strong);
+            border-radius: var(--radius-lg);
+            padding: 48px 24px;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .dropzone::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--indigo-soft) 0%, transparent 50%, var(--sage-soft) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .dropzone:hover::before,
+        .dropzone.active::before {
+            opacity: 0.5;
+        }
+
+        .dropzone:hover {
+            border-color: var(--indigo);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .dropzone.active {
+            border-color: var(--indigo);
+            background: var(--indigo-soft);
+        }
+
+        .dropzone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .dropzone-inner {
+            position: relative;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .dropzone-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, var(--indigo) 0%, #8B8FE8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(107, 111, 217, 0.3);
+        }
+
+        .dropzone-icon svg {
+            width: 30px;
+            height: 30px;
+            color: white;
+        }
+
+        .dropzone-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            font-size: 17px;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .dropzone-hint {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .dropzone-subhint {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* ============ ACTION BAR ============ */
+        .action-bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .queue-info {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .queue-info strong {
+            color: var(--text-primary);
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 12px 22px;
+            border-radius: 100px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--indigo) 0%, #7C7FE0 100%);
+            color: white;
+            box-shadow: 0 4px 14px rgba(107, 111, 217, 0.35);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(107, 111, 217, 0.45);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+            filter: grayscale(0.4);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-ghost:hover {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border-color: var(--border-strong);
+        }
+
+        .cost-estimate {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* ============ QUEUE ============ */
+        .queue-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 280px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .queue-list::-webkit-scrollbar { width: 6px; }
+        .queue-list::-webkit-scrollbar-track { background: transparent; }
+        .queue-list::-webkit-scrollbar-thumb {
+            background: var(--border-strong);
+            border-radius: 10px;
+        }
+
+        .queue-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            transition: all 0.2s ease;
+        }
+
+        .queue-item:hover {
+            border-color: var(--border-strong);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .queue-item.done {
+            border-color: var(--sage-soft-border);
+            background: linear-gradient(to right, var(--sage-soft) 0%, var(--card-bg) 20%);
+        }
+
+        .queue-item.error {
+            border-color: var(--rose-soft-border);
+            background: linear-gradient(to right, var(--rose-soft) 0%, var(--card-bg) 20%);
+        }
+
+        .queue-thumb {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: var(--container-bg);
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .queue-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .queue-info-block {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .queue-filename {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-bottom: 3px;
+        }
+
+        .queue-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .queue-status {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 100px;
+            letter-spacing: 0.02em;
+        }
+
+        .queue-status.waiting {
+            background: var(--peach-soft);
+            color: var(--peach);
+        }
+
+        .queue-status.processing {
+            background: var(--indigo-soft);
+            color: var(--indigo);
+        }
+
+        .queue-status.done {
+            background: var(--sage-soft);
+            color: var(--sage);
+        }
+
+        .queue-status.error {
+            background: var(--rose-soft);
+            color: var(--rose);
+        }
+
+        /* ============ EMPTY STATE ============ */
+        .empty-state {
+            padding: 40px 20px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* ============ TABS ============ */
+        .tabs-container {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .tabs-header {
+            display: flex;
+            padding: 8px;
+            gap: 4px;
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .tabs-header::-webkit-scrollbar { display: none; }
+
+        .tab-btn {
+            padding: 10px 18px;
+            border-radius: 100px;
+            background: transparent;
+            border: none;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .tab-btn:hover {
+            background: var(--container-bg);
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            background: var(--indigo);
+            color: white;
+            box-shadow: 0 2px 8px rgba(107, 111, 217, 0.3);
+        }
+
+        .validation-badge {
+            background: var(--rose);
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 100px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        /* ============ TAB CONTENT ============ */
+        .tab-content {
+            display: none !important;
+        }
+
+        .tab-content.active {
+            display: block !important;
+        }
+
+        .tab-toolbar {
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            background: var(--card-bg);
+        }
+
+        .tab-toolbar-info {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .btn-export {
+            padding: 8px 16px;
+            border-radius: 100px;
+            background: var(--indigo-soft);
+            color: var(--indigo);
+            border: 1px solid var(--indigo-soft-border);
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-export:hover {
+            background: var(--indigo);
+            color: white;
+            border-color: var(--indigo);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            max-height: 400px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        thead th {
+            position: sticky;
+            top: 0;
+            background: var(--container-bg);
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+            z-index: 1;
+        }
+
+        tbody td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background: var(--container-bg);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .cell-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            max-width: 280px;
+        }
+
+        .cell-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 12px;
+        }
+
+        .cell-filename {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .copy-btn {
+            opacity: 0;
+            padding: 4px;
+            border-radius: 6px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+        }
+
+        tr:hover .copy-btn,
+        .cell-content:hover .copy-btn {
+            opacity: 1;
+        }
+
+        .copy-btn:hover {
+            background: var(--indigo-soft);
+            color: var(--indigo);
+        }
+
+        @media (hover: none) {
+            .copy-btn { opacity: 0.5; }
+        }
+
+        .keyword-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 100px;
+            flex-shrink: 0;
+        }
+
+        .keyword-badge.full {
+            background: var(--sage-soft);
+            color: var(--sage);
+        }
+
+        .keyword-badge.medium {
+            background: var(--peach-soft);
+            color: var(--peach);
+        }
+
+        .keyword-badge.low {
+            background: var(--rose-soft);
+            color: var(--rose);
+        }
+
+        /* ============ VALIDATION LIST ============ */
+        .validation-list {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .validation-item {
+            padding: 14px 18px;
+            background: var(--rose-soft);
+            border: 1px solid var(--rose-soft-border);
+            border-radius: var(--radius);
+        }
+
+        .validation-file {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--rose);
+            margin-bottom: 8px;
+        }
+
+        .validation-errors {
+            list-style: none;
+            padding: 0;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .validation-errors li {
+            padding: 3px 0 3px 14px;
+            position: relative;
+        }
+
+        .validation-errors li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--rose);
+            font-weight: bold;
+        }
+
+        /* ============ TOAST ============ */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 14px 20px;
+            background: var(--text-primary);
+            color: white;
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            max-width: 320px;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-icon {
+            font-size: 16px;
+        }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 720px) {
+            body { padding: 12px; }
+            .app { border-radius: var(--radius-lg); min-height: calc(100vh - 24px); }
+            .header { padding: 16px 20px; }
+            .logo-text { font-size: 16px; }
+            .main { padding: 16px 20px; gap: 16px; }
+            .dropzone { padding: 32px 20px; }
+            .dropzone-icon { width: 56px; height: 56px; }
+            .dropzone-title { font-size: 15px; }
+            .action-bar { flex-direction: column; align-items: stretch; }
+            .action-buttons { justify-content: stretch; }
+            .btn { flex: 1; justify-content: center; }
+            .logo-sub { display: none; }
+        }
+
+        /* Animasi */
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .processing-pulse {
+            animation: pulse-slow 1.5s ease-in-out infinite;
+        }
+
+        /* Hidden helper */
+        .hidden { display: none !important; }
     </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden">
-
-    <header class="border-b border-gray-800 bg-gray-900/50 backdrop-blur-md px-6 py-4 flex items-center justify-between shrink-0 z-10">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold text-white shadow-lg">M</div>
-            <h1 class="text-xl font-semibold tracking-tight">MicroStock MetaGen</h1>
-        </div>
-        <div class="flex items-center gap-4">
-            <span id="api-status" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-red-900/30 text-red-400 border border-red-800/50">
-                <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Missing API Key
-            </span>
-            <button id="btn-clear-data" class="text-sm text-gray-400 hover:text-white transition-colors">Reset All Data</button>
-        </div>
-    </header>
-
-    <main class="flex-1 flex overflow-hidden">
-        <aside class="w-80 border-r border-gray-800 bg-gray-900 overflow-y-auto custom-scrollbar flex flex-col shrink-0">
-            <div class="p-6 space-y-6">
-                <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                        <label class="block text-sm font-medium text-gray-300">Gemini API Key</label>
-                        <button id="btn-test-key" class="text-xs text-blue-400 hover:text-blue-300 bg-blue-900/30 px-2 py-0.5 rounded border border-blue-800/50 transition-colors">Test Key</button>
-                    </div>
-                    <input type="password" id="api-key" placeholder="AIzaSy..." class="w-full bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
-                    <p class="text-xs text-gray-500">Stored locally in your browser.</p>
-                </div>
-
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium text-gray-300">AI Model</label>
-                    <select id="model-select" class="w-full bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-all">
-                        <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite (Fast/Stable)</option>
-                        <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</option>
-                        <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
-                    </select>
-                </div>
-
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium text-gray-300">Global Context (Optional)</label>
-                    <textarea id="global-context" rows="3" placeholder="e.g., 'Flat vector illustration style, vibrant colors' - applied to all items" class="w-full bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-all custom-scrollbar resize-none"></textarea>
-                </div>
-
-                <div class="space-y-4 pt-2 border-t border-gray-800">
-                    <label class="flex items-center justify-between cursor-pointer group">
-                        <span class="text-sm text-gray-300 group-hover:text-white transition-colors">All assets are AI-generated</span>
-                        <div class="relative">
-                            <input type="checkbox" id="toggle-ai" class="sr-only peer">
-                            <div class="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
-                        </div>
-                    </label>
-                    <label class="flex items-center justify-between cursor-pointer group">
-                        <span class="text-sm text-gray-300 group-hover:text-white transition-colors">All assets are Editorial</span>
-                        <div class="relative">
-                            <input type="checkbox" id="toggle-editorial" class="sr-only peer">
-                            <div class="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
-                        </div>
-                    </label>
-                </div>
-
-                <div id="ai-magnific-settings" class="space-y-3 pt-2 border-t border-gray-800 transition-opacity">
-                    <label class="block text-sm font-medium text-gray-300">Magnific AI Settings (Export)</label>
-                    <input type="text" id="ai-model-name" placeholder="AI Model Name (e.g. Midjourney v6)" class="w-full bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-all">
-                    <textarea id="ai-prompt-text" rows="2" placeholder="AI Prompt used..." class="w-full bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-all custom-scrollbar resize-none"></textarea>
-                </div>
-
-                <div class="pt-4">
-                    <button id="btn-generate" disabled class="btn-generate w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white font-medium py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transition-all">Generate Metadata</button>
-                    <p id="cost-estimate" class="text-center text-xs text-gray-500 mt-2 hidden">Est: 0 API calls</p>
+<body>
+    <div class="app">
+        <!-- ============ HEADER ============ -->
+        <header class="header">
+            <div class="logo-group">
+                <div class="logo-mark">M</div>
+                <div>
+                    <div class="logo-text">MicroStock MetaGen</div>
+                    <div class="logo-sub">AI Metadata Generator</div>
                 </div>
             </div>
-        </aside>
+            <div class="header-actions">
+                <span class="status-badge offline" id="api-status">
+                    <span class="status-dot"></span>
+                    <span id="api-status-text">No API Key</span>
+                </span>
+                <button class="btn-icon" id="btn-clear-data">Reset</button>
+            </div>
+        </header>
 
-        <div class="flex-1 flex flex-col min-w-0 bg-gray-950">
-            <div class="h-1/2 border-b border-gray-800 flex flex-col">
-                <div id="dropzone" class="m-4 border-2 border-dashed border-gray-700 rounded-xl flex-1 flex flex-col items-center justify-center p-6 text-center transition-all bg-gray-900/50 hover:bg-gray-900 cursor-pointer relative overflow-hidden group">
-                    <input type="file" id="file-input" multiple accept="image/jpeg, image/png, image/webp, image/gif, video/mp4, video/quicktime, image/svg+xml, .eps, .ai, .psd" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                    <div class="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+        <!-- ============ MAIN CONTENT ============ -->
+        <main class="main">
+            <!-- Settings (collapsible) -->
+            <section class="settings" id="settings-section">
+                <div class="settings-header" onclick="toggleSettings()">
+                    <div class="settings-title">
+                        <span class="settings-title-icon">⚙️</span>
+                        Configuration
                     </div>
-                    <p class="text-lg font-medium text-gray-300">Drag & drop files here</p>
-                    <p class="text-sm text-gray-500 mt-2">Supports JPG, PNG, WEBP, MP4, MOV, SVG</p>
-                    <p class="text-xs text-gray-600 mt-1">Upload SVG + JPG preview dengan nama sama untuk hasil terbaik</p>
+                    <span class="settings-toggle-arrow">▼</span>
                 </div>
+                <div class="settings-body">
+                    <div class="field">
+                        <label class="field-label">Gemini API Key</label>
+                        <div class="input-group">
+                            <input type="password" class="input" id="api-key" placeholder="AIzaSy...">
+                            <button class="btn-test" id="btn-test-key">Test</button>
+                        </div>
+                    </div>
 
-                <div class="px-4 pb-2 flex justify-between items-center shrink-0">
-                    <h3 class="text-sm font-medium text-gray-400">Queue (<span id="queue-count">0</span>)</h3>
-                    <button id="btn-clear-queue" class="text-xs text-red-400 hover:text-red-300">Clear Queue</button>
+                    <div class="field">
+                        <label class="field-label">AI Model</label>
+                        <select class="select" id="model-select">
+                            <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite</option>
+                            <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</option>
+                            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                        </select>
+                    </div>
+
+                    <div class="field" style="grid-column: 1 / -1;">
+                        <label class="field-label">Global Context <span class="field-label-hint">Optional</span></label>
+                        <textarea class="textarea" id="global-context" placeholder="e.g., 'Flat vector illustration style, vibrant colors' — applied to all items"></textarea>
+                    </div>
+
+                    <div class="field" style="grid-column: 1 / -1;">
+                        <label class="field-label">Asset Flags</label>
+                        <div class="toggles-group">
+                            <label class="toggle-row">
+                                <span class="toggle-label">All assets are AI-generated</span>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="toggle-ai">
+                                    <span class="toggle-track"></span>
+                                </div>
+                            </label>
+                            <label class="toggle-row">
+                                <span class="toggle-label">All assets are Editorial</span>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="toggle-editorial">
+                                    <span class="toggle-track"></span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="magnific-section disabled" id="ai-magnific-settings" style="grid-column: 1 / -1;">
+                        <div class="field">
+                            <label class="field-label">AI Model Name <span class="field-label-hint">for Magnific</span></label>
+                            <input type="text" class="input" id="ai-model-name" placeholder="e.g. Midjourney v6">
+                        </div>
+                        <div class="field">
+                            <label class="field-label">AI Prompt <span class="field-label-hint">for Magnific</span></label>
+                            <textarea class="textarea" id="ai-prompt-text" placeholder="Original prompt used..." style="min-height: 44px;"></textarea>
+                        </div>
+                    </div>
                 </div>
-                <div id="queue-list" class="flex-1 overflow-y-auto custom-scrollbar px-4 pb-4 space-y-2">
-                    <div class="text-center text-gray-600 text-sm py-8">Queue is empty</div>
+            </section>
+
+            <!-- Dropzone -->
+            <section class="dropzone" id="dropzone">
+                <input type="file" id="file-input" multiple accept="image/jpeg, image/png, image/webp, image/gif, video/mp4, video/quicktime, image/svg+xml, .eps, .ai, .psd">
+                <div class="dropzone-inner">
+                    <div class="dropzone-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                    </div>
+                    <div class="dropzone-title">Drop your assets here</div>
+                    <div class="dropzone-hint">JPG · PNG · WEBP · MP4 · MOV · SVG · EPS · PSD · AI</div>
+                    <div class="dropzone-subhint">For EPS/PSD/AI, include a JPG preview with the same filename</div>
+                </div>
+            </section>
+
+            <!-- Action bar -->
+            <div class="action-bar">
+                <div class="queue-info">
+                    Queue: <strong id="queue-count">0</strong> file · Est: <strong id="cost-estimate">0</strong> API calls
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-ghost" id="btn-clear-queue">Clear Queue</button>
+                    <button class="btn btn-primary" id="btn-generate" disabled>
+                        ✨ Generate Metadata
+                    </button>
                 </div>
             </div>
 
-            <div class="h-1/2 flex flex-col bg-gray-900">
-                <div id="tabs-header" class="flex border-b border-gray-800 shrink-0 px-2 overflow-x-auto custom-scrollbar pt-2">
-                    <button data-tab="tab-adobe" class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-blue-500 text-white">Adobe Stock</button>
-                    <button data-tab="tab-shutterstock" class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400">Shutterstock</button>
-                    <button data-tab="tab-vecteezy" class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400">Vecteezy</button>
-                    <button data-tab="tab-magnific" class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400">Magnific</button>
-                    <button data-tab="tab-pond5" class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400">Pond5</button>
-                    <button data-tab="tab-validation" class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400">⚠️ Validation <span id="validation-badge" class="hidden ml-1 bg-red-500 text-white text-[10px] px-1.5 rounded-full">0</span></button>
-                </div>
-
-                <div class="flex-1 overflow-hidden relative">
-                    <div id="tab-adobe" class="tab-content active h-full flex-col">
-                        <div class="p-2 border-b border-gray-800 flex justify-end shrink-0">
-                            <button onclick="exportCSV('adobe')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded shadow transition-colors">Export Adobe CSV</button>
-                        </div>
-                        <div class="flex-1 overflow-auto custom-scrollbar"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-gray-800/50 text-gray-400 sticky top-0 z-10"><tr><th class="px-4 py-2 font-medium">Filename</th><th class="px-4 py-2 font-medium">Title</th><th class="px-4 py-2 font-medium">Keywords</th><th class="px-4 py-2 font-medium">Category (ID)</th></tr></thead><tbody id="table-adobe" class="divide-y divide-gray-800"></tbody></table></div>
-                    </div>
-                    <div id="tab-shutterstock" class="tab-content h-full flex-col">
-                        <div class="p-2 border-b border-gray-800 flex justify-end shrink-0">
-                            <button onclick="exportCSV('shutterstock')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded shadow transition-colors">Export Shutterstock CSV</button>
-                        </div>
-                        <div class="flex-1 overflow-auto custom-scrollbar"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-gray-800/50 text-gray-400 sticky top-0 z-10"><tr><th class="px-4 py-2 font-medium">Filename</th><th class="px-4 py-2 font-medium">Description</th><th class="px-4 py-2 font-medium">Keywords</th><th class="px-4 py-2 font-medium">Categories</th></tr></thead><tbody id="table-shutterstock" class="divide-y divide-gray-800"></tbody></table></div>
-                    </div>
-                    <div id="tab-vecteezy" class="tab-content h-full flex-col">
-                        <div class="p-2 border-b border-gray-800 flex justify-end shrink-0">
-                            <button onclick="exportCSV('vecteezy')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded shadow transition-colors">Export Vecteezy CSV</button>
-                        </div>
-                        <div class="flex-1 overflow-auto custom-scrollbar"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-gray-800/50 text-gray-400 sticky top-0 z-10"><tr><th class="px-4 py-2 font-medium">Filename</th><th class="px-4 py-2 font-medium">Title</th><th class="px-4 py-2 font-medium">Description</th><th class="px-4 py-2 font-medium">Keywords</th><th class="px-4 py-2 font-medium">Category</th></tr></thead><tbody id="table-vecteezy" class="divide-y divide-gray-800"></tbody></table></div>
-                    </div>
-                    <div id="tab-magnific" class="tab-content h-full flex-col">
-                        <div class="p-2 border-b border-gray-800 flex justify-end shrink-0">
-                            <button onclick="exportCSV('magnific')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded shadow transition-colors">Export Magnific CSV</button>
-                        </div>
-                        <div class="flex-1 overflow-auto custom-scrollbar"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-gray-800/50 text-gray-400 sticky top-0 z-10"><tr><th class="px-4 py-2 font-medium">Filename</th><th class="px-4 py-2 font-medium">Title</th><th class="px-4 py-2 font-medium">Keywords</th><th class="px-4 py-2 font-medium">Type</th></tr></thead><tbody id="table-magnific" class="divide-y divide-gray-800"></tbody></table></div>
-                    </div>
-                    <div id="tab-pond5" class="tab-content h-full flex-col">
-                        <div class="p-2 border-b border-gray-800 flex justify-end shrink-0">
-                            <button onclick="exportCSV('pond5')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded shadow transition-colors">Export Pond5 CSV</button>
-                        </div>
-                        <div class="flex-1 overflow-auto custom-scrollbar"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-gray-800/50 text-gray-400 sticky top-0 z-10"><tr><th class="px-4 py-2 font-medium">Filename</th><th class="px-4 py-2 font-medium">Title</th><th class="px-4 py-2 font-medium">Description</th><th class="px-4 py-2 font-medium">Keywords</th><th class="px-4 py-2 font-medium">Category</th></tr></thead><tbody id="table-pond5" class="divide-y divide-gray-800"></tbody></table></div>
-                    </div>
-                    <div id="tab-validation" class="tab-content h-full flex-col">
-                        <div class="flex-1 overflow-auto custom-scrollbar p-4 space-y-3" id="validation-list">
-                            <div class="text-gray-500 text-sm text-center pt-8">No validation errors.</div>
-                        </div>
-                    </div>
-                </div>
+            <!-- Queue list -->
+            <div class="queue-list" id="queue-list">
+                <div class="empty-state">Queue is empty — drop files above to begin</div>
             </div>
-        </div>
-    </main>
 
-    <canvas id="processing-canvas" class="hidden"></canvas>
-    
-    <div id="toast" class="fixed bottom-4 right-4 bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded shadow-xl transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-2">
-        <span id="toast-icon">ℹ️</span>
-        <span id="toast-message" class="text-sm">Notification</span>
+            <!-- Results tabs -->
+            <section class="tabs-container">
+                <div class="tabs-header" id="tabs-header">
+                    <button class="tab-btn active" data-tab="tab-adobe">Adobe Stock</button>
+                    <button class="tab-btn" data-tab="tab-shutterstock">Shutterstock</button>
+                    <button class="tab-btn" data-tab="tab-vecteezy">Vecteezy</button>
+                    <button class="tab-btn" data-tab="tab-magnific">Magnific</button>
+                    <button class="tab-btn" data-tab="tab-pond5">Pond5</button>
+                    <button class="tab-btn" data-tab="tab-validation">
+                        ⚠️ Validation
+                        <span class="validation-badge hidden" id="validation-badge">0</span>
+                    </button>
+                </div>
+
+                <div id="tab-adobe" class="tab-content active">
+                    <div class="tab-toolbar">
+                        <span class="tab-toolbar-info">Filename · Title · Keywords · Category ID</span>
+                        <button class="btn-export" onclick="exportCSV('adobe')">📥 Export Adobe CSV</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr>
+                                <th>Filename</th><th>Title</th><th>Keywords</th><th>Category</th>
+                            </tr></thead>
+                            <tbody id="table-adobe"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="tab-shutterstock" class="tab-content">
+                    <div class="tab-toolbar">
+                        <span class="tab-toolbar-info">Filename · Description · Keywords · Categories</span>
+                        <button class="btn-export" onclick="exportCSV('shutterstock')">📥 Export Shutterstock CSV</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr>
+                                <th>Filename</th><th>Description</th><th>Keywords</th><th>Categories</th>
+                            </tr></thead>
+                            <tbody id="table-shutterstock"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="tab-vecteezy" class="tab-content">
+                    <div class="tab-toolbar">
+                        <span class="tab-toolbar-info">Filename · Title · Description · Keywords</span>
+                        <button class="btn-export" onclick="exportCSV('vecteezy')">📥 Export Vecteezy CSV</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr>
+                                <th>Filename</th><th>Title</th><th>Description</th><th>Keywords</th><th>Category</th>
+                            </tr></thead>
+                            <tbody id="table-vecteezy"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="tab-magnific" class="tab-content">
+                    <div class="tab-toolbar">
+                        <span class="tab-toolbar-info">Filename · Title · Keywords · Type</span>
+                        <button class="btn-export" onclick="exportCSV('magnific')">📥 Export Magnific CSV</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr>
+                                <th>Filename</th><th>Title</th><th>Keywords</th><th>Type</th>
+                            </tr></thead>
+                            <tbody id="table-magnific"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="tab-pond5" class="tab-content">
+                    <div class="tab-toolbar">
+                        <span class="tab-toolbar-info">Filename · Title · Description · Keywords</span>
+                        <button class="btn-export" onclick="exportCSV('pond5')">📥 Export Pond5 CSV</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr>
+                                <th>Filename</th><th>Title</th><th>Description</th><th>Keywords</th><th>Category</th>
+                            </tr></thead>
+                            <tbody id="table-pond5"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="tab-validation" class="tab-content">
+                    <div class="validation-list" id="validation-list">
+                        <div class="empty-state">No validation errors — all clean ✨</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <canvas id="processing-canvas" style="display: none;"></canvas>
+
+    <div class="toast" id="toast">
+        <span class="toast-icon" id="toast-icon">ℹ️</span>
+        <span id="toast-message">Notification</span>
     </div>
 
     <script>
-        window.switchTab = function(targetId) {
-            document.querySelectorAll('.tab-btn').forEach(function(b) {
-                b.classList.remove('border-blue-500', 'text-white');
-                b.classList.add('border-transparent', 'text-gray-400');
-            });
-            document.querySelectorAll('.tab-content').forEach(function(c) {
-                c.classList.remove('active');
-            });
-            var target = document.getElementById(targetId);
-            if (target) target.classList.add('active');
-        };
-
+        // ============ TAB SWITCHING ============
         document.addEventListener('DOMContentLoaded', function() {
             var tabsHeader = document.getElementById('tabs-header');
             if (tabsHeader) {
@@ -203,16 +1297,9 @@
                     if (!btn) return;
                     var targetId = btn.getAttribute('data-tab');
                     if (!targetId) return;
-
-                    document.querySelectorAll('.tab-btn').forEach(function(b) {
-                        b.classList.remove('border-blue-500', 'text-white');
-                        b.classList.add('border-transparent', 'text-gray-400');
-                    });
-                    document.querySelectorAll('.tab-content').forEach(function(c) {
-                        c.classList.remove('active');
-                    });
-                    btn.classList.add('border-blue-500', 'text-white');
-                    btn.classList.remove('border-transparent', 'text-gray-400');
+                    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+                    document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+                    btn.classList.add('active');
                     var target = document.getElementById(targetId);
                     if (target) target.classList.add('active');
                 });
@@ -223,47 +1310,29 @@
                 apiKeyInput.addEventListener('input', function() {
                     var key = apiKeyInput.value.trim();
                     var status = document.getElementById('api-status');
-                    if (!status) return;
+                    var statusText = document.getElementById('api-status-text');
                     if (key.length > 20) {
-                        status.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Key Stored';
-                        status.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-green-900/30 text-green-400 border border-green-800/50';
+                        status.classList.remove('offline');
+                        statusText.textContent = 'Ready';
                     } else {
-                        status.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Missing API Key';
-                        status.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-red-900/30 text-red-400 border border-red-800/50';
+                        status.classList.add('offline');
+                        statusText.textContent = 'No API Key';
                     }
                     if (typeof window.updateGenerateButton === 'function') window.updateGenerateButton();
                 });
             }
         });
+
+        window.toggleSettings = function() {
+            document.getElementById('settings-section').classList.toggle('collapsed');
+        };
     </script>
 
     <script type="module">
         import { GoogleGenAI, Type } from 'https://esm.run/@google/genai';
 
         const ADOBE_CATS = ["Animals","Buildings and architecture","Business","Drinks","The environment","States of mind","Food","Graphic resources","Hobbies and leisure","Industry","Landscape","Lifestyle","People","Plants and flowers","Culture and religion","Science","Social issues","Sports","Technology","Transport","Travel"];
-        const ADOBE_CAT_IDS = {
-            "Animals": 1,
-            "Buildings and architecture": 2,
-            "Business": 3,
-            "Drinks": 4,
-            "The environment": 5,
-            "States of mind": 6,
-            "Food": 7,
-            "Graphic resources": 8,
-            "Hobbies and leisure": 9,
-            "Industry": 10,
-            "Landscape": 11,
-            "Lifestyle": 12,
-            "People": 13,
-            "Plants and flowers": 14,
-            "Culture and religion": 15,
-            "Science": 16,
-            "Social issues": 17,
-            "Sports": 18,
-            "Technology": 19,
-            "Transport": 20,
-            "Travel": 21
-        };
+        const ADOBE_CAT_IDS = { "Animals":1,"Buildings and architecture":2,"Business":3,"Drinks":4,"The environment":5,"States of mind":6,"Food":7,"Graphic resources":8,"Hobbies and leisure":9,"Industry":10,"Landscape":11,"Lifestyle":12,"People":13,"Plants and flowers":14,"Culture and religion":15,"Science":16,"Social issues":17,"Sports":18,"Technology":19,"Transport":20,"Travel":21 };
         const SS_CATS = ["Abstract","Animals/Wildlife","The Arts","Backgrounds/Textures","Beauty/Fashion","Buildings/Landmarks","Business/Finance","Celebrities","Education","Food and Drink","Healthcare/Medical","Holidays","Industrial","Interiors","Miscellaneous","Nature","Objects","Parks/Outdoor","People","Religion","Science","Signs/Symbols","Sports/Recreation","Technology","Transportation","Vintage"];
         const VZ_CATS = ["Animals and Plants","Activity and Events","Composition","Food and Drink","Location","Objects and Colors","People"];
         const MG_TYPES = ["Photo","Vector","PSD","Mockup","AI Image"];
@@ -282,20 +1351,20 @@
             required: ["keywords","adobe_title","adobe_cat","ss_desc","ss_cat","vz_title","vz_desc","vz_cat","mg_title","mg_type","p5_title","p5_desc","p5_cat"]
         };
 
-        const PROMPT_BASE = `You are a senior microstock SEO expert. Look carefully at the attached image(s) (frames of ONE asset) and describe ONLY what is clearly visible. The file name is meaningless: never use it. Never invent brands, trademarks, real names, places or dates.
+        const PROMPT_BASE = `You are a senior microstock SEO expert. Look carefully at the attached image(s) and describe ONLY what is clearly visible. The file name is meaningless.
 
 Rules:
 - English only. Accurate, relevant, no keyword spam, no trademarks, no personal info.
-- If identifiable faces, children, brand logos, or copyrighted property are visible, mention briefly in ss_desc and add tags "_model_release_needed" or "_property_release_needed" at end of keywords.
+- If identifiable faces, children, brand logos, or copyrighted property are visible, add tags "_model_release_needed" or "_property_release_needed" at end of keywords.
 
-keywords: exactly 50 (min 48), ordered by importance. Top 10 = main visual elements. Include at least 5 abstract concepts. Include shot type/style if relevant. Include dominant colors. Lowercase, no plural duplicates.
-adobe_title: max 70 chars, clear. NO commas allowed.
-ss_desc: one natural descriptive sentence. NO commas allowed.
-mg_title: 35-100 chars. NO file types/digits. NO commas allowed.
-p5_title: 40-80 chars (+ HD/4K if video). NO commas allowed.
-p5_desc: detailed scene description. NO commas allowed.
+keywords: exactly 50 (min 48), ordered by importance. Top 10 = main visual elements. Include 5+ abstract concepts. Include shot type/style. Include dominant colors. Lowercase, no duplicates.
+adobe_title: max 70 chars, NO commas.
+ss_desc: one natural sentence, NO commas.
+mg_title: 35-100 chars, NO file types/digits/commas.
+p5_title: 40-80 chars, NO commas.
+p5_desc: detailed, NO commas.
 
-Categories MUST be exact matches from these lists:
+Categories MUST match EXACTLY:
 adobe_cat: ${JSON.stringify(ADOBE_CATS)}
 ss_cat and ss_cat2: ${JSON.stringify(SS_CATS)}
 vz_cat: ${JSON.stringify(VZ_CATS)}
@@ -350,8 +1419,13 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             document.getElementById('ai-model-name').value = localStorage.getItem('mmg_ai_model_name') || '';
             document.getElementById('ai-prompt-text').value = localStorage.getItem('mmg_ai_prompt_text') || '';
             const k = document.getElementById('api-key').value.trim();
-            if (k.length > 20) appState.isApiValid = true;
-            updateApiStatus(k);
+            if (k.length > 20) {
+                appState.isApiValid = true;
+                const status = document.getElementById('api-status');
+                const statusText = document.getElementById('api-status-text');
+                status.classList.remove('offline');
+                statusText.textContent = 'Ready';
+            }
             toggleMagnificSettings();
             updateGenerateButton();
         };
@@ -370,29 +1444,16 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
 
         const toggleMagnificSettings = () => {
             const s = document.getElementById('ai-magnific-settings');
-            if (document.getElementById('toggle-ai').checked) s.classList.remove('opacity-50', 'pointer-events-none');
-            else s.classList.add('opacity-50', 'pointer-events-none');
+            if (document.getElementById('toggle-ai').checked) s.classList.remove('disabled');
+            else s.classList.add('disabled');
         };
 
         const showToast = (msg, type = 'info') => {
             const t = document.getElementById('toast');
             document.getElementById('toast-message').textContent = msg;
             document.getElementById('toast-icon').textContent = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
-            t.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), 3000);
-        };
-
-        const updateApiStatus = (key, forceState = null) => {
-            if (forceState !== null) appState.isApiValid = forceState;
-            const hasKey = (key && key.length > 20) || appState.isApiValid;
-            const st = document.getElementById('api-status');
-            if (hasKey) {
-                st.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Key Stored';
-                st.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-green-900/30 text-green-400 border border-green-800/50';
-            } else {
-                st.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Missing API Key';
-                st.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-red-900/30 text-red-400 border border-red-800/50';
-            }
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
         };
 
         const updateGenerateButton = () => {
@@ -401,10 +1462,9 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             const pending = appState.queue.filter(i => ['waiting','error'].includes(i.status)).length;
             const btn = document.getElementById('btn-generate');
             btn.disabled = !hasKey || pending === 0 || appState.isProcessing;
-            btn.textContent = appState.isProcessing ? 'Processing...' : 'Generate Metadata';
-            const ce = document.getElementById('cost-estimate');
-            if (pending > 0 && hasKey) { ce.classList.remove('hidden'); ce.textContent = `Est: ${pending} API calls`; }
-            else ce.classList.add('hidden');
+            if (appState.isProcessing) btn.textContent = '⏳ Processing...';
+            else btn.textContent = '✨ Generate Metadata';
+            document.getElementById('cost-estimate').textContent = pending;
         };
         window.updateGenerateButton = updateGenerateButton;
 
@@ -416,9 +1476,9 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
         });
 
         const dz = document.getElementById('dropzone');
-        dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('dropzone-active'); });
-        dz.addEventListener('dragleave', () => dz.classList.remove('dropzone-active'));
-        dz.addEventListener('drop', (e) => { e.preventDefault(); dz.classList.remove('dropzone-active'); handleFiles(e.dataTransfer.files); });
+        dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('active'); });
+        dz.addEventListener('dragleave', () => dz.classList.remove('active'));
+        dz.addEventListener('drop', (e) => { e.preventDefault(); dz.classList.remove('active'); handleFiles(e.dataTransfer.files); });
         document.getElementById('file-input').addEventListener('change', (e) => handleFiles(e.target.files));
 
         document.getElementById('btn-clear-queue').addEventListener('click', () => {
@@ -442,12 +1502,14 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 await ai.models.generateContent({ model: model, contents: "Respond with exactly the word 'OK'." });
                 showToast('API Key is valid!', 'success');
                 appState.isApiValid = true;
-                updateApiStatus(key, true);
+                const status = document.getElementById('api-status');
+                const statusText = document.getElementById('api-status-text');
+                status.classList.remove('offline');
+                statusText.textContent = 'Ready';
                 updateGenerateButton();
             } catch (e) {
                 showToast('API Key test failed: ' + e.message, 'error');
                 appState.isApiValid = false;
-                updateApiStatus(key, false);
                 updateGenerateButton();
             }
         });
@@ -543,42 +1605,28 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 const ld = f.name.lastIndexOf('.');
                 const ext = ld === -1 ? '' : f.name.substring(ld + 1).toLowerCase();
                 const stem = ld === -1 ? f.name : f.name.substring(0, ld);
-                parsed.push({ file: f, ext: ext, stem: stem });
+                parsed.push({ file: f, ext, stem });
             }
-            
             const vectors = parsed.filter(p => ['eps','ai','psd'].includes(p.ext));
             const videos = parsed.filter(p => ['mp4','mov'].includes(p.ext));
             const svgs = parsed.filter(p => p.ext === 'svg');
             const rasters = parsed.filter(p => ['jpg','jpeg','png','webp','gif'].includes(p.ext));
-            
             const usedRasters = new Set();
-            
+
             for (const vec of vectors) {
                 const preview = rasters.find(r => r.stem.toLowerCase() === vec.stem.toLowerCase() && !usedRasters.has(r.file.name));
-                if (preview) {
-                    usedRasters.add(preview.file.name);
-                    await addItem(vec.file, preview.file);
-                } else {
-                    showToast(`${vec.file.name}: butuh JPG/PNG preview nama sama`, 'info');
-                }
+                if (preview) { usedRasters.add(preview.file.name); await addItem(vec.file, preview.file); }
+                else showToast(`${vec.file.name}: butuh JPG/PNG preview nama sama`, 'info');
             }
-            
             for (const vid of videos) await addItem(vid.file, null);
-            
             for (const svg of svgs) {
                 const preview = rasters.find(r => r.stem.toLowerCase() === svg.stem.toLowerCase() && !usedRasters.has(r.file.name));
-                if (preview) {
-                    usedRasters.add(preview.file.name);
-                    await addItem(svg.file, preview.file);
-                } else {
-                    await addItem(svg.file, null);
-                }
+                if (preview) { usedRasters.add(preview.file.name); await addItem(svg.file, preview.file); }
+                else await addItem(svg.file, null);
             }
-            
             for (const r of rasters) {
                 if (!usedRasters.has(r.file.name)) await addItem(r.file, null);
             }
-            
             updateGenerateButton();
         };
 
@@ -591,11 +1639,8 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             let mx = 20 * 1024 * 1024, lbl = "Image";
             if (isV) { mx = 500 * 1024 * 1024; lbl = "Video"; }
             else if (isVec || isSvg) { mx = 100 * 1024 * 1024; lbl = "Vector"; }
-            if (targetFile.size > mx) {
-                showToast(`${targetFile.name} exceeds ${mx/(1024*1024)}MB (${lbl})`, 'error');
-                return;
-            }
-            
+            if (targetFile.size > mx) return showToast(`${targetFile.name} exceeds ${mx/(1024*1024)}MB (${lbl})`, 'error');
+
             let finalName = targetFile.name;
             if (appState.queue.find(q => q.filename === finalName)) {
                 const base = finalName.substring(0, finalName.lastIndexOf('.'));
@@ -603,25 +1648,13 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 let i = 1;
                 while (appState.queue.find(q => q.filename === `${base}_${i}${ex}`)) i++;
                 finalName = `${base}_${i}${ex}`;
-                showToast(`Renamed: ${targetFile.name} → ${finalName}`, 'info');
             }
-            
             let ft = 'image';
             if (isV) ft = 'video'; else if (isVec) ft = 'vector';
-            
             appState.queue.push({
-                id: genId(),
-                filename: finalName,
-                targetFile: targetFile,
-                previewFile: previewFile || targetFile,
-                type: ft,
-                status: 'waiting',
-                progress: 0,
-                size: targetFile.size,
-                result: null,
-                error: null,
-                thumb: null,
-                validationErrors: []
+                id: genId(), filename: finalName, targetFile, previewFile: previewFile || targetFile,
+                type: ft, status: 'waiting', progress: 0, size: targetFile.size,
+                result: null, error: null, thumb: null, validationErrors: []
             });
             renderQueue();
             updateGenerateButton();
@@ -629,49 +1662,36 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
 
         const renderQueue = () => {
             const list = document.getElementById('queue-list');
-            const countEl = document.getElementById('queue-count');
-            countEl.textContent = appState.queue.length;
-            
+            document.getElementById('queue-count').textContent = appState.queue.length;
             if (appState.queue.length === 0) {
-                list.innerHTML = '<div class="text-center text-gray-600 text-sm py-8">Queue is empty</div>';
+                list.innerHTML = '<div class="empty-state">Queue is empty — drop files above to begin</div>';
                 return;
             }
-            
-            const esc2 = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-            
-            let html = '';
-            for (const item of appState.queue) {
-                const safeName = esc2(item.filename);
-                const statusColor = item.status === 'done' ? 'text-green-400' :
-                                    item.status === 'error' ? 'text-red-400' :
-                                    item.status === 'processing' ? 'text-blue-400' : 'text-gray-400';
-                const statusText = item.status === 'waiting' ? 'Waiting' :
-                                   item.status === 'processing' ? 'Analyzing...' :
-                                   item.status === 'error' ? 'Failed' : 'Done';
-                const borderClass = item.status === 'error' ? 'border-red-900/50' :
-                                    item.status === 'done' ? 'border-green-900/50' : '';
-                
-                html += `<div class="bg-gray-800 rounded-lg p-3 flex items-center gap-3 border border-gray-700 ${borderClass}">
-                    <div class="w-10 h-10 rounded bg-gray-900 shrink-0 overflow-hidden border border-gray-700">
-                        ${item.thumb ? `<img src="${item.thumb}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-xs text-gray-500">${item.type === 'video' ? '🎬' : '🖼️'}</div>`}
+            const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            list.innerHTML = appState.queue.map(item => {
+                const statusClass = item.status === 'done' ? 'done' : item.status === 'error' ? 'error' : '';
+                const statusLabel = item.status === 'waiting' ? 'Waiting' : item.status === 'processing' ? 'Analyzing...' : item.status === 'error' ? 'Failed' : 'Done';
+                const statusType = item.status === 'done' ? 'done' : item.status === 'error' ? 'error' : item.status === 'processing' ? 'processing' : 'waiting';
+                return `<div class="queue-item ${statusClass}">
+                    <div class="queue-thumb">
+                        ${item.thumb ? `<img src="${item.thumb}">` : (item.type === 'video' ? '🎬' : '🖼️')}
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-200 truncate" title="${safeName}">${safeName}</p>
-                        <div class="flex justify-between items-center mt-1">
-                            <span class="text-xs text-gray-500">${fmtBytes(item.size)}</span>
-                            <span class="text-xs font-medium ${statusColor}">${statusText}</span>
+                    <div class="queue-info-block">
+                        <div class="queue-filename" title="${esc(item.filename)}">${esc(item.filename)}</div>
+                        <div class="queue-meta">
+                            <span>${fmtBytes(item.size)}</span>
+                            ${item.error ? `· <span style="color:var(--rose)">${esc(item.error)}</span>` : ''}
                         </div>
-                        ${item.error ? `<p class="text-[10px] text-red-400 mt-1 truncate">${esc2(item.error)}</p>` : ''}
                     </div>
+                    <span class="queue-status ${statusType} ${item.status === 'processing' ? 'processing-pulse' : ''}">${statusLabel}</span>
                 </div>`;
-            }
-            list.innerHTML = html;
+            }).join('');
         };
 
         const validate = (d) => {
             const e = [];
-            if (!d.keywords || d.keywords.length < 48) e.push(`Keywords ${d.keywords?.length || 0}, need 50`);
-            if (d.adobe_title?.length > 70) e.push("adobe_title > 70");
+            if (!d.keywords || d.keywords.length < 48) e.push(`Keywords count ${d.keywords?.length || 0} (need 50)`);
+            if (d.adobe_title?.length > 70) e.push("adobe_title exceeds 70 chars");
             if (!ADOBE_CATS.includes(d.adobe_cat)) e.push(`adobe_cat '${d.adobe_cat}' invalid`);
             if (!SS_CATS.includes(d.ss_cat)) e.push(`ss_cat '${d.ss_cat}' invalid`);
             if (d.ss_cat2 && !SS_CATS.includes(d.ss_cat2)) e.push(`ss_cat2 invalid`);
@@ -679,9 +1699,9 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             if (!MG_TYPES.includes(d.mg_type)) e.push(`mg_type invalid`);
             if (!P5_CATS.includes(d.p5_cat)) e.push(`p5_cat invalid`);
             const ml = d.mg_title?.length || 0;
-            if (ml < 35 || ml > 100) e.push(`mg_title ${ml} chars`);
+            if (ml < 35 || ml > 100) e.push(`mg_title length ${ml} (need 35-100)`);
             const pl = d.p5_title?.length || 0;
-            if (pl < 40 || pl > 80) e.push(`p5_title ${pl} chars`);
+            if (pl < 40 || pl > 80) e.push(`p5_title length ${pl} (need 40-80)`);
             if (!d.ss_desc) e.push("ss_desc empty");
             return e;
         };
@@ -694,9 +1714,8 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                     a++;
                     const st = err.status || (err.message.includes('429') ? 429 : err.message.includes('503') ? 503 : 500);
                     if (st === 400 && err.message.includes('API key not valid')) throw new Error("INVALID_API_KEY");
-                    if ([429, 503].includes(st) && a < maxRetries) {
-                        await new Promise(r => setTimeout(r, Math.pow(2, a) * 2000));
-                    } else throw err;
+                    if ([429, 503].includes(st) && a < maxRetries) await new Promise(r => setTimeout(r, Math.pow(2, a) * 2000));
+                    else throw err;
                 }
             }
             throw new Error("Max retries");
@@ -718,13 +1737,12 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                     parts = [{ inlineData: { data: rz.data, mimeType: rz.mimeType } }];
                 }
                 renderQueue();
-                
                 const ai = new GoogleGenAI({ apiKey: document.getElementById('api-key').value.trim() });
                 const model = document.getElementById('model-select').value;
                 const gc = document.getElementById('global-context').value.trim();
                 let prompt = PROMPT_BASE;
                 if (gc) prompt += `\n\nGlobal Context: ${gc}`;
-                
+
                 let errs = [], data = null, att = 0;
                 while (att <= 3) {
                     let p = prompt;
@@ -742,7 +1760,6 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                     } catch (pe) { errs = ["Parse fail"]; }
                     att++;
                 }
-                
                 if (errs.length) {
                     item.status = 'error';
                     item.error = "Validation failed";
@@ -759,9 +1776,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                     item.error = "Invalid API Key";
                     appState.isProcessing = false;
                     showToast('Invalid API Key', 'error');
-                } else {
-                    item.error = err.message || "Unknown error";
-                }
+                } else item.error = err.message || "Unknown error";
             }
             renderQueue();
             updateResultsUI();
@@ -790,16 +1805,15 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             document.body.removeChild(ta);
         };
 
-        const cell = (txt, w, badge = '') => {
+        const cell = (txt, filename = false) => {
             const s = String(txt || '');
             const h = esc(s);
-            return `<td class="px-4 py-2 border-r border-gray-800 relative group max-w-[${w}]">
-                <div class="flex justify-between items-center gap-2 h-full">
-                    <div class="truncate flex-1 flex items-center gap-2 min-w-0" title="${h}">
-                        <span class="truncate block text-sm text-gray-200">${h}</span>${badge}
-                    </div>
-                    <button class="copy-btn opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-white shrink-0 p-1 bg-gray-700/50 hover:bg-blue-600 rounded" data-copy="${h}" onclick="copyText(this)">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            const cls = filename ? 'cell-text cell-filename' : 'cell-text';
+            return `<td>
+                <div class="cell-content">
+                    <span class="${cls}" title="${h}">${h}</span>
+                    <button class="copy-btn" data-copy="${h}" onclick="copyText(this)" title="Copy">
+                        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                     </button>
                 </div>
             </td>`;
@@ -809,11 +1823,10 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             const k = r.keywords || [];
             let c = k.length;
             if (p === 'magnific' && document.getElementById('toggle-ai').checked) {
-                let t = k.filter(x => x !== '_ai_generated').slice(0, 49);
-                c = t.length + 1;
+                let t = k.filter(x => x !== '_ai_generated').slice(0, 49); c = t.length + 1;
             } else c = Math.min(k.length, 50);
-            const col = c === 50 ? 'bg-green-500' : c >= 40 ? 'bg-yellow-500' : 'bg-red-500';
-            return `<span class="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[10px] font-bold text-white ${col} leading-none shrink-0" style="height:18px;">${c}/50</span>`;
+            const cls = c === 50 ? 'full' : c >= 40 ? 'medium' : 'low';
+            return `<span class="keyword-badge ${cls}">${c}/50</span>`;
         };
 
         const getKw = (r, p) => {
@@ -824,36 +1837,48 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             return k.join(',');
         };
 
+        const cellKw = (r, p) => {
+            const kw = getKw(r, p);
+            const h = esc(kw);
+            return `<td>
+                <div class="cell-content">
+                    <span class="cell-text" title="${h}">${h}</span>
+                    ${kwBadge(r, p)}
+                    <button class="copy-btn" data-copy="${h}" onclick="copyText(this)" title="Copy">
+                        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    </button>
+                </div>
+            </td>`;
+        };
+
         const updateResultsUI = () => {
             const done = appState.queue.filter(i => i.status === 'done' && i.result);
             document.getElementById('table-adobe').innerHTML = done.map(i => {
-                const catId = ADOBE_CAT_IDS[i.result.adobe_cat] || '';
-                const catDisplay = catId ? `${i.result.adobe_cat} (${catId})` : i.result.adobe_cat;
-                return `<tr class="hover:bg-gray-800/50">${cell(i.filename,'150px')}${cell(i.result.adobe_title,'200px')}${cell(getKw(i.result,'adobe'),'300px',kwBadge(i.result,'adobe'))}${cell(catDisplay,'200px')}</tr>`;
+                const catId = ADOBE_CAT_IDS[i.result.adobe_cat] || i.result.adobe_cat;
+                return `<tr>${cell(i.filename, true)}${cell(i.result.adobe_title)}${cellKw(i.result,'adobe')}${cell(catId)}</tr>`;
             }).join('');
             document.getElementById('table-shutterstock').innerHTML = done.map(i => {
-                const c = [i.result.ss_cat, i.result.ss_cat2].filter(Boolean).join(',');
-                return `<tr class="hover:bg-gray-800/50">${cell(i.filename,'150px')}${cell(i.result.ss_desc,'250px')}${cell(getKw(i.result,'shutterstock'),'250px',kwBadge(i.result,'shutterstock'))}${cell(c,'150px')}</tr>`;
+                const c = [i.result.ss_cat, i.result.ss_cat2].filter(Boolean).join(', ');
+                return `<tr>${cell(i.filename, true)}${cell(i.result.ss_desc)}${cellKw(i.result,'shutterstock')}${cell(c)}</tr>`;
             }).join('');
-            document.getElementById('table-vecteezy').innerHTML = done.map(i => `<tr class="hover:bg-gray-800/50">${cell(i.filename,'150px')}${cell(i.result.vz_title,'150px')}${cell(i.result.vz_desc,'200px')}${cell(getKw(i.result,'vecteezy'),'200px',kwBadge(i.result,'vecteezy'))}${cell(i.result.vz_cat,'150px')}</tr>`).join('');
-            document.getElementById('table-magnific').innerHTML = done.map(i => `<tr class="hover:bg-gray-800/50">${cell(i.filename,'150px')}${cell(i.result.mg_title,'200px')}${cell(getKw(i.result,'magnific'),'300px',kwBadge(i.result,'magnific'))}${cell(i.result.mg_type,'150px')}</tr>`).join('');
-            document.getElementById('table-pond5').innerHTML = done.map(i => `<tr class="hover:bg-gray-800/50">${cell(i.filename,'150px')}${cell(i.result.p5_title,'150px')}${cell(i.result.p5_desc,'200px')}${cell(getKw(i.result,'pond5'),'200px',kwBadge(i.result,'pond5'))}${cell(i.result.p5_cat,'150px')}</tr>`).join('');
-            
-            let errs = [], tot = 0;
+            document.getElementById('table-vecteezy').innerHTML = done.map(i => `<tr>${cell(i.filename, true)}${cell(i.result.vz_title)}${cell(i.result.vz_desc)}${cellKw(i.result,'vecteezy')}${cell(i.result.vz_cat)}</tr>`).join('');
+            document.getElementById('table-magnific').innerHTML = done.map(i => `<tr>${cell(i.filename, true)}${cell(i.result.mg_title)}${cellKw(i.result,'magnific')}${cell(i.result.mg_type)}</tr>`).join('');
+            document.getElementById('table-pond5').innerHTML = done.map(i => `<tr>${cell(i.filename, true)}${cell(i.result.p5_title)}${cell(i.result.p5_desc)}${cellKw(i.result,'pond5')}${cell(i.result.p5_cat)}</tr>`).join('');
+
+            let allErrors = [];
+            let tot = 0;
             appState.queue.forEach(i => {
-                if (i.validationErrors?.length) {
-                    errs.push({ file: i.filename, errors: i.validationErrors });
-                    tot += i.validationErrors.length;
-                }
+                if (i.validationErrors?.length) { allErrors.push({ file: i.filename, errors: i.validationErrors }); tot += i.validationErrors.length; }
             });
             const b = document.getElementById('validation-badge');
-            if (errs.length) {
+            const vList = document.getElementById('validation-list');
+            if (allErrors.length) {
                 b.textContent = tot;
                 b.classList.remove('hidden');
-                document.getElementById('validation-list').innerHTML = errs.map(e => `<div class="bg-red-900/20 border border-red-900/50 rounded p-3"><p class="text-sm font-medium text-red-400 mb-1">${esc(e.file)}</p><ul class="list-disc list-inside text-xs text-gray-400 space-y-1">${e.errors.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`).join('');
+                vList.innerHTML = allErrors.map(e => `<div class="validation-item"><div class="validation-file">${esc(e.file)}</div><ul class="validation-errors">${e.errors.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`).join('');
             } else {
                 b.classList.add('hidden');
-                document.getElementById('validation-list').innerHTML = '<div class="text-gray-500 text-sm text-center pt-8">No validation errors.</div>';
+                vList.innerHTML = '<div class="empty-state">No validation errors — all clean ✨</div>';
             }
         };
 
@@ -877,24 +1902,20 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
 
         window.exportCSV = (platform) => {
             const done = appState.queue.filter(i => i.status === 'done' && i.result);
-            if (!done.length) return showToast('No processed items', 'error');
+            if (!done.length) return showToast('No processed items to export', 'error');
             showToast(`Exporting ${platform} CSV...`, 'info');
-            
             const ai = document.getElementById('toggle-ai').checked;
             const ed = document.getElementById('toggle-editorial').checked;
-            let csv = '';
-            let ext = ai ? '_ai' : '';
-            
+            let csv = '', ext = ai ? '_ai' : '';
+
             if (platform === 'adobe') {
-                // FIX: Adobe pakai NOMOR kategori, bukan nama
                 csv = 'Filename,Title,Keywords,Category,Is generative AI\n';
                 done.forEach(i => {
                     const catId = ADOBE_CAT_IDS[i.result.adobe_cat] || i.result.adobe_cat;
                     csv += [i.filename, i.result.adobe_title, getKw(i.result,'adobe'), catId, ai ? 'yes' : 'no'].map(v => eC(v)).join(',') + '\n';
                 });
                 download(csv, `adobe_stock${ext}.csv`);
-            }
-            else if (platform === 'shutterstock') {
+            } else if (platform === 'shutterstock') {
                 csv = 'Filename,Description,Keywords,Categories,Editorial,Mature content,illustration\n';
                 done.forEach(i => {
                     const c = [i.result.ss_cat, i.result.ss_cat2].filter(Boolean).join(',');
@@ -902,17 +1923,14 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                     csv += [i.filename, i.result.ss_desc, getKw(i.result,'shutterstock'), c, ed ? 'yes' : 'no', 'no', isVec].map(v => eC(v)).join(',') + '\n';
                 });
                 download(csv, `shutterstock${ext}.csv`);
-            }
-            else if (platform === 'vecteezy') {
-                // FIX: Vecteezy pakai underscore bukan spasi
+            } else if (platform === 'vecteezy') {
                 csv = 'Filename,Title,Description,Keywords\n';
                 done.forEach(i => {
                     const safeFilename = i.filename.replace(/ /g, '_');
                     csv += [safeFilename, i.result.vz_title, i.result.vz_desc, getKw(i.result,'vecteezy')].map(v => eC(v)).join(',') + '\n';
                 });
                 download(csv, `vecteezy${ext}.csv`);
-            }
-            else if (platform === 'magnific') {
+            } else if (platform === 'magnific') {
                 const p = document.getElementById('ai-prompt-text').value.trim() || "";
                 const m = document.getElementById('ai-model-name').value.trim() || "";
                 csv = 'filename;title;keywords' + (ai ? ';prompt;model' : '') + '\n';
@@ -922,8 +1940,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                     csv += r.map(v => eC(v, ';')).join(';') + '\n';
                 });
                 download(csv, `magnific${ext}.csv`);
-            }
-            else if (platform === 'pond5') {
+            } else if (platform === 'pond5') {
                 csv = 'originalfilename,title,description,keywords,copyright,location,price,pricelarge,priceweb,setpriceforme,aspectratio,specifysource,datecreated,containsaudio,cameraspeed,curatornote,PrimaryCategory\n';
                 done.forEach(i => {
                     csv += [i.filename, i.result.p5_title, i.result.p5_desc, getKw(i.result,'pond5'), '', '', '', '', '', '', '', '', '', '', '', '', i.result.p5_cat].map(v => eC(v)).join(',') + '\n';
@@ -939,22 +1956,14 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 const past = await loadFromDB();
                 if (past && past.length > 0) {
                     appState.queue = past.map(p => ({
-                        id: genId(),
-                        filename: p.filename,
-                        type: 'unknown',
-                        status: 'done',
-                        progress: 100,
-                        size: 0,
-                        result: p.result,
-                        thumb: p.thumb,
-                        error: null,
-                        validationErrors: []
+                        id: genId(), filename: p.filename, type: 'unknown', status: 'done',
+                        progress: 100, size: 0, result: p.result, thumb: p.thumb,
+                        error: null, validationErrors: []
                     }));
-                    renderQueue();
-                    updateResultsUI();
+                    renderQueue(); updateResultsUI();
                     showToast(`Restored ${past.length} results`, 'info');
                 }
-            } catch (e) { console.error('[MetaGen] DB init failed:', e); }
+            } catch (e) { console.error('DB init failed:', e); }
             updateGenerateButton();
         })();
     </script>
