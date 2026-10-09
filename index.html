@@ -30,7 +30,6 @@
             --text-primary: #1A1A2E;
             --text-secondary: #56566B;
             --text-muted: #9090A0;
-            --text-on-accent: #FFFFFF;
             --border: #E8E4DC;
             --border-strong: #D4CFC4;
             --shadow-sm: 0 1px 3px rgba(26, 26, 46, 0.04), 0 1px 2px rgba(26, 26, 46, 0.02);
@@ -52,7 +51,6 @@
             min-height: 100vh;
             padding: 20px;
             -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
         .app {
             max-width: 1280px;
@@ -88,7 +86,7 @@
         .logo-text {
             font-family: 'Plus Jakarta Sans', sans-serif;
             font-weight: 700; font-size: 18px;
-            color: var(--text-primary); letter-spacing: -0.02em;
+            letter-spacing: -0.02em;
         }
         .logo-sub {
             font-size: 11px; color: var(--text-muted);
@@ -102,7 +100,6 @@
             font-size: 12px; font-weight: 600;
             background: var(--sage-soft); color: var(--sage);
             border: 1px solid var(--sage-soft-border);
-            transition: all 0.2s ease;
         }
         .status-badge.offline {
             background: var(--rose-soft); color: var(--rose);
@@ -141,7 +138,7 @@
         .settings-header:hover { background: var(--card-hover); }
         .settings-title {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            font-weight: 700; font-size: 14px; color: var(--text-primary);
+            font-weight: 700; font-size: 14px;
             display: flex; align-items: center; gap: 10px;
         }
         .settings-title-icon {
@@ -159,7 +156,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 18px;
-            max-height: 1000px; overflow: hidden;
+            max-height: 3000px; overflow: hidden;
             transition: max-height 0.4s ease, padding 0.3s ease, opacity 0.2s ease;
             opacity: 1;
         }
@@ -176,6 +173,9 @@
             font-size: 10px; font-weight: 500; color: var(--text-muted);
             text-transform: none; letter-spacing: 0;
         }
+        .field-hint {
+            font-size: 10px; color: var(--text-muted); margin-top: 2px;
+        }
         .input, .textarea, .select {
             width: 100%; padding: 11px 14px;
             border-radius: var(--radius); border: 1px solid var(--border);
@@ -188,7 +188,7 @@
             box-shadow: 0 0 0 4px var(--indigo-soft);
         }
         .textarea {
-            resize: vertical; min-height: 70px; font-family: inherit;
+            resize: vertical; min-height: 70px;
         }
         .select {
             cursor: pointer; appearance: none;
@@ -218,7 +218,7 @@
         .toggle-row:hover {
             background: var(--card-bg); border-color: var(--border-strong);
         }
-        .toggle-label { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+        .toggle-label { font-size: 13px; font-weight: 500; }
         .toggle-switch {
             position: relative; width: 42px; height: 24px; flex-shrink: 0;
         }
@@ -244,9 +244,86 @@
             border-radius: var(--radius);
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px; transition: all 0.3s ease;
+            gap: 12px;
         }
         .magnific-section.disabled { opacity: 0.4; pointer-events: none; }
+
+        /* TARGET SETTINGS PANEL */
+        .targets-section {
+            grid-column: 1 / -1;
+            padding: 16px;
+            background: #F5F3EE;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+        .targets-title {
+            grid-column: 1 / -1;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            font-size: 12px;
+            color: var(--text-secondary);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: -4px;
+        }
+        .slider-field { display: flex; flex-direction: column; gap: 8px; }
+        .slider-header {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 11px; font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .slider-value {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--indigo-soft);
+            color: var(--indigo);
+            padding: 3px 10px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0;
+            text-transform: none;
+        }
+        .slider-input {
+            width: 100%;
+            height: 6px;
+            border-radius: 100px;
+            background: var(--border-strong);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .slider-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--indigo);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(107, 111, 217, 0.3);
+            transition: all 0.2s ease;
+        }
+        .slider-input::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+        .slider-input::-moz-range-thumb {
+            width: 20px; height: 20px;
+            border-radius: 50%; background: var(--indigo);
+            cursor: pointer; border: none;
+        }
+        .slider-hint {
+            font-size: 10px; color: var(--text-muted);
+            line-height: 1.4;
+        }
+
         .dropzone {
             background: var(--card-bg); border: 2px dashed var(--border-strong);
             border-radius: var(--radius-lg); padding: 48px 24px;
@@ -279,13 +356,13 @@
         .dropzone-icon svg { width: 30px; height: 30px; color: white; }
         .dropzone-title {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            font-weight: 700; font-size: 17px; color: var(--text-primary);
-            margin-bottom: 6px;
+            font-weight: 700; font-size: 17px; margin-bottom: 6px;
         }
         .dropzone-hint {
             font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;
         }
         .dropzone-subhint { font-size: 11px; color: var(--text-muted); }
+
         .action-bar {
             display: flex; gap: 12px;
             align-items: center; justify-content: space-between;
@@ -314,8 +391,8 @@
             box-shadow: 0 6px 20px rgba(107, 111, 217, 0.45);
         }
         .btn-primary:disabled {
-            opacity: 0.5; cursor: not-allowed; box-shadow: none;
-            transform: none; filter: grayscale(0.4);
+            opacity: 0.5; cursor: not-allowed;
+            box-shadow: none; transform: none; filter: grayscale(0.4);
         }
         .btn-ghost {
             background: transparent; color: var(--text-secondary);
@@ -325,16 +402,11 @@
             background: var(--card-bg); color: var(--text-primary);
             border-color: var(--border-strong);
         }
-        .cost-estimate {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px; color: var(--text-muted); font-weight: 500;
-        }
         .queue-list {
             display: flex; flex-direction: column; gap: 8px;
             max-height: 280px; overflow-y: auto; padding-right: 4px;
         }
         .queue-list::-webkit-scrollbar { width: 6px; }
-        .queue-list::-webkit-scrollbar-track { background: transparent; }
         .queue-list::-webkit-scrollbar-thumb {
             background: var(--border-strong); border-radius: 10px;
         }
@@ -363,7 +435,7 @@
         .queue-thumb img { width: 100%; height: 100%; object-fit: cover; }
         .queue-info-block { flex: 1; min-width: 0; }
         .queue-filename {
-            font-size: 13px; font-weight: 600; color: var(--text-primary);
+            font-size: 13px; font-weight: 600;
             overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
             margin-bottom: 3px;
         }
@@ -373,7 +445,7 @@
         }
         .queue-status {
             font-size: 11px; font-weight: 600; padding: 4px 10px;
-            border-radius: 100px; letter-spacing: 0.02em;
+            border-radius: 100px;
         }
         .queue-status.waiting { background: var(--peach-soft); color: var(--peach); }
         .queue-status.processing { background: var(--indigo-soft); color: var(--indigo); }
@@ -412,12 +484,16 @@
             font-size: 10px; font-weight: 700; padding: 2px 7px;
             border-radius: 100px; min-width: 18px; text-align: center;
         }
+        .validation-badge.warn {
+            background: var(--peach);
+        }
         .tab-content { display: none !important; }
         .tab-content.active { display: block !important; }
         .tab-toolbar {
             padding: 14px 20px; display: flex;
             align-items: center; justify-content: space-between;
-            border-bottom: 1px solid var(--border); background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap; gap: 10px;
         }
         .tab-toolbar-info { font-size: 12px; color: var(--text-muted); font-weight: 500; }
         .btn-export {
@@ -431,7 +507,7 @@
         .btn-export:hover {
             background: var(--indigo); color: white; border-color: var(--indigo);
         }
-        .table-wrapper { overflow-x: auto; max-height: 400px; }
+        .table-wrapper { overflow-x: auto; max-height: 500px; }
         table { width: 100%; border-collapse: collapse; font-size: 12px; }
         thead th {
             position: sticky; top: 0; background: var(--container-bg);
@@ -442,7 +518,7 @@
         }
         tbody td {
             padding: 12px 16px; border-bottom: 1px solid var(--border);
-            color: var(--text-primary); vertical-align: middle;
+            vertical-align: middle;
         }
         tbody tr:hover { background: var(--container-bg); }
         tbody tr:last-child td { border-bottom: none; }
@@ -477,23 +553,31 @@
             padding: 16px; display: flex; flex-direction: column; gap: 10px;
         }
         .validation-item {
-            padding: 14px 18px; background: var(--rose-soft);
-            border: 1px solid var(--rose-soft-border); border-radius: var(--radius);
+            padding: 14px 18px; border-radius: var(--radius);
+        }
+        .validation-item.error {
+            background: var(--rose-soft); border: 1px solid var(--rose-soft-border);
+        }
+        .validation-item.warn {
+            background: var(--peach-soft); border: 1px solid var(--peach-soft-border);
         }
         .validation-file {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 12px; font-weight: 600; color: var(--rose);
+            font-size: 12px; font-weight: 600;
             margin-bottom: 8px;
         }
+        .validation-item.error .validation-file { color: var(--rose); }
+        .validation-item.warn .validation-file { color: var(--peach); }
         .validation-errors {
             list-style: none; padding: 0;
             font-size: 12px; color: var(--text-secondary);
         }
         .validation-errors li { padding: 3px 0 3px 14px; position: relative; }
         .validation-errors li::before {
-            content: '•'; position: absolute; left: 0;
-            color: var(--rose); font-weight: bold;
+            content: '•'; position: absolute; left: 0; font-weight: bold;
         }
+        .validation-item.error .validation-errors li::before { color: var(--rose); }
+        .validation-item.warn .validation-errors li::before { color: var(--peach); }
         .toast {
             position: fixed; bottom: 24px; right: 24px;
             padding: 14px 20px; background: var(--text-primary); color: white;
@@ -508,13 +592,12 @@
         .toast-icon { font-size: 16px; }
         @media (max-width: 720px) {
             body { padding: 12px; }
-            .app { border-radius: var(--radius-lg); min-height: calc(100vh - 24px); }
+            .app { border-radius: var(--radius-lg); }
             .header { padding: 16px 20px; }
             .logo-text { font-size: 16px; }
             .main { padding: 16px 20px; gap: 16px; }
             .dropzone { padding: 32px 20px; }
             .dropzone-icon { width: 56px; height: 56px; }
-            .dropzone-title { font-size: 15px; }
             .action-bar { flex-direction: column; align-items: stretch; }
             .action-buttons { justify-content: stretch; }
             .btn { flex: 1; justify-content: center; }
@@ -535,7 +618,7 @@
                 <div class="logo-mark">M</div>
                 <div>
                     <div class="logo-text">MicroStock MetaGen</div>
-                    <div class="logo-sub">AI Metadata Generator</div>
+                    <div class="logo-sub">AI Metadata Generator · v22</div>
                 </div>
             </div>
             <div class="header-actions">
@@ -607,6 +690,40 @@
                         <div class="field">
                             <label class="field-label">AI Prompt <span class="field-label-hint">for Magnific</span></label>
                             <textarea class="textarea" id="ai-prompt-text" placeholder="Original prompt used..." style="min-height: 44px;"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- NEW: TARGET SETTINGS -->
+                    <div class="targets-section">
+                        <div class="targets-title">
+                            <span>🎯</span> Target Metadata Length
+                        </div>
+
+                        <div class="slider-field">
+                            <div class="slider-header">
+                                <span>Title Length</span>
+                                <span class="slider-value" id="title-length-val">70</span>
+                            </div>
+                            <input type="range" class="slider-input" id="title-length" min="30" max="120" value="70">
+                            <div class="slider-hint">Rekomendasi: 50–80 karakter untuk microstock global</div>
+                        </div>
+
+                        <div class="slider-field">
+                            <div class="slider-header">
+                                <span>Description Length</span>
+                                <span class="slider-value" id="desc-length-val">150</span>
+                            </div>
+                            <input type="range" class="slider-input" id="desc-length" min="50" max="250" value="150">
+                            <div class="slider-hint">Rekomendasi: 100–180 karakter untuk penjelasan detail</div>
+                        </div>
+
+                        <div class="slider-field">
+                            <div class="slider-header">
+                                <span>Keywords Count</span>
+                                <span class="slider-value" id="kw-count-val">50</span>
+                            </div>
+                            <input type="range" class="slider-input" id="kw-count" min="20" max="50" value="50">
+                            <div class="slider-hint">Rekomendasi: 25–40 tag kata kunci yang relevan</div>
                         </div>
                     </div>
                 </div>
@@ -781,6 +898,18 @@
                     if (typeof window.updateGenerateButton === 'function') window.updateGenerateButton();
                 });
             }
+
+            // Slider value display
+            ['title-length', 'desc-length', 'kw-count'].forEach(function(id) {
+                var slider = document.getElementById(id);
+                var display = document.getElementById(id + '-val');
+                if (slider && display) {
+                    slider.addEventListener('input', function() {
+                        display.textContent = slider.value;
+                        if (typeof window.saveSettings === 'function') window.saveSettings();
+                    });
+                }
+            });
         });
 
         window.toggleSettings = function() {
@@ -793,21 +922,25 @@
 
         const ADOBE_CATS = ["Animals","Buildings and architecture","Business","Drinks","The environment","States of mind","Food","Graphic resources","Hobbies and leisure","Industry","Landscape","Lifestyle","People","Plants and flowers","Culture and religion","Science","Social issues","Sports","Technology","Transport","Travel"];
         const ADOBE_CAT_IDS = { "Animals":1,"Buildings and architecture":2,"Business":3,"Drinks":4,"The environment":5,"States of mind":6,"Food":7,"Graphic resources":8,"Hobbies and leisure":9,"Industry":10,"Landscape":11,"Lifestyle":12,"People":13,"Plants and flowers":14,"Culture and religion":15,"Science":16,"Social issues":17,"Sports":18,"Technology":19,"Transport":20,"Travel":21 };
-
-        // FIX: Shutterstock categories for IMAGES (all categories)
         const SS_CATS_IMAGE = ["Abstract","Animals/Wildlife","The Arts","Backgrounds/Textures","Beauty/Fashion","Buildings/Landmarks","Business/Finance","Celebrities","Education","Food and Drink","Healthcare/Medical","Holidays","Industrial","Interiors","Miscellaneous","Nature","Objects","Parks/Outdoor","People","Religion","Science","Signs/Symbols","Sports/Recreation","Technology","Transportation","Vintage"];
-
-        // FIX: Shutterstock categories for VIDEO (exclude video-unavailable categories)
-        // Excluded: Abstract, Beauty/Fashion, Celebrities, Interiors, Miscellaneous, Parks/Outdoor, Vintage
         const SS_CATS_VIDEO = ["Animals/Wildlife","The Arts","Backgrounds/Textures","Buildings/Landmarks","Business/Finance","Education","Food and Drink","Healthcare/Medical","Holidays","Industrial","Nature","Objects","People","Religion","Science","Signs/Symbols","Sports/Recreation","Technology","Transportation"];
-
         const VZ_CATS = ["Animals and Plants","Activity and Events","Composition","Food and Drink","Location","Objects and Colors","People"];
         const MG_TYPES = ["Photo","Vector","PSD","Mockup","AI Image"];
         const P5_CATS = ["abstract","aerials","alpha channel/greenscreen","archival","animation","animals/wildlife","buildings and monuments","business","celebrities","current events","education","food and drink","healthcare/medical","industry","landscapes","lifestyle","medical & health","nature","people","religion","science","sports","technology","transportation","vintage","other"];
 
+        // FIX #1: Release tags constants
+        const RELEASE_TAGS = ['_model_release_needed', '_property_release_needed'];
+
+        // FIX #4: Schema grounding with propertyOrdering
         const RESPONSE_SCHEMA = {
             type: Type.OBJECT,
             properties: {
+                visible_elements: { type: Type.ARRAY, items: { type: Type.STRING }, description: "List of 3-8 main visible objects/subjects in the image, in English" },
+                dominant_colors: { type: Type.ARRAY, items: { type: Type.STRING }, description: "List of 2-5 dominant colors, in English" },
+                scene_type: { type: Type.STRING, description: "One of: isolated_character, isolated_object, scene, pattern, background, text_based" },
+                has_people: { type: Type.BOOLEAN, description: "True if any identifiable human faces or bodies visible" },
+                has_text: { type: Type.BOOLEAN, description: "True if readable text or labels visible" },
+                has_brand_or_logo: { type: Type.BOOLEAN, description: "True if recognizable brand logos or trademarks visible" },
                 keywords: { type: Type.ARRAY, items: { type: Type.STRING } },
                 adobe_title: { type: Type.STRING }, adobe_cat: { type: Type.STRING },
                 ss_desc: { type: Type.STRING }, ss_cat: { type: Type.STRING }, ss_cat2: { type: Type.STRING },
@@ -815,37 +948,63 @@
                 mg_title: { type: Type.STRING }, mg_desc: { type: Type.STRING }, mg_type: { type: Type.STRING },
                 p5_title: { type: Type.STRING }, p5_desc: { type: Type.STRING }, p5_cat: { type: Type.STRING }
             },
-            required: ["keywords","adobe_title","adobe_cat","ss_desc","ss_cat","vz_title","vz_desc","vz_cat","mg_title","mg_type","p5_title","p5_desc","p5_cat"]
+            propertyOrdering: ["visible_elements","dominant_colors","scene_type","has_people","has_text","has_brand_or_logo","keywords","adobe_title","adobe_cat","ss_desc","ss_cat","ss_cat2","vz_title","vz_desc","vz_cat","mg_title","mg_desc","mg_type","p5_title","p5_desc","p5_cat"],
+            required: ["visible_elements","dominant_colors","scene_type","has_people","has_text","has_brand_or_logo","keywords","adobe_title","adobe_cat","ss_desc","ss_cat","vz_title","vz_desc","vz_cat","mg_title","mg_type","p5_title","p5_desc","p5_cat"]
         };
 
-        function buildPrompt(isVideo) {
+        // FIX #5: Prompt with Vecteezy rules + tighter keyword rules
+        function buildPrompt(isVideo, titleLen, descLen, kwCount) {
             const ssList = isVideo ? SS_CATS_VIDEO : SS_CATS_IMAGE;
-            const ssNote = isVideo
-                ? "\n\nIMPORTANT: This is VIDEO content. Shutterstock does NOT accept these categories for video: Abstract, Beauty/Fashion, Celebrities, Interiors, Miscellaneous, Parks/Outdoor, Vintage. You MUST pick from the list above."
-                : "";
-            return `You are a senior microstock SEO expert. Look carefully at the attached image(s) (frames of ONE asset) and describe ONLY what is clearly visible. The file name is meaningless: never use it. Never invent brands, trademarks, real names, places or dates.
+            const ssNote = isVideo ? "\n\nIMPORTANT: This is VIDEO content. Shutterstock does NOT accept these categories for video: Abstract, Beauty/Fashion, Celebrities, Interiors, Miscellaneous, Parks/Outdoor, Vintage. You MUST pick from the list above." : "";
+            const minKw = Math.max(15, kwCount - 5);
+            return `You are a senior microstock SEO expert. Look carefully at the attached image(s) (frames of ONE asset) and describe ONLY what is clearly visible.
+
+STEP 1 — GROUNDING (answer first):
+- visible_elements: list 3-8 main objects/subjects you SEE
+- dominant_colors: list 2-5 dominant colors
+- scene_type: classify the scene
+- has_people: true only if identifiable humans visible
+- has_text: true only if readable text visible
+- has_brand_or_logo: true only if brand marks visible
+
+STEP 2 — GENERATE METADATA (based on grounded vision above):
 
 Rules:
-- English only. Accurate, relevant, no keyword spam, no trademarks, no personal info.
-- If identifiable faces, children, brand logos, or copyrighted property are visible, mention briefly in ss_desc and add tags "_model_release_needed" or "_property_release_needed" at end of keywords.
+- English only. No trademarks, no real names, no personal info, no keyword spam.
+- Title MUST NOT contain commas. Description MUST NOT contain commas.
+- If identifiable faces/children/brands/copyrighted property visible, add "_model_release_needed" or "_property_release_needed" at very end of keywords.
 
-keywords: exactly 50 (min 48), ordered by importance. Top 10 = main visual elements. Include at least 5 abstract concepts. Include shot type/style if relevant. Include dominant colors. Lowercase, no plural duplicates.
-adobe_title: max 70 chars, clear. NO commas allowed.
-ss_desc: one natural descriptive sentence. NO commas allowed.
-mg_title: 35-100 chars. NO file types/digits. NO commas allowed.
-p5_title: 40-80 chars (+ HD/4K if video). NO commas allowed.
-p5_desc: detailed scene description. NO commas allowed.
+keywords: exactly ${kwCount} keywords (min ${minKw}), ordered by importance.
+- POSITION 1-5: core subject + asset type (e.g. "cat", "cartoon", "illustration")
+- POSITION 6-10: secondary visual elements (colors, actions, setting)
+- Include 5+ abstract concepts (teamwork, happiness, freedom, success, innovation).
+- FORBIDDEN keywords: beautiful, amazing, stunning, nice, lovely, gorgeous, wonderful, best, great
+- Do NOT repeat same word more than 3 times across all keywords (use synonyms instead)
+- Do NOT include keywords for things NOT visible in the image
+- Include dominant COLOR keywords (e.g. blue background, warm tones)
+- For vectors include STYLE if visible: flat design, line art, 3D render, isometric, minimalist
+- Lowercase, no plurals + singular duplicates, no special chars except hyphen
 
-Categories MUST be exact matches from these lists:
+adobe_title: max ${titleLen} chars, clear, most important visual elements first. NO commas.
+ss_desc: one natural descriptive sentence around ${descLen} chars. NO commas.
+vz_title: 3-8 words ONLY. Allowed chars: letters, numbers, . , - ' — NO other special chars. NO commas.
+vz_desc: 1 sentence around ${descLen} chars. NO commas.
+mg_title: 35-100 chars. NO file types/digits. NO commas.
+p5_title: 40-80 chars (+ HD/4K if video). NO commas.
+p5_desc: detailed scene description. NO commas.
+
+Vecteezy keyword extras (add to keywords list):
+- "no people" if scene has no humans
+- orientation ("landscape orientation" or "portrait orientation")
+- background type ("white background", "blue background", etc.)
+
+Categories MUST be exact matches:
 adobe_cat: ${JSON.stringify(ADOBE_CATS)}
 ss_cat and ss_cat2: ${JSON.stringify(ssList)}${ssNote}
 vz_cat: ${JSON.stringify(VZ_CATS)}
 mg_type: ${JSON.stringify(MG_TYPES)}
 p5_cat: ${JSON.stringify(P5_CATS)}`;
         }
-
-        const PROMPT_BASE_IMAGE = buildPrompt(false);
-        const PROMPT_BASE_VIDEO = buildPrompt(true);
 
         let appState = { queue: [], isProcessing: false, db: null, isApiValid: false };
 
@@ -886,6 +1045,12 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             });
         };
 
+        const getTargetSettings = () => ({
+            titleLen: parseInt(document.getElementById('title-length').value) || 70,
+            descLen: parseInt(document.getElementById('desc-length').value) || 150,
+            kwCount: parseInt(document.getElementById('kw-count').value) || 50
+        });
+
         const loadSettings = () => {
             document.getElementById('api-key').value = localStorage.getItem('mmg_api_key') || '';
             document.getElementById('model-select').value = localStorage.getItem('mmg_model') || 'gemini-3.1-flash-lite';
@@ -894,6 +1059,15 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             document.getElementById('toggle-editorial').checked = localStorage.getItem('mmg_editorial') === 'true';
             document.getElementById('ai-model-name').value = localStorage.getItem('mmg_ai_model_name') || '';
             document.getElementById('ai-prompt-text').value = localStorage.getItem('mmg_ai_prompt_text') || '';
+
+            // Load target settings
+            document.getElementById('title-length').value = localStorage.getItem('mmg_title_len') || '70';
+            document.getElementById('desc-length').value = localStorage.getItem('mmg_desc_len') || '150';
+            document.getElementById('kw-count').value = localStorage.getItem('mmg_kw_count') || '50';
+            document.getElementById('title-length-val').textContent = document.getElementById('title-length').value;
+            document.getElementById('desc-length-val').textContent = document.getElementById('desc-length').value;
+            document.getElementById('kw-count-val').textContent = document.getElementById('kw-count').value;
+
             const k = document.getElementById('api-key').value.trim();
             if (k.length > 20) {
                 appState.isApiValid = true;
@@ -914,9 +1088,13 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             localStorage.setItem('mmg_editorial', document.getElementById('toggle-editorial').checked);
             localStorage.setItem('mmg_ai_model_name', document.getElementById('ai-model-name').value);
             localStorage.setItem('mmg_ai_prompt_text', document.getElementById('ai-prompt-text').value);
+            localStorage.setItem('mmg_title_len', document.getElementById('title-length').value);
+            localStorage.setItem('mmg_desc_len', document.getElementById('desc-length').value);
+            localStorage.setItem('mmg_kw_count', document.getElementById('kw-count').value);
             updateGenerateButton();
             toggleMagnificSettings();
         };
+        window.saveSettings = saveSettings;
 
         const toggleMagnificSettings = () => {
             const s = document.getElementById('ai-magnific-settings');
@@ -944,8 +1122,9 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
         };
         window.updateGenerateButton = updateGenerateButton;
 
-        ['api-key','model-select','global-context','ai-model-name','ai-prompt-text'].forEach(id => {
-            document.getElementById(id).addEventListener('input', saveSettings);
+        ['api-key','model-select','global-context','ai-model-name','ai-prompt-text','title-length','desc-length','kw-count'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', saveSettings);
         });
         ['toggle-ai','toggle-editorial'].forEach(id => {
             document.getElementById(id).addEventListener('change', saveSettings);
@@ -1019,16 +1198,15 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                     ctx.fillStyle = '#FFFFFF';
                     ctx.fillRect(0, 0, w, h);
                     ctx.drawImage(img, 0, 0, w, h);
-                    if (isSvg) {
-                        try {
-                            const d = ctx.getImageData(0, 0, w, h).data;
-                            let hasNonWhite = false;
-                            for (let i = 0; i < d.length; i += 4) {
-                                if (d[i] < 250 || d[i+1] < 250 || d[i+2] < 250) { hasNonWhite = true; break; }
-                            }
-                            if (!hasNonWhite) return rej(new Error("SVG rendered empty (all white)"));
-                        } catch (err) {}
-                    }
+                    // Cek blank image (untuk SVG dan image biasa)
+                    try {
+                        const d = ctx.getImageData(0, 0, w, h).data;
+                        let hasContent = false;
+                        for (let i = 0; i < d.length; i += 400) {
+                            if (d[i] < 240 || d[i+1] < 240 || d[i+2] < 240) { hasContent = true; break; }
+                        }
+                        if (!hasContent) return rej(new Error("Image appears blank (all white)"));
+                    } catch (err) {}
                     res({
                         data: cv.toDataURL('image/jpeg', 0.85).split(',')[1],
                         mimeType: 'image/jpeg',
@@ -1041,13 +1219,40 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             rd.onerror = rej;
         });
 
+        // FIX #3: Video frame extraction with playsinline + blank check + timeout
         const extractVideo = (file) => new Promise((res, rej) => {
             const v = document.createElement('video');
-            v.src = URL.createObjectURL(file); v.muted = true;
+            v.src = URL.createObjectURL(file);
+            v.muted = true;
+            v.playsInline = true;
+            v.setAttribute('playsinline', '');
+            v.setAttribute('webkit-playsinline', '');
+            v.preload = 'auto';
             const frames = []; let thumb = null;
+            let metadataLoaded = false;
+            let finished = false;
+
+            // Timeout global: 30 detik max per video
+            const globalTimeout = setTimeout(() => {
+                if (!finished) {
+                    finished = true;
+                    URL.revokeObjectURL(v.src);
+                    if (frames.length === 0) rej(new Error("Video frame extraction timeout"));
+                    else res({ frames, thumb, duration: v.duration || 0 });
+                }
+            }, 30000);
+
             v.addEventListener('loadedmetadata', async () => {
+                if (metadataLoaded) return;
+                metadataLoaded = true;
                 const dur = v.duration;
+                if (!dur || dur < 0.1) {
+                    clearTimeout(globalTimeout);
+                    URL.revokeObjectURL(v.src);
+                    return rej(new Error("Video duration invalid"));
+                }
                 if (dur < 5) showToast(`Warning: ${file.name} < 5s (Pond5 min)`, 'error');
+
                 const pts = [dur * 0.15, dur * 0.5, dur * 0.85];
                 const cv = document.getElementById('processing-canvas');
                 const ctx = cv.getContext('2d');
@@ -1055,23 +1260,60 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 const mx = 768;
                 if (w > mx || h > mx) { if (w > h) { h *= mx / w; w = mx; } else { w *= mx / h; h = mx; } }
                 cv.width = w; cv.height = h;
+
                 for (let i = 0; i < pts.length; i++) {
-                    await new Promise(r => {
+                    // Timeout per frame: 10 detik
+                    const framePromise = new Promise((resolve) => {
+                        const frameTimeout = setTimeout(() => {
+                            resolve(false); // skip frame
+                        }, 10000);
+
                         v.currentTime = pts[i];
-                        const on = () => {
-                            ctx.drawImage(v, 0, 0, w, h);
-                            const b64 = cv.toDataURL('image/jpeg', 0.8).split(',')[1];
-                            frames.push({ data: b64, mimeType: 'image/jpeg' });
-                            if (i === 1) thumb = cv.toDataURL('image/jpeg', 0.2);
-                            v.removeEventListener('seeked', on); r();
+                        const onSeeked = () => {
+                            clearTimeout(frameTimeout);
+                            v.removeEventListener('seeked', onSeeked);
+                            // Delay kecil biar Safari render frame
+                            setTimeout(() => {
+                                try {
+                                    ctx.fillStyle = '#FFFFFF';
+                                    ctx.fillRect(0, 0, w, h);
+                                    ctx.drawImage(v, 0, 0, w, h);
+                                    // Cek blank frame
+                                    const d = ctx.getImageData(0, 0, w, h).data;
+                                    let hasContent = false;
+                                    for (let j = 0; j < d.length; j += 400) {
+                                        if (d[j] < 240 || d[j+1] < 240 || d[j+2] < 240) { hasContent = true; break; }
+                                    }
+                                    if (hasContent) {
+                                        const b64 = cv.toDataURL('image/jpeg', 0.8).split(',')[1];
+                                        frames.push({ data: b64, mimeType: 'image/jpeg' });
+                                        if (i === 1) thumb = cv.toDataURL('image/jpeg', 0.2);
+                                    }
+                                } catch (err) {}
+                                resolve(true);
+                            }, 100);
                         };
-                        v.addEventListener('seeked', on);
+                        v.addEventListener('seeked', onSeeked);
                     });
+                    await framePromise;
                 }
+
+                finished = true;
+                clearTimeout(globalTimeout);
                 URL.revokeObjectURL(v.src);
-                res({ frames, thumb, duration: dur });
+
+                if (frames.length === 0) {
+                    rej(new Error("No valid frames extracted (all blank or timed out)"));
+                } else {
+                    res({ frames, thumb, duration: dur });
+                }
             });
-            v.addEventListener('error', () => rej(new Error("Video load failed")));
+
+            v.addEventListener('error', () => {
+                clearTimeout(globalTimeout);
+                URL.revokeObjectURL(v.src);
+                rej(new Error("Video load failed"));
+            });
         });
 
         const handleFiles = async (files) => {
@@ -1130,7 +1372,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             appState.queue.push({
                 id: genId(), filename: finalName, targetFile, previewFile: previewFile || targetFile,
                 type: ft, status: 'waiting', progress: 0, size: targetFile.size,
-                result: null, error: null, thumb: null, validationErrors: []
+                result: null, error: null, thumb: null, validationErrors: [], warnings: []
             });
             renderQueue();
             updateGenerateButton();
@@ -1164,22 +1406,42 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             }).join('');
         };
 
-        const validate = (d, isVideo) => {
+        // FIX #1 & #2 & #5: Validation with comma check, release tags, dynamic lengths
+        const validate = (d, isVideo, targets) => {
             const e = [];
             const ssList = isVideo ? SS_CATS_VIDEO : SS_CATS_IMAGE;
-            if (!d.keywords || d.keywords.length < 48) e.push(`Keywords count ${d.keywords?.length || 0} (need 50)`);
-            if (d.adobe_title?.length > 70) e.push("adobe_title exceeds 70 chars");
+            const kwCount = (d.keywords || []).length;
+            const minKw = Math.max(15, targets.kwCount - 5);
+
+            // Keyword count check
+            if (kwCount < minKw) e.push(`Keywords count ${kwCount}, need at least ${minKw}`);
+
+            // Title length check
+            if (d.adobe_title?.length > targets.titleLen) e.push(`adobe_title ${d.adobe_title.length} chars (max ${targets.titleLen})`);
+            if (d.mg_title && (d.mg_title.length < 35 || d.mg_title.length > 100)) e.push(`mg_title length ${d.mg_title.length} (need 35-100)`);
+            if (d.p5_title && (d.p5_title.length < 40 || d.p5_title.length > 80)) e.push(`p5_title length ${d.p5_title.length} (need 40-80)`);
+
+            // FIX #2: Comma check
+            ['adobe_title','ss_desc','mg_title','mg_desc','p5_title','p5_desc','vz_title','vz_desc'].forEach(field => {
+                if (d[field] && d[field].includes(',')) e.push(`${field} contains comma`);
+            });
+
+            // Category check
             if (!ADOBE_CATS.includes(d.adobe_cat)) e.push(`adobe_cat '${d.adobe_cat}' invalid`);
             if (!ssList.includes(d.ss_cat)) e.push(`ss_cat '${d.ss_cat}' invalid${isVideo ? ' for VIDEO' : ''}`);
             if (d.ss_cat2 && !ssList.includes(d.ss_cat2)) e.push(`ss_cat2 '${d.ss_cat2}' invalid${isVideo ? ' for VIDEO' : ''}`);
             if (!VZ_CATS.includes(d.vz_cat)) e.push(`vz_cat invalid`);
             if (!MG_TYPES.includes(d.mg_type)) e.push(`mg_type invalid`);
             if (!P5_CATS.includes(d.p5_cat)) e.push(`p5_cat invalid`);
-            const ml = d.mg_title?.length || 0;
-            if (ml < 35 || ml > 100) e.push(`mg_title length ${ml} (need 35-100)`);
-            const pl = d.p5_title?.length || 0;
-            if (pl < 40 || pl > 80) e.push(`p5_title length ${pl} (need 40-80)`);
+
             if (!d.ss_desc) e.push("ss_desc empty");
+
+            // FIX #5: Vecteezy title char check
+            if (d.vz_title) {
+                const badChars = d.vz_title.match(/[^a-zA-Z0-9\s\.\,\-\']/g);
+                if (badChars) e.push(`vz_title contains invalid chars: ${badChars.join(' ')}`);
+            }
+
             return e;
         };
 
@@ -1198,11 +1460,28 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             throw new Error("Max retries");
         };
 
+        // FIX #1: Clean release tags from keywords
+        const processKeywords = (kwArray) => {
+            const releaseTags = [];
+            const clean = [];
+            for (const k of kwArray) {
+                const lower = String(k).toLowerCase().trim();
+                if (RELEASE_TAGS.includes(lower)) {
+                    releaseTags.push(lower);
+                } else {
+                    clean.push(k);
+                }
+            }
+            return { clean, releaseTags };
+        };
+
         const processFile = async (idx) => {
             const item = appState.queue[idx];
             item.status = 'processing';
+            item.warnings = [];
             renderQueue();
             const isVideo = item.type === 'video';
+            const targets = getTargetSettings();
             try {
                 let parts = [];
                 if (isVideo) {
@@ -1218,13 +1497,13 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 const ai = new GoogleGenAI({ apiKey: document.getElementById('api-key').value.trim() });
                 const model = document.getElementById('model-select').value;
                 const gc = document.getElementById('global-context').value.trim();
-                let prompt = isVideo ? PROMPT_BASE_VIDEO : PROMPT_BASE_IMAGE;
+                let prompt = buildPrompt(isVideo, targets.titleLen, targets.descLen, targets.kwCount);
                 if (gc) prompt += `\n\nGlobal Context: ${gc}`;
 
                 let errs = [], data = null, att = 0;
                 while (att <= 3) {
                     let p = prompt;
-                    if (errs.length) p += `\n\nFIX:\n- ${errs.join('\n- ')}`;
+                    if (errs.length) p += `\n\nFIX THESE PROBLEMS FROM PREVIOUS ATTEMPT:\n- ${errs.join('\n- ')}`;
                     const payload = {
                         model,
                         contents: [{ role: 'user', parts: [{ text: p }, ...parts] }],
@@ -1233,7 +1512,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                     const r = await callGemini(ai, payload);
                     try {
                         data = JSON.parse(r.text);
-                        errs = validate(data, isVideo);
+                        errs = validate(data, isVideo, targets);
                         if (!errs.length) break;
                     } catch (pe) { errs = ["Parse fail"]; }
                     att++;
@@ -1243,9 +1522,23 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                     item.error = "Validation failed";
                     item.validationErrors = errs;
                 } else {
+                    // FIX #1: Process release tags
+                    const processed = processKeywords(data.keywords || []);
+                    data._cleanKeywords = processed.clean;
+                    data._releaseTags = processed.releaseTags;
+
+                    // FIX #4: Auto-add release warnings based on grounding
+                    if (data.has_people && !processed.releaseTags.includes('_model_release_needed')) {
+                        data._releaseTags.push('_model_release_needed');
+                    }
+                    if (data.has_brand_or_logo && !processed.releaseTags.includes('_property_release_needed')) {
+                        data._releaseTags.push('_property_release_needed');
+                    }
+
                     item.status = 'done';
                     item.result = data;
                     item.error = null;
+                    item.warnings = data._releaseTags.map(t => `⚠️ ${t.replace(/_/g, ' ').replace(' needed', '')}`);
                     await saveToDB(item.filename, { result: data, thumb: item.thumb, timestamp: Date.now() });
                 }
             } catch (err) {
@@ -1297,67 +1590,95 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             </td>`;
         };
 
-        const kwBadge = (r, p) => {
-            const k = r.keywords || [];
+        const kwBadge = (r, p, targets) => {
+            // FIX #1: Use clean keywords (excluding release tags)
+            const k = r._cleanKeywords || r.keywords || [];
             let c = k.length;
+            const maxKw = targets.kwCount;
             if (p === 'magnific' && document.getElementById('toggle-ai').checked) {
-                let t = k.filter(x => x !== '_ai_generated').slice(0, 49); c = t.length + 1;
-            } else c = Math.min(k.length, 50);
-            const cls = c === 50 ? 'full' : c >= 40 ? 'medium' : 'low';
-            return `<span class="keyword-badge ${cls}">${c}/50</span>`;
+                let t = k.filter(x => !RELEASE_TAGS.includes(String(x).toLowerCase())).slice(0, maxKw - 1);
+                c = t.length + 1;
+            } else c = Math.min(k.length, maxKw);
+            const cls = c >= maxKw ? 'full' : c >= maxKw * 0.8 ? 'medium' : 'low';
+            return `<span class="keyword-badge ${cls}">${c}/${maxKw}</span>`;
         };
 
-        const getKw = (r, p) => {
-            let k = [...(r.keywords || [])];
+        // FIX #1: getKw excludes release tags
+        const getKw = (r, p, targets) => {
+            let k = r._cleanKeywords || r.keywords || [];
+            const maxKw = (targets || getTargetSettings()).kwCount;
             const ai = document.getElementById('toggle-ai').checked;
-            if (p === 'magnific' && ai) { k = k.filter(x => x !== '_ai_generated').slice(0, 49); k.push('_ai_generated'); }
-            else k = k.slice(0, 50);
+            if (p === 'magnific' && ai) {
+                k = k.filter(x => !RELEASE_TAGS.includes(String(x).toLowerCase())).slice(0, maxKw - 1);
+                k.push('_ai_generated');
+            } else {
+                k = k.slice(0, maxKw);
+            }
             return k.join(',');
         };
 
-        const cellKw = (r, p) => {
-            const kw = getKw(r, p);
+        const updateResultsUI = () => {
+            const targets = getTargetSettings();
+            const done = appState.queue.filter(i => i.status === 'done' && i.result);
+            document.getElementById('table-adobe').innerHTML = done.map(i => {
+                const catId = ADOBE_CAT_IDS[i.result.adobe_cat] || i.result.adobe_cat;
+                return `<tr>${cell(i.filename, true)}${cell(i.result.adobe_title)}${cellKw(i.result,'adobe', targets)}${cell(catId)}</tr>`;
+            }).join('');
+            document.getElementById('table-shutterstock').innerHTML = done.map(i => {
+                const c = [i.result.ss_cat, i.result.ss_cat2].filter(Boolean).join(', ');
+                return `<tr>${cell(i.filename, true)}${cell(i.result.ss_desc)}${cellKw(i.result,'shutterstock', targets)}${cell(c)}</tr>`;
+            }).join('');
+            document.getElementById('table-vecteezy').innerHTML = done.map(i => `<tr>${cell(i.filename, true)}${cell(i.result.vz_title)}${cell(i.result.vz_desc)}${cellKw(i.result,'vecteezy', targets)}${cell(i.result.vz_cat)}</tr>`).join('');
+            document.getElementById('table-magnific').innerHTML = done.map(i => `<tr>${cell(i.filename, true)}${cell(i.result.mg_title)}${cellKw(i.result,'magnific', targets)}${cell(i.result.mg_type)}</tr>`).join('');
+            document.getElementById('table-pond5').innerHTML = done.map(i => `<tr>${cell(i.filename, true)}${cell(i.result.p5_title)}${cell(i.result.p5_desc)}${cellKw(i.result,'pond5', targets)}${cell(i.result.p5_cat)}</tr>`).join('');
+
+            // Validation + Release warnings
+            let allErrors = [];
+            let allWarnings = [];
+            appState.queue.forEach(i => {
+                if (i.validationErrors?.length) {
+                    allErrors.push({ file: i.filename, errors: i.validationErrors });
+                }
+                if (i.warnings?.length) {
+                    allWarnings.push({ file: i.filename, warnings: i.warnings });
+                }
+            });
+            const b = document.getElementById('validation-badge');
+            const vList = document.getElementById('validation-list');
+            const totalIssues = allErrors.reduce((s, e) => s + e.errors.length, 0) + allWarnings.reduce((s, e) => s + e.warnings.length, 0);
+
+            if (allErrors.length || allWarnings.length) {
+                b.textContent = totalIssues;
+                b.classList.remove('hidden');
+                if (allErrors.length === 0 && allWarnings.length > 0) b.classList.add('warn');
+                else b.classList.remove('warn');
+
+                let html = '';
+                allErrors.forEach(e => {
+                    html += `<div class="validation-item error"><div class="validation-file">${esc(e.file)}</div><ul class="validation-errors">${e.errors.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`;
+                });
+                allWarnings.forEach(e => {
+                    html += `<div class="validation-item warn"><div class="validation-file">${esc(e.file)}</div><ul class="validation-errors">${e.warnings.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`;
+                });
+                vList.innerHTML = html;
+            } else {
+                b.classList.add('hidden');
+                vList.innerHTML = '<div class="empty-state">No validation errors — all clean ✨</div>';
+            }
+        };
+
+        const cellKw = (r, p, targets) => {
+            const kw = getKw(r, p, targets);
             const h = esc(kw);
             return `<td>
                 <div class="cell-content">
                     <span class="cell-text" title="${h}">${h}</span>
-                    ${kwBadge(r, p)}
+                    ${kwBadge(r, p, targets)}
                     <button class="copy-btn" data-copy="${h}" onclick="copyText(this)" title="Copy">
                         <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                     </button>
                 </div>
             </td>`;
-        };
-
-        const updateResultsUI = () => {
-            const done = appState.queue.filter(i => i.status === 'done' && i.result);
-            document.getElementById('table-adobe').innerHTML = done.map(i => {
-                const catId = ADOBE_CAT_IDS[i.result.adobe_cat] || i.result.adobe_cat;
-                return `<tr>${cell(i.filename, true)}${cell(i.result.adobe_title)}${cellKw(i.result,'adobe')}${cell(catId)}</tr>`;
-            }).join('');
-            document.getElementById('table-shutterstock').innerHTML = done.map(i => {
-                const c = [i.result.ss_cat, i.result.ss_cat2].filter(Boolean).join(', ');
-                return `<tr>${cell(i.filename, true)}${cell(i.result.ss_desc)}${cellKw(i.result,'shutterstock')}${cell(c)}</tr>`;
-            }).join('');
-            document.getElementById('table-vecteezy').innerHTML = done.map(i => `<tr>${cell(i.filename, true)}${cell(i.result.vz_title)}${cell(i.result.vz_desc)}${cellKw(i.result,'vecteezy')}${cell(i.result.vz_cat)}</tr>`).join('');
-            document.getElementById('table-magnific').innerHTML = done.map(i => `<tr>${cell(i.filename, true)}${cell(i.result.mg_title)}${cellKw(i.result,'magnific')}${cell(i.result.mg_type)}</tr>`).join('');
-            document.getElementById('table-pond5').innerHTML = done.map(i => `<tr>${cell(i.filename, true)}${cell(i.result.p5_title)}${cell(i.result.p5_desc)}${cellKw(i.result,'pond5')}${cell(i.result.p5_cat)}</tr>`).join('');
-
-            let allErrors = [];
-            let tot = 0;
-            appState.queue.forEach(i => {
-                if (i.validationErrors?.length) { allErrors.push({ file: i.filename, errors: i.validationErrors }); tot += i.validationErrors.length; }
-            });
-            const b = document.getElementById('validation-badge');
-            const vList = document.getElementById('validation-list');
-            if (allErrors.length) {
-                b.textContent = tot;
-                b.classList.remove('hidden');
-                vList.innerHTML = allErrors.map(e => `<div class="validation-item"><div class="validation-file">${esc(e.file)}</div><ul class="validation-errors">${e.errors.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`).join('');
-            } else {
-                b.classList.add('hidden');
-                vList.innerHTML = '<div class="empty-state">No validation errors — all clean ✨</div>';
-            }
         };
 
         const download = (content, filename) => {
@@ -1379,6 +1700,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
         };
 
         window.exportCSV = (platform) => {
+            const targets = getTargetSettings();
             const done = appState.queue.filter(i => i.status === 'done' && i.result);
             if (!done.length) return showToast('No processed items to export', 'error');
             showToast(`Exporting ${platform} CSV...`, 'info');
@@ -1390,7 +1712,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 csv = 'Filename,Title,Keywords,Category,Is generative AI\n';
                 done.forEach(i => {
                     const catId = ADOBE_CAT_IDS[i.result.adobe_cat] || i.result.adobe_cat;
-                    csv += [i.filename, i.result.adobe_title, getKw(i.result,'adobe'), catId, ai ? 'yes' : 'no'].map(v => eC(v)).join(',') + '\n';
+                    csv += [i.filename, i.result.adobe_title, getKw(i.result,'adobe', targets), catId, ai ? 'yes' : 'no'].map(v => eC(v)).join(',') + '\n';
                 });
                 download(csv, `adobe_stock${ext}.csv`);
             } else if (platform === 'shutterstock') {
@@ -1398,14 +1720,14 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 done.forEach(i => {
                     const c = [i.result.ss_cat, i.result.ss_cat2].filter(Boolean).join(',');
                     const isVec = i.filename.toLowerCase().match(/\.(eps|ai|svg)$/) ? 'yes' : 'no';
-                    csv += [i.filename, i.result.ss_desc, getKw(i.result,'shutterstock'), c, ed ? 'yes' : 'no', 'no', isVec].map(v => eC(v)).join(',') + '\n';
+                    csv += [i.filename, i.result.ss_desc, getKw(i.result,'shutterstock', targets), c, ed ? 'yes' : 'no', 'no', isVec].map(v => eC(v)).join(',') + '\n';
                 });
                 download(csv, `shutterstock${ext}.csv`);
             } else if (platform === 'vecteezy') {
                 csv = 'Filename,Title,Description,Keywords\n';
                 done.forEach(i => {
                     const safeFilename = i.filename.replace(/ /g, '_');
-                    csv += [safeFilename, i.result.vz_title, i.result.vz_desc, getKw(i.result,'vecteezy')].map(v => eC(v)).join(',') + '\n';
+                    csv += [safeFilename, i.result.vz_title, i.result.vz_desc, getKw(i.result,'vecteezy', targets)].map(v => eC(v)).join(',') + '\n';
                 });
                 download(csv, `vecteezy${ext}.csv`);
             } else if (platform === 'magnific') {
@@ -1413,7 +1735,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 const m = document.getElementById('ai-model-name').value.trim() || "";
                 csv = 'filename;title;keywords' + (ai ? ';prompt;model' : '') + '\n';
                 done.forEach(i => {
-                    let r = [i.filename, i.result.mg_title, getKw(i.result,'magnific')];
+                    let r = [i.filename, i.result.mg_title, getKw(i.result,'magnific', targets)];
                     if (ai) { r.push(p); r.push(m); }
                     csv += r.map(v => eC(v, ';')).join(';') + '\n';
                 });
@@ -1421,7 +1743,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             } else if (platform === 'pond5') {
                 csv = 'originalfilename,title,description,keywords,copyright,location,price,pricelarge,priceweb,setpriceforme,aspectratio,specifysource,datecreated,containsaudio,cameraspeed,curatornote,PrimaryCategory\n';
                 done.forEach(i => {
-                    csv += [i.filename, i.result.p5_title, i.result.p5_desc, getKw(i.result,'pond5'), '', '', '', '', '', '', '', '', '', '', '', '', i.result.p5_cat].map(v => eC(v)).join(',') + '\n';
+                    csv += [i.filename, i.result.p5_title, i.result.p5_desc, getKw(i.result,'pond5', targets), '', '', '', '', '', '', '', '', '', '', '', '', i.result.p5_cat].map(v => eC(v)).join(',') + '\n';
                 });
                 download(csv, `pond5${ext}.csv`);
             }
@@ -1436,7 +1758,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                     appState.queue = past.map(p => ({
                         id: genId(), filename: p.filename, type: 'unknown', status: 'done',
                         progress: 100, size: 0, result: p.result, thumb: p.thumb,
-                        error: null, validationErrors: []
+                        error: null, validationErrors: [], warnings: []
                     }));
                     renderQueue(); updateResultsUI();
                     showToast(`Restored ${past.length} results`, 'info');
