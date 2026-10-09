@@ -173,9 +173,6 @@
             font-size: 10px; font-weight: 500; color: var(--text-muted);
             text-transform: none; letter-spacing: 0;
         }
-        .field-hint {
-            font-size: 10px; color: var(--text-muted); margin-top: 2px;
-        }
         .input, .textarea, .select {
             width: 100%; padding: 11px 14px;
             border-radius: var(--radius); border: 1px solid var(--border);
@@ -187,9 +184,7 @@
             border-color: var(--indigo); background: var(--card-bg);
             box-shadow: 0 0 0 4px var(--indigo-soft);
         }
-        .textarea {
-            resize: vertical; min-height: 70px;
-        }
+        .textarea { resize: vertical; min-height: 70px; }
         .select {
             cursor: pointer; appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239090A0' stroke-width='2.5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
@@ -247,8 +242,6 @@
             gap: 12px;
         }
         .magnific-section.disabled { opacity: 0.4; pointer-events: none; }
-
-        /* TARGET SETTINGS PANEL */
         .targets-section {
             grid-column: 1 / -1;
             padding: 16px;
@@ -311,9 +304,7 @@
             box-shadow: 0 2px 6px rgba(107, 111, 217, 0.3);
             transition: all 0.2s ease;
         }
-        .slider-input::-webkit-slider-thumb:hover {
-            transform: scale(1.1);
-        }
+        .slider-input::-webkit-slider-thumb:hover { transform: scale(1.1); }
         .slider-input::-moz-range-thumb {
             width: 20px; height: 20px;
             border-radius: 50%; background: var(--indigo);
@@ -323,7 +314,6 @@
             font-size: 10px; color: var(--text-muted);
             line-height: 1.4;
         }
-
         .dropzone {
             background: var(--card-bg); border: 2px dashed var(--border-strong);
             border-radius: var(--radius-lg); padding: 48px 24px;
@@ -362,7 +352,6 @@
             font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;
         }
         .dropzone-subhint { font-size: 11px; color: var(--text-muted); }
-
         .action-bar {
             display: flex; gap: 12px;
             align-items: center; justify-content: space-between;
@@ -484,9 +473,7 @@
             font-size: 10px; font-weight: 700; padding: 2px 7px;
             border-radius: 100px; min-width: 18px; text-align: center;
         }
-        .validation-badge.warn {
-            background: var(--peach);
-        }
+        .validation-badge.warn { background: var(--peach); }
         .tab-content { display: none !important; }
         .tab-content.active { display: block !important; }
         .tab-toolbar {
@@ -618,7 +605,7 @@
                 <div class="logo-mark">M</div>
                 <div>
                     <div class="logo-text">MicroStock MetaGen</div>
-                    <div class="logo-sub">AI Metadata Generator · v22</div>
+                    <div class="logo-sub">AI Metadata Generator · v23</div>
                 </div>
             </div>
             <div class="header-actions">
@@ -693,7 +680,6 @@
                         </div>
                     </div>
 
-                    <!-- NEW: TARGET SETTINGS -->
                     <div class="targets-section">
                         <div class="targets-title">
                             <span>🎯</span> Target Metadata Length
@@ -898,18 +884,7 @@
                     if (typeof window.updateGenerateButton === 'function') window.updateGenerateButton();
                 });
             }
-
-            // Slider value display
-            ['title-length', 'desc-length', 'kw-count'].forEach(function(id) {
-                var slider = document.getElementById(id);
-                var display = document.getElementById(id + '-val');
-                if (slider && display) {
-                    slider.addEventListener('input', function() {
-                        display.textContent = slider.value;
-                        if (typeof window.saveSettings === 'function') window.saveSettings();
-                    });
-                }
-            });
+            // NOTE: slider listeners dipindah ke module script (fix #4 — hindari double listener)
         });
 
         window.toggleSettings = function() {
@@ -928,10 +903,8 @@
         const MG_TYPES = ["Photo","Vector","PSD","Mockup","AI Image"];
         const P5_CATS = ["abstract","aerials","alpha channel/greenscreen","archival","animation","animals/wildlife","buildings and monuments","business","celebrities","current events","education","food and drink","healthcare/medical","industry","landscapes","lifestyle","medical & health","nature","people","religion","science","sports","technology","transportation","vintage","other"];
 
-        // FIX #1: Release tags constants
         const RELEASE_TAGS = ['_model_release_needed', '_property_release_needed'];
 
-        // FIX #4: Schema grounding with propertyOrdering
         const RESPONSE_SCHEMA = {
             type: Type.OBJECT,
             properties: {
@@ -952,7 +925,7 @@
             required: ["visible_elements","dominant_colors","scene_type","has_people","has_text","has_brand_or_logo","keywords","adobe_title","adobe_cat","ss_desc","ss_cat","vz_title","vz_desc","vz_cat","mg_title","mg_type","p5_title","p5_desc","p5_cat"]
         };
 
-        // FIX #5: Prompt with Vecteezy rules + tighter keyword rules
+        // FIX #3: Prompt Vecteezy tidak lagi kontradiktif
         function buildPrompt(isVideo, titleLen, descLen, kwCount) {
             const ssList = isVideo ? SS_CATS_VIDEO : SS_CATS_IMAGE;
             const ssNote = isVideo ? "\n\nIMPORTANT: This is VIDEO content. Shutterstock does NOT accept these categories for video: Abstract, Beauty/Fashion, Celebrities, Interiors, Miscellaneous, Parks/Outdoor, Vintage. You MUST pick from the list above." : "";
@@ -987,7 +960,7 @@ keywords: exactly ${kwCount} keywords (min ${minKw}), ordered by importance.
 
 adobe_title: max ${titleLen} chars, clear, most important visual elements first. NO commas.
 ss_desc: one natural descriptive sentence around ${descLen} chars. NO commas.
-vz_title: 3-8 words ONLY. Allowed chars: letters, numbers, . , - ' — NO other special chars. NO commas.
+vz_title: 3-8 words ONLY. Allowed chars: letters, numbers, periods, hyphens, apostrophes. NO commas or other special chars.
 vz_desc: 1 sentence around ${descLen} chars. NO commas.
 mg_title: 35-100 chars. NO file types/digits. NO commas.
 p5_title: 40-80 chars (+ HD/4K if video). NO commas.
@@ -1060,7 +1033,6 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             document.getElementById('ai-model-name').value = localStorage.getItem('mmg_ai_model_name') || '';
             document.getElementById('ai-prompt-text').value = localStorage.getItem('mmg_ai_prompt_text') || '';
 
-            // Load target settings
             document.getElementById('title-length').value = localStorage.getItem('mmg_title_len') || '70';
             document.getElementById('desc-length').value = localStorage.getItem('mmg_desc_len') || '150';
             document.getElementById('kw-count').value = localStorage.getItem('mmg_kw_count') || '50';
@@ -1122,12 +1094,24 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
         };
         window.updateGenerateButton = updateGenerateButton;
 
-        ['api-key','model-select','global-context','ai-model-name','ai-prompt-text','title-length','desc-length','kw-count'].forEach(id => {
+        ['api-key','model-select','global-context','ai-model-name','ai-prompt-text'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.addEventListener('input', saveSettings);
         });
         ['toggle-ai','toggle-editorial'].forEach(id => {
             document.getElementById(id).addEventListener('change', saveSettings);
+        });
+
+        // FIX #4: Slider listener tunggal — update display + save sekaligus
+        ['title-length','desc-length','kw-count'].forEach(id => {
+            const slider = document.getElementById(id);
+            const display = document.getElementById(id + '-val');
+            if (slider && display) {
+                slider.addEventListener('input', function() {
+                    display.textContent = slider.value;
+                    saveSettings();
+                });
+            }
         });
 
         const dz = document.getElementById('dropzone');
@@ -1198,7 +1182,6 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                     ctx.fillStyle = '#FFFFFF';
                     ctx.fillRect(0, 0, w, h);
                     ctx.drawImage(img, 0, 0, w, h);
-                    // Cek blank image (untuk SVG dan image biasa)
                     try {
                         const d = ctx.getImageData(0, 0, w, h).data;
                         let hasContent = false;
@@ -1219,7 +1202,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             rd.onerror = rej;
         });
 
-        // FIX #3: Video frame extraction with playsinline + blank check + timeout
+        // FIX #2: Video frame extraction — listener cleanup on timeout
         const extractVideo = (file) => new Promise((res, rej) => {
             const v = document.createElement('video');
             v.src = URL.createObjectURL(file);
@@ -1232,11 +1215,14 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             let metadataLoaded = false;
             let finished = false;
 
-            // Timeout global: 30 detik max per video
+            const cleanup = () => {
+                try { URL.revokeObjectURL(v.src); } catch (e) {}
+            };
+
             const globalTimeout = setTimeout(() => {
                 if (!finished) {
                     finished = true;
-                    URL.revokeObjectURL(v.src);
+                    cleanup();
                     if (frames.length === 0) rej(new Error("Video frame extraction timeout"));
                     else res({ frames, thumb, duration: v.duration || 0 });
                 }
@@ -1248,7 +1234,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 const dur = v.duration;
                 if (!dur || dur < 0.1) {
                     clearTimeout(globalTimeout);
-                    URL.revokeObjectURL(v.src);
+                    cleanup();
                     return rej(new Error("Video duration invalid"));
                 }
                 if (dur < 5) showToast(`Warning: ${file.name} < 5s (Pond5 min)`, 'error');
@@ -1262,23 +1248,30 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 cv.width = w; cv.height = h;
 
                 for (let i = 0; i < pts.length; i++) {
-                    // Timeout per frame: 10 detik
-                    const framePromise = new Promise((resolve) => {
-                        const frameTimeout = setTimeout(() => {
-                            resolve(false); // skip frame
-                        }, 10000);
-
-                        v.currentTime = pts[i];
-                        const onSeeked = () => {
+                    await new Promise((resolve) => {
+                        let resolved = false;
+                        const cleanupFrame = () => {
                             clearTimeout(frameTimeout);
                             v.removeEventListener('seeked', onSeeked);
-                            // Delay kecil biar Safari render frame
+                        };
+                        const frameTimeout = setTimeout(() => {
+                            if (resolved) return;
+                            resolved = true;
+                            cleanupFrame();  // FIX #2: bersihkan listener
+                            resolve(false);
+                        }, 10000);
+
+                        const onSeeked = () => {
+                            if (resolved) return;
+                            clearTimeout(frameTimeout);
+                            v.removeEventListener('seeked', onSeeked);
                             setTimeout(() => {
+                                if (resolved) return;
+                                resolved = true;
                                 try {
                                     ctx.fillStyle = '#FFFFFF';
                                     ctx.fillRect(0, 0, w, h);
                                     ctx.drawImage(v, 0, 0, w, h);
-                                    // Cek blank frame
                                     const d = ctx.getImageData(0, 0, w, h).data;
                                     let hasContent = false;
                                     for (let j = 0; j < d.length; j += 400) {
@@ -1294,13 +1287,13 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                             }, 100);
                         };
                         v.addEventListener('seeked', onSeeked);
+                        v.currentTime = pts[i];
                     });
-                    await framePromise;
                 }
 
                 finished = true;
                 clearTimeout(globalTimeout);
-                URL.revokeObjectURL(v.src);
+                cleanup();
 
                 if (frames.length === 0) {
                     rej(new Error("No valid frames extracted (all blank or timed out)"));
@@ -1311,7 +1304,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
 
             v.addEventListener('error', () => {
                 clearTimeout(globalTimeout);
-                URL.revokeObjectURL(v.src);
+                cleanup();
                 rej(new Error("Video load failed"));
             });
         });
@@ -1406,27 +1399,21 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             }).join('');
         };
 
-        // FIX #1 & #2 & #5: Validation with comma check, release tags, dynamic lengths
         const validate = (d, isVideo, targets) => {
             const e = [];
             const ssList = isVideo ? SS_CATS_VIDEO : SS_CATS_IMAGE;
             const kwCount = (d.keywords || []).length;
             const minKw = Math.max(15, targets.kwCount - 5);
 
-            // Keyword count check
             if (kwCount < minKw) e.push(`Keywords count ${kwCount}, need at least ${minKw}`);
-
-            // Title length check
             if (d.adobe_title?.length > targets.titleLen) e.push(`adobe_title ${d.adobe_title.length} chars (max ${targets.titleLen})`);
             if (d.mg_title && (d.mg_title.length < 35 || d.mg_title.length > 100)) e.push(`mg_title length ${d.mg_title.length} (need 35-100)`);
             if (d.p5_title && (d.p5_title.length < 40 || d.p5_title.length > 80)) e.push(`p5_title length ${d.p5_title.length} (need 40-80)`);
 
-            // FIX #2: Comma check
             ['adobe_title','ss_desc','mg_title','mg_desc','p5_title','p5_desc','vz_title','vz_desc'].forEach(field => {
                 if (d[field] && d[field].includes(',')) e.push(`${field} contains comma`);
             });
 
-            // Category check
             if (!ADOBE_CATS.includes(d.adobe_cat)) e.push(`adobe_cat '${d.adobe_cat}' invalid`);
             if (!ssList.includes(d.ss_cat)) e.push(`ss_cat '${d.ss_cat}' invalid${isVideo ? ' for VIDEO' : ''}`);
             if (d.ss_cat2 && !ssList.includes(d.ss_cat2)) e.push(`ss_cat2 '${d.ss_cat2}' invalid${isVideo ? ' for VIDEO' : ''}`);
@@ -1436,7 +1423,6 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
 
             if (!d.ss_desc) e.push("ss_desc empty");
 
-            // FIX #5: Vecteezy title char check
             if (d.vz_title) {
                 const badChars = d.vz_title.match(/[^a-zA-Z0-9\s\.\,\-\']/g);
                 if (badChars) e.push(`vz_title contains invalid chars: ${badChars.join(' ')}`);
@@ -1460,7 +1446,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             throw new Error("Max retries");
         };
 
-        // FIX #1: Clean release tags from keywords
+        // FIX #1: Filter release tags + existing _ai_generated dari keywords
         const processKeywords = (kwArray) => {
             const releaseTags = [];
             const clean = [];
@@ -1522,12 +1508,10 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                     item.error = "Validation failed";
                     item.validationErrors = errs;
                 } else {
-                    // FIX #1: Process release tags
                     const processed = processKeywords(data.keywords || []);
                     data._cleanKeywords = processed.clean;
                     data._releaseTags = processed.releaseTags;
 
-                    // FIX #4: Auto-add release warnings based on grounding
                     if (data.has_people && !processed.releaseTags.includes('_model_release_needed')) {
                         data._releaseTags.push('_model_release_needed');
                     }
@@ -1591,30 +1575,46 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
         };
 
         const kwBadge = (r, p, targets) => {
-            // FIX #1: Use clean keywords (excluding release tags)
             const k = r._cleanKeywords || r.keywords || [];
             let c = k.length;
             const maxKw = targets.kwCount;
             if (p === 'magnific' && document.getElementById('toggle-ai').checked) {
-                let t = k.filter(x => !RELEASE_TAGS.includes(String(x).toLowerCase())).slice(0, maxKw - 1);
+                let t = k.filter(x => !RELEASE_TAGS.includes(String(x).toLowerCase()) && x !== '_ai_generated').slice(0, maxKw - 1);
                 c = t.length + 1;
             } else c = Math.min(k.length, maxKw);
             const cls = c >= maxKw ? 'full' : c >= maxKw * 0.8 ? 'medium' : 'low';
             return `<span class="keyword-badge ${cls}">${c}/${maxKw}</span>`;
         };
 
-        // FIX #1: getKw excludes release tags
+        // FIX #1: getKw — filter release tags AND existing _ai_generated
         const getKw = (r, p, targets) => {
             let k = r._cleanKeywords || r.keywords || [];
             const maxKw = (targets || getTargetSettings()).kwCount;
             const ai = document.getElementById('toggle-ai').checked;
             if (p === 'magnific' && ai) {
-                k = k.filter(x => !RELEASE_TAGS.includes(String(x).toLowerCase())).slice(0, maxKw - 1);
+                k = k.filter(x => {
+                    const lower = String(x).toLowerCase();
+                    return !RELEASE_TAGS.includes(lower) && lower !== '_ai_generated';
+                }).slice(0, maxKw - 1);
                 k.push('_ai_generated');
             } else {
                 k = k.slice(0, maxKw);
             }
             return k.join(',');
+        };
+
+        const cellKw = (r, p, targets) => {
+            const kw = getKw(r, p, targets);
+            const h = esc(kw);
+            return `<td>
+                <div class="cell-content">
+                    <span class="cell-text" title="${h}">${h}</span>
+                    ${kwBadge(r, p, targets)}
+                    <button class="copy-btn" data-copy="${h}" onclick="copyText(this)" title="Copy">
+                        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    </button>
+                </div>
+            </td>`;
         };
 
         const updateResultsUI = () => {
@@ -1632,16 +1632,11 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             document.getElementById('table-magnific').innerHTML = done.map(i => `<tr>${cell(i.filename, true)}${cell(i.result.mg_title)}${cellKw(i.result,'magnific', targets)}${cell(i.result.mg_type)}</tr>`).join('');
             document.getElementById('table-pond5').innerHTML = done.map(i => `<tr>${cell(i.filename, true)}${cell(i.result.p5_title)}${cell(i.result.p5_desc)}${cellKw(i.result,'pond5', targets)}${cell(i.result.p5_cat)}</tr>`).join('');
 
-            // Validation + Release warnings
             let allErrors = [];
             let allWarnings = [];
             appState.queue.forEach(i => {
-                if (i.validationErrors?.length) {
-                    allErrors.push({ file: i.filename, errors: i.validationErrors });
-                }
-                if (i.warnings?.length) {
-                    allWarnings.push({ file: i.filename, warnings: i.warnings });
-                }
+                if (i.validationErrors?.length) allErrors.push({ file: i.filename, errors: i.validationErrors });
+                if (i.warnings?.length) allWarnings.push({ file: i.filename, warnings: i.warnings });
             });
             const b = document.getElementById('validation-badge');
             const vList = document.getElementById('validation-list');
@@ -1665,20 +1660,6 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 b.classList.add('hidden');
                 vList.innerHTML = '<div class="empty-state">No validation errors — all clean ✨</div>';
             }
-        };
-
-        const cellKw = (r, p, targets) => {
-            const kw = getKw(r, p, targets);
-            const h = esc(kw);
-            return `<td>
-                <div class="cell-content">
-                    <span class="cell-text" title="${h}">${h}</span>
-                    ${kwBadge(r, p, targets)}
-                    <button class="copy-btn" data-copy="${h}" onclick="copyText(this)" title="Copy">
-                        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                    </button>
-                </div>
-            </td>`;
         };
 
         const download = (content, filename) => {
