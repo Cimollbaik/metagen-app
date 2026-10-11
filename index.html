@@ -233,6 +233,19 @@
         }
         .toggle-switch input:checked + .toggle-track { background: var(--indigo); }
         .toggle-switch input:checked + .toggle-track::after { transform: translateX(18px); }
+        .toggle-hint { font-size: 11.5px; line-height: 1.5; color: var(--text-secondary); padding: 0 8px 4px; }
+        .toggle-hint.warn { color: var(--rose); font-weight: 600; }
+        .flag-guide {
+            margin-top: 4px; padding: 12px 14px; border-radius: var(--radius);
+            background: var(--indigo-soft); border: 1px solid var(--indigo-soft-border);
+            font-size: 12px; line-height: 1.6; color: var(--text-secondary);
+        }
+        .flag-guide b { color: var(--text-primary); }
+        .flag-chip {
+            margin-left: 8px; font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 100px;
+            background: var(--sage-soft); color: #4F7A4C; border: 1px solid var(--sage-soft-border);
+        }
+        .flag-chip.off { background: var(--rose-soft); color: #A3566F; border-color: var(--rose-soft-border); }
         .magnific-section {
             grid-column: 1 / -1; padding: 16px;
             background: var(--indigo-soft); border: 1px solid var(--indigo-soft-border);
@@ -605,7 +618,7 @@
                 <div class="logo-mark">M</div>
                 <div>
                     <div class="logo-text">MicroStock MetaGen</div>
-                    <div class="logo-sub">AI Metadata Generator · v23</div>
+                    <div class="logo-sub">AI Metadata Generator · v24</div>
                 </div>
             </div>
             <div class="header-actions">
@@ -650,7 +663,7 @@
                     </div>
 
                     <div class="field" style="grid-column: 1 / -1;">
-                        <label class="field-label">Asset Flags</label>
+                        <label class="field-label">Asset Flags <span class="field-label-hint">tersimpan otomatis</span></label>
                         <div class="toggles-group">
                             <label class="toggle-row">
                                 <span class="toggle-label">All assets are AI-generated</span>
@@ -659,6 +672,7 @@
                                     <span class="toggle-track"></span>
                                 </div>
                             </label>
+                            <div class="toggle-hint" id="hint-ai"></div>
                             <label class="toggle-row">
                                 <span class="toggle-label">All assets are Editorial</span>
                                 <div class="toggle-switch">
@@ -666,6 +680,14 @@
                                     <span class="toggle-track"></span>
                                 </div>
                             </label>
+                            <div class="toggle-hint" id="hint-editorial"></div>
+                            <div class="toggle-hint warn" id="hint-both" style="display:none"></div>
+                        </div>
+                        <div class="flag-guide">
+                            <b>Kapan switch ON / OFF?</b><br>
+                            <b>AI-generated: ON</b> bila aset dibuat sebagian atau seluruhnya dengan AI (gambar AI, vektor hasil trace dari gambar AI, video AI). <b>OFF</b> hanya untuk karya tanpa AI (foto sendiri, gambar tangan). Salah label ke arah mana pun bisa membuat aset ditolak.<br>
+                            <b>Editorial: OFF</b> untuk aset komersial (default). <b>ON</b> hanya untuk konten berita, peristiwa, atau orang nyata. Tidak cocok untuk ilustrasi AI.<br>
+                            Batch campuran AI dan non-AI? Proses dan ekspor per kelompok.
                         </div>
                     </div>
 
@@ -904,6 +926,11 @@
         const P5_CATS = ["abstract","aerials","alpha channel/greenscreen","archival","animation","animals/wildlife","buildings and monuments","business","celebrities","current events","education","food and drink","healthcare/medical","industry","landscapes","lifestyle","medical & health","nature","people","religion","science","sports","technology","transportation","vintage","other"];
 
         const RELEASE_TAGS = ['_model_release_needed', '_property_release_needed'];
+        // Cocokkan semua variasi: _model_release_needed, model-release-needed, "model release needed", property release, dst.
+        const isReleaseTag = (x) => /^_?(model|property)[\s_-]*release([\s_-]*(needed|required))?$/i.test(String(x).trim());
+        const kwKey = (x) => String(x).toLowerCase().replace(/[\s_-]+/g, ' ').trim();
+        // Urutan kolom Shutterstock: 'official' = Illustration, Mature content, Editorial. Ganti ke 'legacy' bila format lama Anda yang berhasil.
+        const SS_COLUMN_ORDER = 'official';
 
         const RESPONSE_SCHEMA = {
             type: Type.OBJECT,
@@ -1028,6 +1055,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             document.getElementById('api-key').value = localStorage.getItem('mmg_api_key') || '';
             document.getElementById('model-select').value = localStorage.getItem('mmg_model') || 'gemini-3.1-flash-lite';
             document.getElementById('global-context').value = localStorage.getItem('mmg_context') || '';
+            if (localStorage.getItem('mmg_flags_v24') !== '1') { localStorage.setItem('mmg_ai', 'true'); localStorage.setItem('mmg_flags_v24', '1'); }
             document.getElementById('toggle-ai').checked = localStorage.getItem('mmg_ai') === 'true';
             document.getElementById('toggle-editorial').checked = localStorage.getItem('mmg_editorial') === 'true';
             document.getElementById('ai-model-name').value = localStorage.getItem('mmg_ai_model_name') || '';
@@ -1072,6 +1100,33 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             const s = document.getElementById('ai-magnific-settings');
             if (document.getElementById('toggle-ai').checked) s.classList.remove('disabled');
             else s.classList.add('disabled');
+            refreshFlagUI();
+        };
+
+        const refreshFlagUI = () => {
+            const ai = document.getElementById('toggle-ai').checked;
+            const ed = document.getElementById('toggle-editorial').checked;
+            const hAi = document.getElementById('hint-ai');
+            hAi.className = 'toggle-hint' + (ai ? '' : ' warn');
+            hAi.textContent = ai
+                ? 'ON: Adobe kolom "Is generative AI" = yes · Magnific menambah kolom Prompt/Model dan keyword _ai_generated · nama file CSV berakhiran _ai.'
+                : 'OFF: SEMUA baris diekspor sebagai BUKAN AI. Pakai hanya jika aset benar-benar bebas AI. Salah label bisa membuat aset ditolak.';
+            const hEd = document.getElementById('hint-editorial');
+            hEd.className = 'toggle-hint' + (ed ? ' warn' : '');
+            hEd.textContent = ed
+                ? 'ON: Shutterstock Editorial = yes, Vecteezy License = editorial. Hanya untuk konten berita/peristiwa/orang nyata, bukan ilustrasi komersial.'
+                : 'OFF: diekspor sebagai komersial (default untuk ilustrasi, vektor, dan video stok).';
+            const hBoth = document.getElementById('hint-both');
+            if (ai && ed) {
+                hBoth.style.display = '';
+                hBoth.textContent = '⚠ AI dan Editorial sama-sama ON: kombinasi ini jarang cocok. Adobe melarang judul konten AI yang menyiratkan peristiwa nyata.';
+            } else hBoth.style.display = 'none';
+            document.querySelectorAll('.btn-export').forEach(b => {
+                let c = b.querySelector('.flag-chip');
+                if (!c) { c = document.createElement('span'); b.appendChild(c); }
+                c.textContent = ai ? 'AI ON' : 'AI OFF';
+                c.className = 'flag-chip' + (ai ? '' : ' off');
+            });
         };
 
         const showToast = (msg, type = 'info') => {
@@ -1450,13 +1505,19 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
         const processKeywords = (kwArray) => {
             const releaseTags = [];
             const clean = [];
+            const seen = new Set();
             for (const k of kwArray) {
-                const lower = String(k).toLowerCase().trim();
-                if (RELEASE_TAGS.includes(lower)) {
-                    releaseTags.push(lower);
-                } else {
-                    clean.push(k);
+                const str = String(k).trim();
+                if (!str) continue;
+                if (isReleaseTag(str)) {
+                    const t = /model/i.test(str) ? '_model_release_needed' : '_property_release_needed';
+                    if (!releaseTags.includes(t)) releaseTags.push(t);
+                    continue;
                 }
+                const key = kwKey(str);
+                if (seen.has(key)) continue; // buang duplikat (beda huruf besar, spasi, atau tanda hubung)
+                seen.add(key);
+                clean.push(str);
             }
             return { clean, releaseTags };
         };
@@ -1579,7 +1640,7 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             let c = k.length;
             const maxKw = targets.kwCount;
             if (p === 'magnific' && document.getElementById('toggle-ai').checked) {
-                let t = k.filter(x => !RELEASE_TAGS.includes(String(x).toLowerCase()) && x !== '_ai_generated').slice(0, maxKw - 1);
+                let t = k.filter(x => !isReleaseTag(x) && x !== '_ai_generated').slice(0, maxKw - 1);
                 c = t.length + 1;
             } else c = Math.min(k.length, maxKw);
             const cls = c >= maxKw ? 'full' : c >= maxKw * 0.8 ? 'medium' : 'low';
@@ -1588,13 +1649,13 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
 
         // FIX #1: getKw — filter release tags AND existing _ai_generated
         const getKw = (r, p, targets) => {
-            let k = r._cleanKeywords || r.keywords || [];
+            let k = (r._cleanKeywords || r.keywords || []).filter(x => !isReleaseTag(x));
             const maxKw = (targets || getTargetSettings()).kwCount;
             const ai = document.getElementById('toggle-ai').checked;
             if (p === 'magnific' && ai) {
                 k = k.filter(x => {
                     const lower = String(x).toLowerCase();
-                    return !RELEASE_TAGS.includes(lower) && lower !== '_ai_generated';
+                    return !isReleaseTag(lower) && lower !== '_ai_generated';
                 }).slice(0, maxKw - 1);
                 k.push('_ai_generated');
             } else {
@@ -1687,6 +1748,8 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
             showToast(`Exporting ${platform} CSV...`, 'info');
             const ai = document.getElementById('toggle-ai').checked;
             const ed = document.getElementById('toggle-editorial').checked;
+            if (!ai && !confirm('Switch "AI-generated" sedang OFF.\n\nSemua baris akan diekspor sebagai BUKAN AI. Jika aset ini dibuat dengan AI, salah label bisa membuat aset ditolak.\n\nLanjut ekspor?')) return showToast('Ekspor dibatalkan', 'info');
+            if (ed && !confirm('Switch "Editorial" sedang ON.\n\nHanya untuk konten berita atau peristiwa nyata. Ilustrasi komersial seharusnya OFF.\n\nLanjut ekspor?')) return showToast('Ekspor dibatalkan', 'info');
             let csv = '', ext = ai ? '_ai' : '';
 
             if (platform === 'adobe') {
@@ -1697,18 +1760,20 @@ p5_cat: ${JSON.stringify(P5_CATS)}`;
                 });
                 download(csv, `adobe_stock${ext}.csv`);
             } else if (platform === 'shutterstock') {
-                csv = 'Filename,Description,Keywords,Categories,Editorial,Mature content,illustration\n';
+                const ssOff = SS_COLUMN_ORDER === 'official';
+                csv = ssOff ? 'Filename,Description,Keywords,Categories,Illustration,Mature content,Editorial\n' : 'Filename,Description,Keywords,Categories,Editorial,Mature content,illustration\n';
                 done.forEach(i => {
                     const c = [i.result.ss_cat, i.result.ss_cat2].filter(Boolean).join(',');
                     const isVec = i.filename.toLowerCase().match(/\.(eps|ai|svg)$/) ? 'yes' : 'no';
-                    csv += [i.filename, i.result.ss_desc, getKw(i.result,'shutterstock', targets), c, ed ? 'yes' : 'no', 'no', isVec].map(v => eC(v)).join(',') + '\n';
+                    const base = [i.filename, i.result.ss_desc, getKw(i.result,'shutterstock', targets), c];
+                    csv += base.concat(ssOff ? [isVec, 'no', ed ? 'yes' : 'no'] : [ed ? 'yes' : 'no', 'no', isVec]).map(v => eC(v)).join(',') + '\n';
                 });
                 download(csv, `shutterstock${ext}.csv`);
             } else if (platform === 'vecteezy') {
-                csv = 'Filename,Title,Description,Keywords\n';
+                csv = 'Filename,Title,Description,Keywords,License\n';
                 done.forEach(i => {
                     const safeFilename = i.filename.replace(/ /g, '_');
-                    csv += [safeFilename, i.result.vz_title, i.result.vz_desc, getKw(i.result,'vecteezy', targets)].map(v => eC(v)).join(',') + '\n';
+                    csv += [safeFilename, i.result.vz_title, i.result.vz_desc, getKw(i.result,'vecteezy', targets), ed ? 'editorial' : ''].map(v => eC(v)).join(',') + '\n';
                 });
                 download(csv, `vecteezy${ext}.csv`);
             } else if (platform === 'magnific') {
