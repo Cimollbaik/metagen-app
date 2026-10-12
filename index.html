@@ -9,33 +9,33 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-outer: #F0EAE0;
-            --bg-pattern-dot: rgba(107, 111, 217, 0.08);
-            --container-bg: #FAF8F3;
-            --card-bg: #FFFFFF;
-            --card-hover: #FDFCFA;
-            --indigo: #6B6FD9;
-            --indigo-hover: #585DC7;
-            --indigo-soft: #EBEBFB;
-            --indigo-soft-border: #D5D5F5;
-            --sage: #7BA878;
-            --sage-soft: #E5F0E1;
-            --sage-soft-border: #C5DDC1;
-            --peach: #D49478;
-            --peach-soft: #FBEEE6;
-            --peach-soft-border: #EBCDB8;
-            --rose: #C57B93;
-            --rose-soft: #F7E4EC;
-            --rose-soft-border: #E5B8C8;
-            --text-primary: #1A1A2E;
-            --text-secondary: #56566B;
-            --text-muted: #9090A0;
-            --border: #E8E4DC;
-            --border-strong: #D4CFC4;
-            --shadow-sm: 0 1px 3px rgba(26, 26, 46, 0.04), 0 1px 2px rgba(26, 26, 46, 0.02);
-            --shadow-md: 0 4px 16px rgba(26, 26, 46, 0.06), 0 1px 3px rgba(26, 26, 46, 0.04);
-            --shadow-lg: 0 20px 48px rgba(26, 26, 46, 0.10), 0 4px 12px rgba(26, 26, 46, 0.05);
-            --shadow-xl: 0 32px 64px rgba(26, 26, 46, 0.14);
+            --bg-outer: #FCEFC8;
+            --bg-pattern-dot: rgba(0, 124, 195, 0.10);
+            --container-bg: #FFF8E6;
+            --card-bg: #FFFEFA;
+            --card-hover: #FFFBEF;
+            --indigo: #007CC3;
+            --indigo-hover: #0068A6;
+            --indigo-soft: #DCEFFA;
+            --indigo-soft-border: #B0D8F0;
+            --sage: #2E9E7B;
+            --sage-soft: #DDF3EA;
+            --sage-soft-border: #B3E0CE;
+            --peach: #D9A000;
+            --peach-soft: #FFF3CB;
+            --peach-soft-border: #FBDF86;
+            --rose: #FF3B67;
+            --rose-soft: #FFE2EA;
+            --rose-soft-border: #FFB8C9;
+            --text-primary: #0B2A40;
+            --text-secondary: #44627A;
+            --text-muted: #7C93A5;
+            --border: #F0E2B4;
+            --border-strong: #E2CC88;
+            --shadow-sm: 0 1px 3px rgba(11, 42, 64, 0.04), 0 1px 2px rgba(11, 42, 64, 0.02);
+            --shadow-md: 0 4px 16px rgba(11, 42, 64, 0.06), 0 1px 3px rgba(11, 42, 64, 0.04);
+            --shadow-lg: 0 20px 48px rgba(11, 42, 64, 0.10), 0 4px 12px rgba(11, 42, 64, 0.05);
+            --shadow-xl: 0 32px 64px rgba(11, 42, 64, 0.14);
             --radius-sm: 10px;
             --radius: 14px;
             --radius-lg: 20px;
@@ -75,13 +75,13 @@
         .logo-group { display: flex; align-items: center; gap: 14px; }
         .logo-mark {
             width: 40px; height: 40px;
-            background: linear-gradient(135deg, var(--indigo) 0%, #8B8FE8 100%);
+            background: linear-gradient(135deg, var(--indigo) 0%, #3DA3DE 100%);
             border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
             color: white;
             font-family: 'Plus Jakarta Sans', sans-serif;
             font-weight: 800; font-size: 18px;
-            box-shadow: 0 4px 12px rgba(107, 111, 217, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 124, 195, 0.3);
         }
         .logo-text {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -243,9 +243,9 @@
         .flag-guide b { color: var(--text-primary); }
         .flag-chip {
             margin-left: 8px; font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 100px;
-            background: var(--sage-soft); color: #4F7A4C; border: 1px solid var(--sage-soft-border);
+            background: var(--sage-soft); color: #1F6F55; border: 1px solid var(--sage-soft-border);
         }
-        .flag-chip.off { background: var(--rose-soft); color: #A3566F; border-color: var(--rose-soft-border); }
+        .flag-chip.off { background: var(--rose-soft); color: #C41E48; border-color: var(--rose-soft-border); }
         .magnific-section {
             grid-column: 1 / -1; padding: 16px;
             background: var(--indigo-soft); border: 1px solid var(--indigo-soft-border);
@@ -258,7 +258,7 @@
         .targets-section {
             grid-column: 1 / -1;
             padding: 16px;
-            background: #F5F3EE;
+            background: #FFF1CC;
             border: 1px solid var(--border);
             border-radius: var(--radius);
             display: grid;
@@ -314,7 +314,7 @@
             border-radius: 50%;
             background: var(--indigo);
             cursor: pointer;
-            box-shadow: 0 2px 6px rgba(107, 111, 217, 0.3);
+            box-shadow: 0 2px 6px rgba(0, 124, 195, 0.3);
             transition: all 0.2s ease;
         }
         .slider-input::-webkit-slider-thumb:hover { transform: scale(1.1); }
@@ -352,9 +352,9 @@
         .dropzone-icon {
             width: 64px; height: 64px; margin: 0 auto 16px;
             border-radius: 18px;
-            background: linear-gradient(135deg, var(--indigo) 0%, #8B8FE8 100%);
+            background: linear-gradient(135deg, var(--indigo) 0%, #3DA3DE 100%);
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 8px 24px rgba(107, 111, 217, 0.3);
+            box-shadow: 0 8px 24px rgba(0, 124, 195, 0.3);
         }
         .dropzone-icon svg { width: 30px; height: 30px; color: white; }
         .dropzone-title {
@@ -384,13 +384,13 @@
             white-space: nowrap;
         }
         .btn-primary {
-            background: linear-gradient(135deg, var(--indigo) 0%, #7C7FE0 100%);
+            background: linear-gradient(135deg, var(--indigo) 0%, #2A97D6 100%);
             color: white;
-            box-shadow: 0 4px 14px rgba(107, 111, 217, 0.35);
+            box-shadow: 0 4px 14px rgba(0, 124, 195, 0.35);
         }
         .btn-primary:hover:not(:disabled) {
             transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(107, 111, 217, 0.45);
+            box-shadow: 0 6px 20px rgba(0, 124, 195, 0.45);
         }
         .btn-primary:disabled {
             opacity: 0.5; cursor: not-allowed;
@@ -479,7 +479,7 @@
         .tab-btn:hover { background: var(--container-bg); color: var(--text-primary); }
         .tab-btn.active {
             background: var(--indigo); color: white;
-            box-shadow: 0 2px 8px rgba(107, 111, 217, 0.3);
+            box-shadow: 0 2px 8px rgba(0, 124, 195, 0.3);
         }
         .validation-badge {
             background: var(--rose); color: white;
@@ -609,7 +609,52 @@
         }
         .processing-pulse { animation: pulse-slow 1.5s ease-in-out infinite; }
         .hidden { display: none !important; }
-    </style>
+    
+/* ===== v26: floating sidebar + responsive (UI only) ===== */
+body{padding:0;background:radial-gradient(900px 500px at 100% 0%,rgba(255,212,83,.45),transparent 60%),radial-gradient(800px 500px at 0% 100%,rgba(0,124,195,.14),transparent 60%),#FFF6DC;background-attachment:fixed}
+.app{display:grid;grid-template-columns:264px minmax(0,1fr);gap:24px;max-width:1480px;min-height:100vh;margin:0 auto;padding:16px;border-radius:0;overflow:visible;background:transparent;box-shadow:none}
+.header{grid-column:1;grid-row:1;position:sticky;top:16px;align-self:start;height:calc(100vh - 32px);overflow:hidden;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:18px;padding:26px 20px 20px;border:1px solid rgba(0,124,195,.14);border-radius:26px;color:var(--text-primary);background:radial-gradient(circle at 0% 0%,rgba(0,124,195,.20),transparent 52%),radial-gradient(circle at 100% 38%,rgba(255,212,83,.40),transparent 48%),#fff;box-shadow:0 1px 2px rgba(11,42,64,.05),0 24px 48px rgba(0,80,130,.10)}
+.header::after{display:none}
+.header::before{order:3;margin-top:auto;content:'CARA PAKAI\A 1 · Isi Gemini API key\A 2 · Drop aset ke area upload\A 3 · Klik Generate Metadata\A 4 · Export CSV per platform';white-space:pre-line;font-size:12px;line-height:1.9;font-weight:500;color:#44627A;padding:16px 16px 14px;border-radius:18px;background:rgba(255,255,255,.75);border:1px dashed rgba(0,124,195,.35);position:static;width:auto;height:auto;opacity:1;right:auto;bottom:auto;left:auto;text-transform:none;letter-spacing:0}
+.header>*{position:relative;z-index:1}
+.logo-group{flex-direction:column;align-items:flex-start;gap:14px}
+.logo-mark{width:54px;height:54px;border-radius:18px;font-size:24px;color:#fff;background:linear-gradient(135deg,#007CC3,#3DA3DE);box-shadow:0 10px 22px rgba(0,124,195,.35),inset 0 -3px 0 rgba(0,0,0,.12)}
+.logo-text{color:#0B2A40;font-size:20px;line-height:1.2;letter-spacing:-.01em}
+.logo-sub{display:inline-block;margin-top:8px;padding:3px 10px;border-radius:100px;background:#FFF0B8;color:#7A5A00;font-weight:700}
+.header-actions{flex-direction:column;align-items:stretch;gap:10px;width:100%;margin:0}
+.header .status-badge{justify-content:flex-start;padding:11px 14px;border-radius:14px;background:#DDF3EA;border:1px solid #B3E0CE;color:#1F6F55}
+.header .status-badge.offline{background:#FFE2EA;border-color:#FFB8C9;color:#C41E48}
+.header .btn-icon{border-radius:14px;padding:11px 14px;text-align:center;background:#fff;color:#0B2A40;border:1px solid #E2CC88}
+.header .btn-icon:hover{background:#FFF3CB;border-color:#D9A000;color:#0B2A40}
+.main{grid-column:2;grid-row:1;padding:12px 8px 40px;gap:22px;overflow:visible;min-width:0}
+.settings,.tabs-container{border-radius:20px;border:1px solid rgba(0,124,195,.10);box-shadow:0 1px 2px rgba(11,42,64,.04),0 14px 34px rgba(0,80,130,.07);background:#fff}
+.settings-header{background:linear-gradient(90deg,#EAF5FC,#fff)}
+.dropzone{border:2px dashed #007CC3;border-radius:22px;background:#fff}
+.btn,.btn-test{border-radius:12px}
+.btn-primary{background:#007CC3;box-shadow:0 6px 0 #005A91;transform:translateY(0)}
+.btn-primary:hover:not(:disabled){background:#0A8AD6;transform:translateY(-1px);box-shadow:0 7px 0 #005A91}
+.btn-primary:active:not(:disabled){transform:translateY(5px);box-shadow:0 1px 0 #005A91}
+.tabs-header{padding:0 10px;gap:0;background:#EAF5FC;border-bottom:none}
+.tab-btn{border-radius:0;padding:16px 18px;border-bottom:3px solid transparent;color:#44627A}
+.tab-btn:hover{background:transparent;color:#007CC3}
+.tab-btn.active{background:#fff;color:#007CC3;border-bottom-color:#FF3B67;box-shadow:none}
+.input,.select,.textarea{border-radius:12px;background:#fff;border:1.5px solid #E2CC88}
+.input:focus,.select:focus,.textarea:focus{border-color:#007CC3;box-shadow:0 0 0 4px rgba(0,124,195,.15)}
+@media(max-width:1100px){.app{grid-template-columns:232px minmax(0,1fr);gap:16px}}
+@media(max-width:900px){
+ .app{display:flex;flex-direction:column;gap:12px;padding:10px}
+ .header{position:static;height:auto;flex-direction:row;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:14px 16px;border-radius:20px}
+ .header::before{display:none}
+ .logo-group{flex-direction:row;align-items:center;gap:12px}
+ .logo-mark{width:42px;height:42px;font-size:19px;border-radius:14px}
+ .logo-text{font-size:16px}.logo-sub{margin-top:2px;padding:2px 8px;font-size:9px}
+ .header-actions{flex-direction:row;width:auto}
+ .header .status-badge,.header .btn-icon{padding:8px 12px}
+ .main{padding:4px 0 30px}
+ .tab-btn{padding:14px 14px}
+}
+@media(max-width:520px){.header-actions{width:100%}.header-actions>*{flex:1;justify-content:center}.dropzone{padding:34px 16px}}
+</style>
 </head>
 <body>
     <div class="app">
