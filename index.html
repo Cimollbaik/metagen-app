@@ -9,39 +9,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
---bg:#0A0A0A;
---bg-card:#141414;
---bg-elevated:#0F0F0F;
---bg-input:#0A0A0A;
---border:#1F1F1F;
---border-hover:#2A2A2A;
---border-active:#333;
---green:#1DB954;
---green-light:#1ED760;
---green-soft:rgba(29,185,84,0.15);
---green-border:rgba(29,185,84,0.3);
---orange:#FF6B35;
---orange-soft:rgba(255,107,53,0.15);
---orange-border:rgba(255,107,53,0.3);
---text:#FFFFFF;
---text-soft:#B3B3B3;
---text-muted:#888888;
---text-dim:#666666;
---adobe:#FF0000;
---ss:#4A4A4A;
---vz:#1DB954;
---mg:#9B59B6;
---p5:#3498DB;
---radius:10px;
---radius-lg:14px;
---radius-xl:18px;
---shadow-lg:0 20px 48px rgba(0,0,0,0.5);
+--bg:#0A0A0A;--bg-card:#141414;--bg-elevated:#0F0F0F;--bg-input:#0A0A0A;
+--border:#1F1F1F;--border-hover:#2A2A2A;--border-active:#333;
+--green:#1DB954;--green-light:#1ED760;--green-soft:rgba(29,185,84,0.15);--green-border:rgba(29,185,84,0.3);
+--orange:#FF6B35;--orange-soft:rgba(255,107,53,0.15);--orange-border:rgba(255,107,53,0.3);
+--text:#FFFFFF;--text-soft:#B3B3B3;--text-muted:#888888;--text-dim:#666666;
+--adobe:#FF0000;--ss:#4A4A4A;--vz:#1DB954;--mg:#9B59B6;--p5:#3498DB;
+--radius:10px;--radius-lg:14px;--shadow-lg:0 20px 48px rgba(0,0,0,0.5);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:16px;font-size:14px;-webkit-font-smoothing:antialiased}
 .app{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
-
-/* HEADER */
 .header{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:12px}
 .logo{display:flex;align-items:center;gap:12px}
 .logo-mark{width:38px;height:38px;background:var(--green);border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;color:#000;box-shadow:0 4px 16px rgba(29,185,84,0.35)}
@@ -53,8 +31,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .status-dot{width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor}
 .btn-icon{padding:7px 14px;border-radius:100px;background:transparent;border:1px solid var(--border-hover);color:var(--text-muted);font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;transition:all 0.2s}
 .btn-icon:hover{border-color:var(--orange);color:var(--orange)}
-
-/* CARDS */
 .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
 .card-header{padding:14px 20px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;transition:background 0.2s}
 .card-header:hover{background:#181818}
@@ -64,8 +40,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .settings.collapsed .card-arrow{transform:rotate(-90deg)}
 .settings.collapsed .card-body{max-height:0;padding-top:0;padding-bottom:0;opacity:0}
 .card-body{padding:0 20px 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;max-height:3000px;overflow:hidden;transition:all 0.3s ease;opacity:1}
-
-/* FIELDS */
 .field{display:flex;flex-direction:column;gap:6px}
 .field-label{font-size:10.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;display:flex;justify-content:space-between;align-items:center}
 .field-label-hint{font-size:9.5px;color:var(--text-dim);text-transform:none;letter-spacing:0;font-weight:500}
@@ -77,8 +51,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .input-group .input{flex:1}
 .btn-test{padding:10px 16px;background:var(--green-soft);color:var(--green);border:1px solid var(--green-border);border-radius:var(--radius);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;white-space:nowrap}
 .btn-test:hover{background:var(--green);color:#000;border-color:transparent}
-
-/* TOGGLES */
 .toggles{display:flex;flex-direction:column;gap:8px}
 .toggle-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:all 0.2s}
 .toggle-row:hover{border-color:var(--border-hover)}
@@ -93,10 +65,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .toggle-hint.warn{color:var(--orange);font-weight:600}
 .flag-guide{margin-top:4px;padding:12px 14px;border-radius:var(--radius);background:rgba(29,185,84,0.05);border:1px solid var(--green-border);font-size:11.5px;line-height:1.6;color:var(--text-soft)}
 .flag-guide b{color:var(--text)}
-
 .magnific-section{grid-column:1/-1;padding:14px;background:rgba(155,89,182,0.06);border:1px solid rgba(155,89,182,0.2);border-radius:var(--radius);display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
 .magnific-section.disabled{opacity:0.35;pointer-events:none}
-
 .targets-section{grid-column:1/-1;padding:16px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
 .targets-title{grid-column:1/-1;font-size:10.5px;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
 .slider-field{display:flex;flex-direction:column;gap:8px}
@@ -106,8 +76,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .slider-input::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--green);cursor:pointer;box-shadow:0 0 0 4px rgba(29,185,84,0.15)}
 .slider-input::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--green);cursor:pointer;border:none}
 .slider-hint{font-size:10px;color:var(--text-dim);line-height:1.4}
-
-/* DROPZONE */
 .dropzone{background:var(--bg-input);border:2px dashed var(--border-hover);border-radius:var(--radius-lg);padding:48px 24px;text-align:center;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden}
 .dropzone::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(29,185,84,0.05) 0%,transparent 50%,rgba(29,185,84,0.03) 100%);opacity:0;transition:opacity 0.3s;pointer-events:none}
 .dropzone:hover::before,.dropzone.active::before{opacity:1}
@@ -119,8 +87,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .dropzone-title{font-weight:700;font-size:16px;margin-bottom:6px}
 .dropzone-hint{font-size:12px;color:var(--text-muted);font-weight:500;margin-bottom:4px}
 .dropzone-sub{font-size:10.5px;color:var(--text-dim)}
-
-/* ACTION BAR */
 .action-bar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
 .queue-info{font-size:12.5px;color:var(--text-muted);font-weight:500}
 .queue-info strong{color:var(--text);font-family:'JetBrains Mono',monospace;font-weight:700}
@@ -131,8 +97,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .btn-primary:disabled{opacity:0.4;cursor:not-allowed;box-shadow:none;transform:none}
 .btn-ghost{background:transparent;color:var(--text-muted);border:1px solid var(--border-hover)}
 .btn-ghost:hover{color:var(--orange);border-color:var(--orange)}
-
-/* QUEUE */
 .queue-list{display:flex;flex-direction:column;gap:8px}
 .queue-item{padding:14px 16px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;transition:all 0.2s}
 .queue-item:hover{border-color:var(--border-hover)}
@@ -161,8 +125,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .queue-bar-fill.waiting{background:#333}
 .queue-bar-fill.error{background:var(--orange)}
 .empty-state{padding:40px 20px;text-align:center;font-size:13px;color:var(--text-dim)}
-
-/* TABS */
 .tabs-container{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
 .tabs-header{display:flex;gap:4px;border-bottom:1px solid var(--border);padding:8px 12px;overflow-x:auto;scrollbar-width:none}
 .tabs-header::-webkit-scrollbar{display:none}
@@ -178,8 +140,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .tab-icon-badge.p5{background:var(--p5)}
 .tab-icon-badge.val{background:var(--orange)}
 .tab-count{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:800;padding:1px 6px;border-radius:100px;background:var(--orange-soft);color:var(--orange);min-width:16px;text-align:center}
-
-/* TAB TOOLBAR — dengan tombol export */
 .tab-toolbar{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
 .tab-toolbar-left{font-size:11.5px;color:var(--text-muted);font-weight:500}
 .tab-toolbar-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -189,11 +149,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .view-switch-btn{padding:6px 12px;border-radius:100px;border:none;background:transparent;font-family:inherit;font-size:11px;font-weight:600;color:var(--text-dim);cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all 0.2s}
 .view-switch-btn:hover{color:var(--text-soft)}
 .view-switch-btn.active{background:var(--green);color:#000}
-
 .tab-content{display:none}
 .tab-content.active{display:block}
-
-/* RESULT CARDS */
 .results-grid{padding:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
 .result-card{background:var(--bg-input);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:all 0.2s}
 .result-card:hover{border-color:var(--green-border)}
@@ -215,8 +172,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .result-value.keywords::after{content:'';position:absolute;bottom:0;left:0;right:0;height:20px;background:linear-gradient(transparent,var(--bg-elevated));pointer-events:none}
 .result-tag{display:inline-block;background:var(--green-soft);color:var(--green);padding:3px 9px;border-radius:100px;font-size:10.5px;font-weight:700;border:1px solid var(--green-border)}
 .result-count{font-family:'JetBrains Mono',monospace;color:var(--green);font-weight:700}
-
-/* TABLE VIEW */
 .results-table-wrap{padding:20px;overflow-x:auto;display:none}
 .results-table{width:100%;border-collapse:collapse;font-size:12.5px}
 .results-table th{padding:12px 16px;text-align:left;font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;border-bottom:1px solid var(--border);background:var(--bg-elevated);position:sticky;top:0}
@@ -227,22 +182,16 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .cell-filename{font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:600;color:var(--green)}
 .cell-copy{padding:3px 6px;border-radius:4px;background:var(--green-soft);border:none;color:var(--green);cursor:pointer;transition:all 0.15s;font-size:11px;flex-shrink:0}
 .cell-copy:hover{background:var(--green);color:#000}
-
-/* VALIDATION */
 .validation-list{padding:16px;display:flex;flex-direction:column;gap:10px}
 .validation-item{padding:14px 18px;border-radius:12px;background:var(--orange-soft);border:1px solid var(--orange-border)}
 .validation-file{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;margin-bottom:8px;color:var(--orange)}
 .validation-errors{list-style:none;padding:0;font-size:12px;color:var(--text-soft)}
 .validation-errors li{padding:3px 0 3px 14px;position:relative}
 .validation-errors li::before{content:'•';position:absolute;left:0;font-weight:bold;color:var(--orange)}
-
-/* TOAST */
 .toast{position:fixed;bottom:24px;right:24px;left:24px;max-width:400px;margin-left:auto;padding:14px 20px;background:var(--bg-card);border:1px solid var(--green-border);color:var(--text);border-radius:12px;font-size:12.5px;font-weight:500;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;transform:translateY(120px);opacity:0;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);z-index:1000}
 .toast.show{transform:translateY(0);opacity:1}
 .toast.error{border-color:var(--orange-border)}
 .toast-icon{font-size:16px}
-
-/* RESPONSIVE */
 @media (max-width:720px){
 body{padding:12px}
 .header{padding:12px 0}
@@ -262,13 +211,12 @@ body{padding:12px}
 <body>
 <div class="app">
 
-<!-- HEADER -->
 <header class="header">
 <div class="logo">
 <div class="logo-mark">M</div>
 <div>
 <div class="logo-text">MicroStock MetaGen</div>
-<div class="logo-sub">AI Metadata Generator · v27</div>
+<div class="logo-sub">AI Metadata Generator · v28</div>
 </div>
 </div>
 <div class="header-actions">
@@ -282,7 +230,6 @@ body{padding:12px}
 
 <main class="main">
 
-<!-- CONFIG SECTION -->
 <section class="card settings" id="settings-section">
 <div class="card-header" onclick="toggleSettings()">
 <div class="card-title"><span class="card-title-icon">⚙</span>Configuration</div>
@@ -323,7 +270,6 @@ body{padding:12px}
 </div>
 </label>
 <div class="toggle-hint" id="hint-ai"></div>
-
 <label class="toggle-row">
 <span class="toggle-label">All assets are Editorial</span>
 <div class="toggle-switch">
@@ -334,10 +280,9 @@ body{padding:12px}
 <div class="toggle-hint" id="hint-editorial"></div>
 <div class="toggle-hint warn" id="hint-both" style="display:none"></div>
 </div>
-
 <div class="flag-guide">
 <b>Kapan switch ON / OFF?</b><br>
-<b>AI-generated: ON</b> bila aset dibuat sebagian atau seluruhnya dengan AI. <b>OFF</b> hanya untuk karya tanpa AI. Salah label bisa membuat aset ditolak.<br>
+<b>AI-generated: ON</b> bila aset dibuat sebagian atau seluruhnya dengan AI. <b>OFF</b> hanya untuk karya tanpa AI.<br>
 <b>Editorial: OFF</b> untuk aset komersial (default). <b>ON</b> hanya untuk konten berita, peristiwa, atau orang nyata.
 </div>
 </div>
@@ -355,40 +300,26 @@ body{padding:12px}
 
 <div class="targets-section">
 <div class="targets-title"><span>🎯</span> Target Metadata Length</div>
-
 <div class="slider-field">
-<div class="slider-header">
-<span>Title Length</span>
-<span class="slider-value" id="title-length-val">70</span>
-</div>
+<div class="slider-header"><span>Title Length</span><span class="slider-value" id="title-length-val">70</span></div>
 <input type="range" class="slider-input" id="title-length" min="30" max="120" value="70">
 <div class="slider-hint">Rekomendasi: 50–80 karakter</div>
 </div>
-
 <div class="slider-field">
-<div class="slider-header">
-<span>Description Length</span>
-<span class="slider-value" id="desc-length-val">150</span>
-</div>
+<div class="slider-header"><span>Description Length</span><span class="slider-value" id="desc-length-val">150</span></div>
 <input type="range" class="slider-input" id="desc-length" min="50" max="250" value="150">
 <div class="slider-hint">Rekomendasi: 100–180 karakter</div>
 </div>
-
 <div class="slider-field">
-<div class="slider-header">
-<span>Keywords Count</span>
-<span class="slider-value" id="kw-count-val">50</span>
-</div>
+<div class="slider-header"><span>Keywords Count</span><span class="slider-value" id="kw-count-val">50</span></div>
 <input type="range" class="slider-input" id="kw-count" min="20" max="50" value="50">
 <div class="slider-hint">Rekomendasi: 25–40 tag</div>
 </div>
-
 </div>
 
 </div>
 </section>
 
-<!-- DROPZONE -->
 <section class="dropzone" id="dropzone">
 <input type="file" id="file-input" multiple accept="image/jpeg, image/png, image/webp, image/gif, video/mp4, video/quicktime, image/svg+xml, .eps, .ai, .psd">
 <div class="dropzone-inner">
@@ -399,7 +330,6 @@ body{padding:12px}
 </div>
 </section>
 
-<!-- ACTION BAR -->
 <div class="action-bar">
 <div class="queue-info">
 Queue: <strong id="queue-count">0</strong> file · Est: <strong id="cost-estimate">0</strong> API calls
@@ -410,12 +340,10 @@ Queue: <strong id="queue-count">0</strong> file · Est: <strong id="cost-estimat
 </div>
 </div>
 
-<!-- QUEUE LIST -->
 <div class="queue-list" id="queue-list">
 <div class="empty-state">Queue is empty — drop files above to begin</div>
 </div>
 
-<!-- TABS + HASIL -->
 <section class="tabs-container">
 
 <div class="tabs-header" id="tabs-header">
@@ -440,7 +368,6 @@ Queue: <strong id="queue-count">0</strong> file · Est: <strong id="cost-estimat
 </button>
 </div>
 
-<!-- TAB: ADOBE -->
 <div id="tab-adobe" class="tab-content active">
 <div class="tab-toolbar">
 <div class="tab-toolbar-left" id="info-adobe">0 hasil</div>
@@ -461,7 +388,6 @@ Queue: <strong id="queue-count">0</strong> file · Est: <strong id="cost-estimat
 </div>
 </div>
 
-<!-- TAB: SHUTTERSTOCK -->
 <div id="tab-shutterstock" class="tab-content">
 <div class="tab-toolbar">
 <div class="tab-toolbar-left" id="info-shutterstock">0 hasil</div>
@@ -482,7 +408,6 @@ Queue: <strong id="queue-count">0</strong> file · Est: <strong id="cost-estimat
 </div>
 </div>
 
-<!-- TAB: VECTEEZY -->
 <div id="tab-vecteezy" class="tab-content">
 <div class="tab-toolbar">
 <div class="tab-toolbar-left" id="info-vecteezy">0 hasil</div>
@@ -503,7 +428,6 @@ Queue: <strong id="queue-count">0</strong> file · Est: <strong id="cost-estimat
 </div>
 </div>
 
-<!-- TAB: MAGNIFIC -->
 <div id="tab-magnific" class="tab-content">
 <div class="tab-toolbar">
 <div class="tab-toolbar-left" id="info-magnific">0 hasil</div>
@@ -524,7 +448,6 @@ Queue: <strong id="queue-count">0</strong> file · Est: <strong id="cost-estimat
 </div>
 </div>
 
-<!-- TAB: POND5 -->
 <div id="tab-pond5" class="tab-content">
 <div class="tab-toolbar">
 <div class="tab-toolbar-left" id="info-pond5">0 hasil</div>
@@ -545,7 +468,6 @@ Queue: <strong id="queue-count">0</strong> file · Est: <strong id="cost-estimat
 </div>
 </div>
 
-<!-- TAB: VALIDATION -->
 <div id="tab-validation" class="tab-content">
 <div class="validation-list" id="validation-list">
 <div class="empty-state">No validation errors — all clean ✨</div>
@@ -563,10 +485,8 @@ Queue: <strong id="queue-count">0</strong> file · Est: <strong id="cost-estimat
 <span class="toast-icon" id="toast-icon">ℹ️</span>
 <span id="toast-message">Notification</span>
 </div>
+
 <script>
-// ============================================================
-// UTILITY FUNCTIONS
-// ============================================================
 const showToast = (msg, type = 'info') => {
   const t = document.getElementById('toast');
   document.getElementById('toast-message').textContent = msg;
@@ -628,36 +548,29 @@ window.copyField = (filename, field) => {
   copyToClipboard(value, 'Copied!');
 };
 
-// ============================================================
-// SETTINGS — localStorage only
-// ============================================================
 const loadSettings = () => {
   document.getElementById('api-key').value = localStorage.getItem('mmg_api_key') || '';
   document.getElementById('model-select').value = localStorage.getItem('mmg_model') || 'gemini-3.1-flash-lite';
   document.getElementById('global-context').value = localStorage.getItem('mmg_context') || '';
-  if (localStorage.getItem('mmg_flags_v27') !== '1') {
+  if (localStorage.getItem('mmg_flags_v28') !== '1') {
     localStorage.setItem('mmg_ai', 'true');
-    localStorage.setItem('mmg_flags_v27', '1');
+    localStorage.setItem('mmg_flags_v28', '1');
   }
   document.getElementById('toggle-ai').checked = localStorage.getItem('mmg_ai') === 'true';
   document.getElementById('toggle-editorial').checked = localStorage.getItem('mmg_editorial') === 'true';
   document.getElementById('ai-model-name').value = localStorage.getItem('mmg_ai_model_name') || '';
   document.getElementById('ai-prompt-text').value = localStorage.getItem('mmg_ai_prompt_text') || '';
-
   document.getElementById('title-length').value = localStorage.getItem('mmg_title_len') || '70';
   document.getElementById('desc-length').value = localStorage.getItem('mmg_desc_len') || '150';
   document.getElementById('kw-count').value = localStorage.getItem('mmg_kw_count') || '50';
   document.getElementById('title-length-val').textContent = document.getElementById('title-length').value;
   document.getElementById('desc-length-val').textContent = document.getElementById('desc-length').value;
   document.getElementById('kw-count-val').textContent = document.getElementById('kw-count').value;
-
   const k = document.getElementById('api-key').value.trim();
   if (k.length > 20) {
     appState.isApiValid = true;
-    const status = document.getElementById('api-status');
-    const statusText = document.getElementById('api-status-text');
-    status.classList.remove('offline');
-    statusText.textContent = 'Ready';
+    document.getElementById('api-status').classList.remove('offline');
+    document.getElementById('api-status-text').textContent = 'Ready';
   }
   toggleMagnificSettings();
   updateGenerateButton();
@@ -718,28 +631,20 @@ const updateGenerateButton = () => {
   document.getElementById('cost-estimate').textContent = pending;
 };
 
-// ============================================================
-// APP STATE
-// ============================================================
 const appState = {
   queue: [],
   isProcessing: false,
   isApiValid: false
 };
 
-// ============================================================
-// EVENT LISTENERS
-// ============================================================
 ['api-key', 'model-select', 'global-context', 'ai-model-name', 'ai-prompt-text'].forEach(id => {
   const el = document.getElementById(id);
   if (el) el.addEventListener('input', saveSettings);
 });
-
 ['toggle-ai', 'toggle-editorial'].forEach(id => {
   const el = document.getElementById(id);
   if (el) el.addEventListener('change', saveSettings);
 });
-
 ['title-length', 'desc-length', 'kw-count'].forEach(id => {
   const slider = document.getElementById(id);
   const display = document.getElementById(id + '-val');
@@ -750,7 +655,6 @@ const appState = {
     });
   }
 });
-
 const apiKeyEl = document.getElementById('api-key');
 if (apiKeyEl) {
   apiKeyEl.addEventListener('input', () => {
@@ -766,7 +670,6 @@ if (apiKeyEl) {
     }
   });
 }
-
 document.getElementById('btn-test-key').addEventListener('click', async () => {
   const key = document.getElementById('api-key').value.trim();
   if (!key) return showToast('Enter API key first', 'error');
@@ -790,14 +693,12 @@ document.getElementById('btn-test-key').addEventListener('click', async () => {
     updateGenerateButton();
   }
 });
-
 document.getElementById('btn-clear-data').addEventListener('click', () => {
   if (confirm('Clear all settings? (API key, model, preferences)')) {
     localStorage.clear();
     location.reload();
   }
 });
-
 document.getElementById('btn-clear-queue').addEventListener('click', () => {
   if (appState.isProcessing) return showToast('Cannot clear while processing', 'error');
   if (appState.queue.length === 0) return showToast('Queue sudah kosong', 'info');
@@ -807,8 +708,6 @@ document.getElementById('btn-clear-queue').addEventListener('click', () => {
   updateResultsUI();
   updateGenerateButton();
 });
-
-// TAB SWITCHING
 document.getElementById('tabs-header').addEventListener('click', (e) => {
   const btn = e.target.closest('.tab-platform');
   if (!btn) return;
@@ -819,8 +718,6 @@ document.getElementById('tabs-header').addEventListener('click', (e) => {
   const target = document.getElementById(targetId);
   if (target) target.classList.add('active');
 });
-
-// VIEW TOGGLE
 document.querySelectorAll('.view-switch-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const tab = btn.dataset.tab;
@@ -838,21 +735,17 @@ document.querySelectorAll('.view-switch-btn').forEach(btn => {
     }
   });
 });
-
-// DROPZONE
 const dz = document.getElementById('dropzone');
 dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('active'); });
 dz.addEventListener('dragleave', () => dz.classList.remove('active'));
 dz.addEventListener('drop', (e) => { e.preventDefault(); dz.classList.remove('active'); handleFiles(e.dataTransfer.files); });
 document.getElementById('file-input').addEventListener('change', (e) => handleFiles(e.target.files));
-
 const genId = () => Math.random().toString(36).substr(2, 9);
 const fmtBytes = (b) => {
   if (b === 0) return '0 B';
   const i = Math.floor(Math.log(b) / Math.log(1024));
   return parseFloat((b / Math.pow(1024, i)).toFixed(2)) + ' ' + ['B', 'KB', 'MB', 'GB'][i];
 };
-
 const resizeImg = (file, maxDim = 1024) => new Promise((res, rej) => {
   const isSvg = file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg');
   let to = null;
@@ -883,25 +776,18 @@ const resizeImg = (file, maxDim = 1024) => new Promise((res, rej) => {
         }
         if (!hasContent) return rej(new Error("Image appears blank"));
       } catch (err) {}
-      res({
-        data: cv.toDataURL('image/jpeg', 0.85).split(',')[1],
-        mimeType: 'image/jpeg',
-        thumb: cv.toDataURL('image/jpeg', 0.2)
-      });
+      res({ data: cv.toDataURL('image/jpeg', 0.85).split(',')[1], mimeType: 'image/jpeg', thumb: cv.toDataURL('image/jpeg', 0.2) });
     };
     img.onerror = () => { if (isSvg) clearTimeout(to); rej(new Error("Image load failed")); };
     img.src = e.target.result;
   };
   rd.onerror = rej;
 });
-
 const extractVideo = (file) => new Promise((res, rej) => {
   const v = document.createElement('video');
   v.src = URL.createObjectURL(file);
-  v.muted = true;
-  v.playsInline = true;
-  v.setAttribute('playsinline', '');
-  v.setAttribute('webkit-playsinline', '');
+  v.muted = true; v.playsInline = true;
+  v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', '');
   v.preload = 'auto';
   const frames = [];
   let thumb = null;
@@ -910,23 +796,17 @@ const extractVideo = (file) => new Promise((res, rej) => {
   const cleanup = () => { try { URL.revokeObjectURL(v.src); } catch (e) {} };
   const globalTimeout = setTimeout(() => {
     if (!finished) {
-      finished = true;
-      cleanup();
+      finished = true; cleanup();
       if (frames.length === 0) rej(new Error("Video frame extraction timeout"));
       else res({ frames, thumb, duration: v.duration || 0 });
     }
   }, 30000);
-
   v.addEventListener('loadedmetadata', async () => {
     if (metadataLoaded) return;
     metadataLoaded = true;
     const dur = v.duration;
-    if (!dur || dur < 0.1) {
-      clearTimeout(globalTimeout); cleanup();
-      return rej(new Error("Video duration invalid"));
-    }
+    if (!dur || dur < 0.1) { clearTimeout(globalTimeout); cleanup(); return rej(new Error("Video duration invalid")); }
     if (dur < 5) showToast(`Warning: ${file.name} < 5s`, 'error');
-
     const pts = [dur * 0.15, dur * 0.5, dur * 0.85];
     const cv = document.getElementById('processing-canvas');
     const ctx = cv.getContext('2d');
@@ -934,16 +814,13 @@ const extractVideo = (file) => new Promise((res, rej) => {
     const mx = 768;
     if (w > mx || h > mx) { if (w > h) { h *= mx / w; w = mx; } else { w *= mx / h; h = mx; } }
     cv.width = w; cv.height = h;
-
     for (let i = 0; i < pts.length; i++) {
       await new Promise((resolve) => {
         let resolved = false;
         const cleanupFrame = () => { clearTimeout(frameTimeout); v.removeEventListener('seeked', onSeeked); };
         const frameTimeout = setTimeout(() => {
           if (resolved) return;
-          resolved = true;
-          cleanupFrame();
-          resolve(false);
+          resolved = true; cleanupFrame(); resolve(false);
         }, 10000);
         const onSeeked = () => {
           if (resolved) return;
@@ -974,21 +851,14 @@ const extractVideo = (file) => new Promise((res, rej) => {
         v.currentTime = pts[i];
       });
     }
-
     finished = true;
     clearTimeout(globalTimeout);
     cleanup();
     if (frames.length === 0) rej(new Error("No valid frames extracted"));
     else res({ frames, thumb, duration: dur });
   });
-
-  v.addEventListener('error', () => {
-    clearTimeout(globalTimeout);
-    cleanup();
-    rej(new Error("Video load failed"));
-  });
+  v.addEventListener('error', () => { clearTimeout(globalTimeout); cleanup(); rej(new Error("Video load failed")); });
 });
-
 const handleFiles = async (files) => {
   const parsed = [];
   for (let i = 0; i < files.length; i++) {
@@ -1003,7 +873,6 @@ const handleFiles = async (files) => {
   const svgs = parsed.filter(p => p.ext === 'svg');
   const rasters = parsed.filter(p => ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(p.ext));
   const usedRasters = new Set();
-
   for (const vec of vectors) {
     const preview = rasters.find(r => r.stem.toLowerCase() === vec.stem.toLowerCase() && !usedRasters.has(r.file.name));
     if (preview) { usedRasters.add(preview.file.name); await addItem(vec.file, preview.file); }
@@ -1020,7 +889,6 @@ const handleFiles = async (files) => {
   }
   updateGenerateButton();
 };
-
 const addItem = async (targetFile, previewFile) => {
   if (!targetFile) return;
   const ext = targetFile.name.split('.').pop().toLowerCase();
@@ -1031,7 +899,6 @@ const addItem = async (targetFile, previewFile) => {
   if (isV) { mx = 500 * 1024 * 1024; lbl = "Video"; }
   else if (isVec || isSvg) { mx = 100 * 1024 * 1024; lbl = "Vector"; }
   if (targetFile.size > mx) return showToast(`${targetFile.name} exceeds ${mx / (1024 * 1024)}MB (${lbl})`, 'error');
-
   let finalName = targetFile.name;
   if (appState.queue.find(q => q.filename === finalName)) {
     const base = finalName.substring(0, finalName.lastIndexOf('.'));
@@ -1050,7 +917,6 @@ const addItem = async (targetFile, previewFile) => {
   renderQueue();
   updateGenerateButton();
 };
-
 const renderQueue = () => {
   const list = document.getElementById('queue-list');
   document.getElementById('queue-count').textContent = appState.queue.length;
@@ -1081,7 +947,6 @@ const renderQueue = () => {
     </div>`;
   }).join('');
 };
-
 window.removeQueueItem = (id) => {
   if (appState.isProcessing) {
     const item = appState.queue.find(q => q.id === id);
@@ -1097,9 +962,6 @@ window.removeQueueItem = (id) => {
   showToast(`${item.filename} dihapus`, 'info');
 };
 
-// ============================================================
-// DATA CONSTANTS
-// ============================================================
 const ADOBE_CATS = ["Animals","Buildings and architecture","Business","Drinks","The environment","States of mind","Food","Graphic resources","Hobbies and leisure","Industry","Landscape","Lifestyle","People","Plants and flowers","Culture and religion","Science","Social issues","Sports","Technology","Transport","Travel"];
 const ADOBE_CAT_IDS = {"Animals":1,"Buildings and architecture":2,"Business":3,"Drinks":4,"The environment":5,"States of mind":6,"Food":7,"Graphic resources":8,"Hobbies and leisure":9,"Industry":10,"Landscape":11,"Lifestyle":12,"People":13,"Plants and flowers":14,"Culture and religion":15,"Science":16,"Social issues":17,"Sports":18,"Technology":19,"Transport":20,"Travel":21};
 const SS_CATS_IMAGE = ["Abstract","Animals/Wildlife","The Arts","Backgrounds/Textures","Beauty/Fashion","Buildings/Landmarks","Business/Finance","Celebrities","Education","Food and Drink","Healthcare/Medical","Holidays","Industrial","Interiors","Miscellaneous","Nature","Objects","Parks/Outdoor","People","Religion","Science","Signs/Symbols","Sports/Recreation","Technology","Transportation","Vintage"];
@@ -1107,39 +969,31 @@ const SS_CATS_VIDEO = ["Animals/Wildlife","The Arts","Backgrounds/Textures","Bui
 const VZ_CATS = ["Animals and Plants","Activity and Events","Composition","Food and Drink","Location","Objects and Colors","People"];
 const MG_TYPES = ["Photo","Vector","PSD","Mockup","AI Image"];
 const P5_CATS = ["abstract","aerials","alpha channel/greenscreen","archival","animation","animals/wildlife","buildings and monuments","business","celebrities","current events","education","food and drink","healthcare/medical","industry","landscapes","lifestyle","medical & health","nature","people","religion","science","sports","technology","transportation","vintage","other"];
-
 const isReleaseTag = (x) => /^_?(model|property)[\s_-]*release([\s_-]*(needed|required))?$/i.test(String(x).trim());
 const kwKey = (x) => String(x).toLowerCase().replace(/[\s_-]+/g, ' ').trim();
-
 const KW_STOP = new Set(['and','or','of','the','a','an','with','in','on','for','to','vs']);
-// Vecteezy: HANYA kata tunggal. Frasa/compound dipecah jadi kata.
-// Buang keyword yang Vecteezy tolak (vector untuk video, dsb.)
-const VZ_BLOCKED = new Set(['vector', 'icon', 'icons', 'graphic', 'graphics', 'design', 'art', 'animation', 'video', 'footage', 'clipart']);
+// Vecteezy: single-word only. Video tidak terima "vector", "footage", "clipart", "video".
+const VZ_BLOCKED_VIDEO = new Set(['vector', 'footage', 'clipart', 'video', 'animation']);
+const VZ_BLOCKED_ALL = new Set(['footage', 'clipart']);
 const kwVecteezy = (list, isVideo) => {
   const out = [], seen = new Set();
   for (const raw of list) {
-    // Pecah by space, underscore, hyphen — semua jadi kata tunggal
     const parts = String(raw).toLowerCase().trim().split(/[\s_\-]+/).filter(Boolean);
     if (!parts.length) continue;
-    // Buang frasa yang diawali kata negasi (no, non, without) — jika dipecah artinya terbalik
     if (['no','non','without'].includes(parts[0])) continue;
     for (let w of parts) {
-      // Bersihkan semua karakter non-alfanumerik
       w = w.replace(/[^\p{L}\p{N}]/gu, '');
       if (w.length < 2) continue;
       if (KW_STOP.has(w)) continue;
       if (seen.has(w)) continue;
-      // Buang keyword yang Vecteezy tolak
-      if (VZ_BLOCKED.has(w)) continue;
-      // Khusus video: buang "vector"
-      if (isVideo && w === 'vector') continue;
+      if (VZ_BLOCKED_ALL.has(w)) continue;
+      if (isVideo && VZ_BLOCKED_VIDEO.has(w)) continue;
       seen.add(w);
       out.push(w);
     }
   }
   return out;
 };
-
 const kwShutterstock = (list) => {
   const out = [], seen = new Set(), cnt = {};
   for (const raw of list) {
@@ -1152,16 +1006,12 @@ const kwShutterstock = (list) => {
   }
   return out;
 };
-
 const kwForPlatform = (list, p, r) => {
   if (p === 'vecteezy') return kwVecteezy(list, !!(r && r._isVideo));
   if (p === 'shutterstock') return kwShutterstock(list);
   return list;
 };
 
-// ============================================================
-// BUILD PROMPT
-// ============================================================
 function buildPrompt(isVideo, titleLen, descLen, kwCount) {
   const ssList = isVideo ? SS_CATS_VIDEO : SS_CATS_IMAGE;
   const ssNote = isVideo ? "\n\nIMPORTANT: VIDEO. Shutterstock does NOT accept: Abstract, Beauty/Fashion, Celebrities, Interiors, Miscellaneous, Parks/Outdoor, Vintage." : "";
@@ -1237,9 +1087,6 @@ Respond ONLY with valid JSON:
 }`;
 }
 
-// ============================================================
-// GEMINI API CALL
-// ============================================================
 const callGemini = async (apiKey, model, payload, maxRetries = 5) => {
   let a = 0;
   while (a < maxRetries) {
@@ -1268,9 +1115,6 @@ const callGemini = async (apiKey, model, payload, maxRetries = 5) => {
   throw new Error("Max retries");
 };
 
-// ============================================================
-// PROCESS KEYWORDS + VALIDATE
-// ============================================================
 const processKeywords = (kwArray) => {
   const releaseTags = [];
   const clean = [];
@@ -1291,17 +1135,13 @@ const processKeywords = (kwArray) => {
   return { clean, releaseTags };
 };
 
-// Fuzzy match untuk kategori (fix vz_cat dan kategori lain)
 const fuzzyMatchCat = (input, list) => {
   if (!input) return null;
   const s = String(input).trim();
-  // Exact
   if (list.includes(s)) return s;
-  // Case insensitive
   const lower = s.toLowerCase();
   const ci = list.find(x => x.toLowerCase() === lower);
   if (ci) return ci;
-  // Partial match
   const partial = list.find(x => x.toLowerCase().includes(lower) || lower.includes(x.toLowerCase()));
   if (partial) return partial;
   return null;
@@ -1333,7 +1173,6 @@ const validate = (d, isVideo, targets) => {
   return e;
 };
 
-// Auto-fix kategori dengan fuzzy match
 const autoFixCats = (d, isVideo) => {
   const ssList = isVideo ? SS_CATS_VIDEO : SS_CATS_IMAGE;
   d.adobe_cat = fuzzyMatchCat(d.adobe_cat, ADOBE_CATS) || 'Graphic resources';
@@ -1345,9 +1184,6 @@ const autoFixCats = (d, isVideo) => {
   return d;
 };
 
-// ============================================================
-// PROCESS FILE
-// ============================================================
 const processFile = async (idx) => {
   const item = appState.queue[idx];
   if (!item) return;
@@ -1355,12 +1191,10 @@ const processFile = async (idx) => {
   item.progress = 10;
   item.warnings = [];
   renderQueue();
-
   const isVideo = item.type === 'video';
   const targets = getTargetSettings();
   const apiKey = document.getElementById('api-key').value.trim();
   const model = document.getElementById('model-select').value;
-
   try {
     let parts = [];
     if (isVideo) {
@@ -1375,11 +1209,9 @@ const processFile = async (idx) => {
       parts = [{ inline_data: { mime_type: rz.mimeType, data: rz.data } }];
     }
     renderQueue();
-
     const gc = document.getElementById('global-context').value.trim();
     let prompt = buildPrompt(isVideo, targets.titleLen, targets.descLen, targets.kwCount);
     if (gc) prompt += `\n\nGlobal Context: ${gc}`;
-
     let errs = [], data = null, att = 0;
     while (att <= 3) {
       let p = prompt;
@@ -1401,14 +1233,12 @@ const processFile = async (idx) => {
       }
       att++;
     }
-
     if (errs.length) {
       item.status = 'error';
       item.progress = 100;
       item.error = "Validation failed";
       item.validationErrors = errs;
     } else {
-      // Auto-fix categories
       data = autoFixCats(data, isVideo);
       const processed = processKeywords(data.keywords || []);
       data._cleanKeywords = processed.clean;
@@ -1455,7 +1285,7 @@ document.getElementById('btn-generate').addEventListener('click', async () => {
 });
 
 // ============================================================
-// RENDER RESULTS — Beda kolom per platform
+// RENDER — pakai keyword per platform (fixed)
 // ============================================================
 const cardField = (filename, label, valueHtml, field, extraHtml = '') => `
 <div class="result-field">
@@ -1466,13 +1296,30 @@ const cardField = (filename, label, valueHtml, field, extraHtml = '') => `
   <div class="result-value">${valueHtml}</div>
 </div>`;
 
+// Get keyword untuk display per platform — mirror apa yang akan di-export
+const getDisplayKw = (r, platform, targets) => {
+  const maxKw = (targets || getTargetSettings()).kwCount;
+  let k = kwForPlatform((r._cleanKeywords || r.keywords || []).filter(x => !isReleaseTag(x)), platform, r);
+  const ai = document.getElementById('toggle-ai').checked;
+  if (platform === 'magnific' && ai) {
+    k = k.filter(x => {
+      const lower = String(x).toLowerCase();
+      return !isReleaseTag(lower) && lower !== '_ai_generated';
+    }).slice(0, maxKw - 1);
+    k.push('_ai_generated');
+  } else {
+    k = k.slice(0, maxKw);
+  }
+  return k;
+};
+
 const renderCard = (item, platform) => {
   const r = item.result;
   const fname = item.filename.replace(/'/g, "\\'");
-  const kws = (r._cleanKeywords || r.keywords || []).filter(x => !isReleaseTag(x));
+  const targets = getTargetSettings();
+  const kws = getDisplayKw(r, platform, targets);
   const kwStr = kws.join(', ');
   const kwCount = kws.length;
-  const targets = getTargetSettings();
   const catId = ADOBE_CAT_IDS[r.adobe_cat] || '';
   let bodyHtml = '';
 
@@ -1523,7 +1370,8 @@ const renderCard = (item, platform) => {
 const renderTableRow = (item, platform) => {
   const r = item.result;
   const fname = item.filename.replace(/'/g, "\\'");
-  const kws = (r._cleanKeywords || r.keywords || []).filter(x => !isReleaseTag(x)).join(', ');
+  const targets = getTargetSettings();
+  const kws = getDisplayKw(r, platform, targets).join(', ');
   const catId = ADOBE_CAT_IDS[r.adobe_cat] || r.adobe_cat;
 
   if (platform === 'adobe') {
@@ -1582,18 +1430,15 @@ const updateResultsUI = () => {
     const tbody = document.getElementById(`table-${p}`);
     if (tbody) tbody.innerHTML = done.map(i => renderTableRow(i, p)).join('');
   });
-
   let allErrors = [];
   let allWarnings = [];
   appState.queue.forEach(i => {
     if (i.validationErrors?.length) allErrors.push({ file: i.filename, errors: i.validationErrors });
     if (i.warnings?.length) allWarnings.push({ file: i.filename, warnings: i.warnings });
   });
-
   const b = document.getElementById('validation-badge');
   const vList = document.getElementById('validation-list');
   const totalIssues = allErrors.reduce((s, e) => s + e.errors.length, 0) + allWarnings.reduce((s, e) => s + e.warnings.length, 0);
-
   if (allErrors.length || allWarnings.length) {
     b.textContent = totalIssues;
     b.style.display = '';
@@ -1611,9 +1456,6 @@ const updateResultsUI = () => {
   }
 };
 
-// ============================================================
-// EXPORT CSV
-// ============================================================
 const download = (content, filename) => {
   const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
   const l = document.createElement('a');
@@ -1632,21 +1474,7 @@ const eC = (s, d = ',') => {
   return new RegExp(`[${d}"\\n\\r]`).test(x) ? `"${x}"` : x;
 };
 
-const getKw = (r, p, targets) => {
-  let k = kwForPlatform((r._cleanKeywords || r.keywords || []).filter(x => !isReleaseTag(x)), p, r);
-  const maxKw = (targets || getTargetSettings()).kwCount;
-  const ai = document.getElementById('toggle-ai').checked;
-  if (p === 'magnific' && ai) {
-    k = k.filter(x => {
-      const lower = String(x).toLowerCase();
-      return !isReleaseTag(lower) && lower !== '_ai_generated';
-    }).slice(0, maxKw - 1);
-    k.push('_ai_generated');
-  } else {
-    k = k.slice(0, maxKw);
-  }
-  return k.join(',');
-};
+const getKw = (r, p, targets) => getDisplayKw(r, p, targets).join(',');
 
 window.exportCSV = (platform) => {
   appState.queue.forEach(i => {
@@ -1657,12 +1485,9 @@ window.exportCSV = (platform) => {
   const targets = getTargetSettings();
   const done = appState.queue.filter(i => i.status === 'done' && i.result);
   if (!done.length) return showToast('No processed items to export', 'error');
-
   const ai = document.getElementById('toggle-ai').checked;
   const ed = document.getElementById('toggle-editorial').checked;
-
   let csv = '', ext = ai ? '_ai' : '';
-
   if (platform === 'adobe') {
     csv = 'Filename,Title,Keywords,Category,Is generative AI\n';
     done.forEach(i => {
@@ -1705,9 +1530,6 @@ window.exportCSV = (platform) => {
   showToast(`Export ${platform} berhasil!`, 'success');
 };
 
-// ============================================================
-// INIT
-// ============================================================
 loadSettings();
 renderQueue();
 updateResultsUI();
