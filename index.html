@@ -1,1862 +1,1731 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MicroStock MetaGen</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-outer: #FCEFC8;
-            --bg-pattern-dot: rgba(0, 124, 195, 0.10);
-            --container-bg: #FFF8E6;
-            --card-bg: #FFFEFA;
-            --card-hover: #FFFBEF;
-            --indigo: #007CC3;
-            --indigo-hover: #0068A6;
-            --indigo-soft: #DCEFFA;
-            --indigo-soft-border: #B0D8F0;
-            --sage: #2E9E7B;
-            --sage-soft: #DDF3EA;
-            --sage-soft-border: #B3E0CE;
-            --peach: #D9A000;
-            --peach-soft: #FFF3CB;
-            --peach-soft-border: #FBDF86;
-            --rose: #FF3B67;
-            --rose-soft: #FFE2EA;
-            --rose-soft-border: #FFB8C9;
-            --text-primary: #0B2A40;
-            --text-secondary: #44627A;
-            --text-muted: #7C93A5;
-            --border: #F0E2B4;
-            --border-strong: #E2CC88;
-            --shadow-sm: 0 1px 3px rgba(11, 42, 64, 0.04), 0 1px 2px rgba(11, 42, 64, 0.02);
-            --shadow-md: 0 4px 16px rgba(11, 42, 64, 0.06), 0 1px 3px rgba(11, 42, 64, 0.04);
-            --shadow-lg: 0 20px 48px rgba(11, 42, 64, 0.10), 0 4px 12px rgba(11, 42, 64, 0.05);
-            --shadow-xl: 0 32px 64px rgba(11, 42, 64, 0.14);
-            --radius-sm: 10px;
-            --radius: 14px;
-            --radius-lg: 20px;
-            --radius-xl: 28px;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--bg-outer);
-            background-image: radial-gradient(circle, var(--bg-pattern-dot) 1px, transparent 1px);
-            background-size: 20px 20px;
-            color: var(--text-primary);
-            min-height: 100vh;
-            padding: 20px;
-            -webkit-font-smoothing: antialiased;
-        }
-        .app {
-            max-width: 1280px;
-            margin: 0 auto;
-            background: var(--container-bg);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-xl);
-            min-height: calc(100vh - 40px);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 20px 28px;
-            border-bottom: 1px solid var(--border);
-            background: var(--card-bg);
-            flex-shrink: 0;
-        }
-        .logo-group { display: flex; align-items: center; gap: 14px; }
-        .logo-mark {
-            width: 40px; height: 40px;
-            background: linear-gradient(135deg, var(--indigo) 0%, #3DA3DE 100%);
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            color: white;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-weight: 800; font-size: 18px;
-            box-shadow: 0 4px 12px rgba(0, 124, 195, 0.3);
-        }
-        .logo-text {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-weight: 700; font-size: 18px;
-            letter-spacing: -0.02em;
-        }
-        .logo-sub {
-            font-size: 11px; color: var(--text-muted);
-            font-weight: 500; letter-spacing: 0.02em;
-            text-transform: uppercase;
-        }
-        .header-actions { display: flex; align-items: center; gap: 12px; }
-        .status-badge {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 7px 14px; border-radius: 100px;
-            font-size: 12px; font-weight: 600;
-            background: var(--sage-soft); color: var(--sage);
-            border: 1px solid var(--sage-soft-border);
-        }
-        .status-badge.offline {
-            background: var(--rose-soft); color: var(--rose);
-            border-color: var(--rose-soft-border);
-        }
-        .status-dot {
-            width: 7px; height: 7px; border-radius: 50%;
-            background: currentColor; box-shadow: 0 0 8px currentColor;
-        }
-        .btn-icon {
-            padding: 8px 14px; border-radius: 100px;
-            background: transparent; border: 1px solid var(--border);
-            color: var(--text-secondary); font-family: inherit;
-            font-size: 12px; font-weight: 600; cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .btn-icon:hover {
-            background: var(--card-bg); border-color: var(--border-strong);
-            color: var(--text-primary);
-        }
-        .main {
-            flex: 1; display: flex; flex-direction: column;
-            padding: 24px 28px; gap: 20px; overflow-y: auto;
-        }
-        .settings {
-            background: var(--card-bg); border-radius: var(--radius-lg);
-            border: 1px solid var(--border); box-shadow: var(--shadow-sm);
-            overflow: hidden;
-        }
-        .settings-header {
-            padding: 16px 20px; display: flex;
-            align-items: center; justify-content: space-between;
-            cursor: pointer; user-select: none;
-            transition: background 0.2s ease;
-        }
-        .settings-header:hover { background: var(--card-hover); }
-        .settings-title {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-weight: 700; font-size: 14px;
-            display: flex; align-items: center; gap: 10px;
-        }
-        .settings-title-icon {
-            width: 24px; height: 24px; border-radius: 8px;
-            background: var(--indigo-soft);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 12px;
-        }
-        .settings-toggle-arrow {
-            color: var(--text-muted); transition: transform 0.3s ease; font-size: 12px;
-        }
-        .settings.collapsed .settings-toggle-arrow { transform: rotate(-90deg); }
-        .settings-body {
-            padding: 0 20px 20px 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 18px;
-            max-height: 3000px; overflow: hidden;
-            transition: max-height 0.4s ease, padding 0.3s ease, opacity 0.2s ease;
-            opacity: 1;
-        }
-        .settings.collapsed .settings-body {
-            max-height: 0; padding-top: 0; padding-bottom: 0; opacity: 0;
-        }
-        .field { display: flex; flex-direction: column; gap: 7px; }
-        .field-label {
-            font-size: 11px; font-weight: 600; color: var(--text-secondary);
-            letter-spacing: 0.04em; text-transform: uppercase;
-            display: flex; align-items: center; justify-content: space-between;
-        }
-        .field-label-hint {
-            font-size: 10px; font-weight: 500; color: var(--text-muted);
-            text-transform: none; letter-spacing: 0;
-        }
-        .input, .textarea, .select {
-            width: 100%; padding: 11px 14px;
-            border-radius: var(--radius); border: 1px solid var(--border);
-            background: var(--container-bg); font-family: inherit;
-            font-size: 13px; color: var(--text-primary);
-            transition: all 0.2s ease; outline: none;
-        }
-        .input:focus, .textarea:focus, .select:focus {
-            border-color: var(--indigo); background: var(--card-bg);
-            box-shadow: 0 0 0 4px var(--indigo-soft);
-        }
-        .textarea { resize: vertical; min-height: 70px; }
-        .select {
-            cursor: pointer; appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239090A0' stroke-width='2.5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-position: right 14px center;
-            padding-right: 38px;
-        }
-        .input-group { display: flex; gap: 8px; }
-        .input-group .input { flex: 1; }
-        .btn-test {
-            padding: 11px 16px; border-radius: var(--radius);
-            background: var(--indigo-soft); color: var(--indigo);
-            border: 1px solid var(--indigo-soft-border);
-            font-family: inherit; font-size: 12px; font-weight: 600;
-            cursor: pointer; white-space: nowrap; transition: all 0.2s ease;
-        }
-        .btn-test:hover {
-            background: var(--indigo); color: white; border-color: var(--indigo);
-        }
-        .toggles-group { display: flex; flex-direction: column; gap: 10px; }
-        .toggle-row {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 10px 14px; border-radius: var(--radius);
-            background: var(--container-bg); border: 1px solid var(--border);
-            cursor: pointer; transition: all 0.2s ease;
-        }
-        .toggle-row:hover {
-            background: var(--card-bg); border-color: var(--border-strong);
-        }
-        .toggle-label { font-size: 13px; font-weight: 500; }
-        .toggle-switch {
-            position: relative; width: 42px; height: 24px; flex-shrink: 0;
-        }
-        .toggle-switch input {
-            position: absolute; opacity: 0; width: 100%; height: 100%;
-            cursor: pointer; z-index: 2; margin: 0;
-        }
-        .toggle-track {
-            position: absolute; inset: 0; background: var(--border-strong);
-            border-radius: 100px; transition: all 0.25s ease;
-        }
-        .toggle-track::after {
-            content: ''; position: absolute; top: 3px; left: 3px;
-            width: 18px; height: 18px; border-radius: 50%;
-            background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-            transition: all 0.25s ease;
-        }
-        .toggle-switch input:checked + .toggle-track { background: var(--indigo); }
-        .toggle-switch input:checked + .toggle-track::after { transform: translateX(18px); }
-        .toggle-hint { font-size: 11.5px; line-height: 1.5; color: var(--text-secondary); padding: 0 8px 4px; }
-        .toggle-hint.warn { color: var(--rose); font-weight: 600; }
-        .flag-guide {
-            margin-top: 4px; padding: 12px 14px; border-radius: var(--radius);
-            background: var(--indigo-soft); border: 1px solid var(--indigo-soft-border);
-            font-size: 12px; line-height: 1.6; color: var(--text-secondary);
-        }
-        .flag-guide b { color: var(--text-primary); }
-        .flag-chip {
-            margin-left: 8px; font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 100px;
-            background: var(--sage-soft); color: #1F6F55; border: 1px solid var(--sage-soft-border);
-        }
-        .flag-chip.off { background: var(--rose-soft); color: #C41E48; border-color: var(--rose-soft-border); }
-        .magnific-section {
-            grid-column: 1 / -1; padding: 16px;
-            background: var(--indigo-soft); border: 1px solid var(--indigo-soft-border);
-            border-radius: var(--radius);
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
-        }
-        .magnific-section.disabled { opacity: 0.4; pointer-events: none; }
-        .targets-section {
-            grid-column: 1 / -1;
-            padding: 16px;
-            background: #FFF1CC;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
-        }
-        .targets-title {
-            grid-column: 1 / -1;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-weight: 700;
-            font-size: 12px;
-            color: var(--text-secondary);
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: -4px;
-        }
-        .slider-field { display: flex; flex-direction: column; gap: 8px; }
-        .slider-header {
-            display: flex; justify-content: space-between; align-items: center;
-            font-size: 11px; font-weight: 600;
-            color: var(--text-secondary);
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-        }
-        .slider-value {
-            font-family: 'JetBrains Mono', monospace;
-            background: var(--indigo-soft);
-            color: var(--indigo);
-            padding: 3px 10px;
-            border-radius: 100px;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0;
-            text-transform: none;
-        }
-        .slider-input {
-            width: 100%;
-            height: 6px;
-            border-radius: 100px;
-            background: var(--border-strong);
-            outline: none;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-        .slider-input::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--indigo);
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0, 124, 195, 0.3);
-            transition: all 0.2s ease;
-        }
-        .slider-input::-webkit-slider-thumb:hover { transform: scale(1.1); }
-        .slider-input::-moz-range-thumb {
-            width: 20px; height: 20px;
-            border-radius: 50%; background: var(--indigo);
-            cursor: pointer; border: none;
-        }
-        .slider-hint {
-            font-size: 10px; color: var(--text-muted);
-            line-height: 1.4;
-        }
-        .dropzone {
-            background: var(--card-bg); border: 2px dashed var(--border-strong);
-            border-radius: var(--radius-lg); padding: 48px 24px;
-            text-align: center; cursor: pointer;
-            position: relative; transition: all 0.3s ease; overflow: hidden;
-        }
-        .dropzone::before {
-            content: ''; position: absolute; inset: 0;
-            background: linear-gradient(135deg, var(--indigo-soft) 0%, transparent 50%, var(--sage-soft) 100%);
-            opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
-        }
-        .dropzone:hover::before, .dropzone.active::before { opacity: 0.5; }
-        .dropzone:hover {
-            border-color: var(--indigo); transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-        .dropzone.active { border-color: var(--indigo); background: var(--indigo-soft); }
-        .dropzone input[type="file"] {
-            position: absolute; inset: 0; opacity: 0;
-            cursor: pointer; z-index: 2;
-        }
-        .dropzone-inner { position: relative; z-index: 1; pointer-events: none; }
-        .dropzone-icon {
-            width: 64px; height: 64px; margin: 0 auto 16px;
-            border-radius: 18px;
-            background: linear-gradient(135deg, var(--indigo) 0%, #3DA3DE 100%);
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 8px 24px rgba(0, 124, 195, 0.3);
-        }
-        .dropzone-icon svg { width: 30px; height: 30px; color: white; }
-        .dropzone-title {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-weight: 700; font-size: 17px; margin-bottom: 6px;
-        }
-        .dropzone-hint {
-            font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;
-        }
-        .dropzone-subhint { font-size: 11px; color: var(--text-muted); }
-        .action-bar {
-            display: flex; gap: 12px;
-            align-items: center; justify-content: space-between;
-            flex-wrap: wrap;
-        }
-        .queue-info { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
-        .queue-info strong {
-            color: var(--text-primary); font-weight: 700;
-            font-family: 'JetBrains Mono', monospace;
-        }
-        .action-buttons { display: flex; gap: 10px; align-items: center; }
-        .btn {
-            padding: 12px 22px; border-radius: 100px;
-            font-family: inherit; font-size: 13px; font-weight: 600;
-            cursor: pointer; border: none; transition: all 0.2s ease;
-            display: inline-flex; align-items: center; gap: 8px;
-            white-space: nowrap;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, var(--indigo) 0%, #2A97D6 100%);
-            color: white;
-            box-shadow: 0 4px 14px rgba(0, 124, 195, 0.35);
-        }
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(0, 124, 195, 0.45);
-        }
-        .btn-primary:disabled {
-            opacity: 0.5; cursor: not-allowed;
-            box-shadow: none; transform: none; filter: grayscale(0.4);
-        }
-        .btn-ghost {
-            background: transparent; color: var(--text-secondary);
-            border: 1px solid var(--border);
-        }
-        .btn-ghost:hover {
-            background: var(--card-bg); color: var(--text-primary);
-            border-color: var(--border-strong);
-        }
-        .queue-list {
-            display: flex; flex-direction: column; gap: 8px;
-            max-height: 280px; overflow-y: auto; padding-right: 4px;
-        }
-        .queue-list::-webkit-scrollbar { width: 6px; }
-        .queue-list::-webkit-scrollbar-thumb {
-            background: var(--border-strong); border-radius: 10px;
-        }
-        .queue-item {
-            display: flex; align-items: center; gap: 14px;
-            padding: 12px 16px; background: var(--card-bg);
-            border: 1px solid var(--border); border-radius: var(--radius);
-            transition: all 0.2s ease;
-        }
-        .queue-item:hover { border-color: var(--border-strong); box-shadow: var(--shadow-sm); }
-        .queue-item.done {
-            border-color: var(--sage-soft-border);
-            background: linear-gradient(to right, var(--sage-soft) 0%, var(--card-bg) 20%);
-        }
-        .queue-item.error {
-            border-color: var(--rose-soft-border);
-            background: linear-gradient(to right, var(--rose-soft) 0%, var(--card-bg) 20%);
-        }
-        .queue-thumb {
-            width: 44px; height: 44px; border-radius: 10px;
-            background: var(--container-bg); border: 1px solid var(--border);
-            flex-shrink: 0; overflow: hidden;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 18px;
-        }
-        .queue-thumb img { width: 100%; height: 100%; object-fit: cover; }
-        .queue-info-block { flex: 1; min-width: 0; }
-        .queue-filename {
-            font-size: 13px; font-weight: 600;
-            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-            margin-bottom: 3px;
-        }
-        .queue-meta {
-            font-size: 11px; color: var(--text-muted);
-            display: flex; gap: 10px; align-items: center;
-        }
-        .queue-status {
-            font-size: 11px; font-weight: 600; padding: 4px 10px;
-            border-radius: 100px;
-        }
-        .queue-status.waiting { background: var(--peach-soft); color: var(--peach); }
-        .queue-status.processing { background: var(--indigo-soft); color: var(--indigo); }
-        .queue-status.done { background: var(--sage-soft); color: var(--sage); }
-        .queue-status.error { background: var(--rose-soft); color: var(--rose); }
-        .empty-state {
-            padding: 40px 20px; text-align: center;
-            font-size: 13px; color: var(--text-muted);
-        }
-        .tabs-container {
-            background: var(--card-bg); border-radius: var(--radius-lg);
-            border: 1px solid var(--border); box-shadow: var(--shadow-sm);
-            overflow: hidden;
-        }
-        .tabs-header {
-            display: flex; padding: 8px; gap: 4px;
-            border-bottom: 1px solid var(--border);
-            overflow-x: auto; scrollbar-width: none;
-        }
-        .tabs-header::-webkit-scrollbar { display: none; }
-        .tab-btn {
-            padding: 10px 18px; border-radius: 100px;
-            background: transparent; border: none;
-            font-family: inherit; font-size: 13px; font-weight: 600;
-            color: var(--text-secondary); cursor: pointer;
-            transition: all 0.2s ease; white-space: nowrap;
-            display: flex; align-items: center; gap: 7px;
-        }
-        .tab-btn:hover { background: var(--container-bg); color: var(--text-primary); }
-        .tab-btn.active {
-            background: var(--indigo); color: white;
-            box-shadow: 0 2px 8px rgba(0, 124, 195, 0.3);
-        }
-        .validation-badge {
-            background: var(--rose); color: white;
-            font-size: 10px; font-weight: 700; padding: 2px 7px;
-            border-radius: 100px; min-width: 18px; text-align: center;
-        }
-        .validation-badge.warn { background: var(--peach); }
-        .tab-content { display: none !important; }
-        .tab-content.active { display: block !important; }
-        .tab-toolbar {
-            padding: 14px 20px; display: flex;
-            align-items: center; justify-content: space-between;
-            border-bottom: 1px solid var(--border);
-            flex-wrap: wrap; gap: 10px;
-        }
-        .tab-toolbar-info { font-size: 12px; color: var(--text-muted); font-weight: 500; }
-        .btn-export {
-            padding: 8px 16px; border-radius: 100px;
-            background: var(--indigo-soft); color: var(--indigo);
-            border: 1px solid var(--indigo-soft-border);
-            font-family: inherit; font-size: 12px; font-weight: 600;
-            cursor: pointer; transition: all 0.2s ease;
-            display: inline-flex; align-items: center; gap: 6px;
-        }
-        .btn-export:hover {
-            background: var(--indigo); color: white; border-color: var(--indigo);
-        }
-        .table-wrapper { overflow-x: auto; max-height: 500px; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        thead th {
-            position: sticky; top: 0; background: var(--container-bg);
-            padding: 12px 16px; text-align: left;
-            font-size: 10px; font-weight: 700; color: var(--text-muted);
-            letter-spacing: 0.06em; text-transform: uppercase;
-            border-bottom: 1px solid var(--border); z-index: 1;
-        }
-        tbody td {
-            padding: 12px 16px; border-bottom: 1px solid var(--border);
-            vertical-align: middle;
-        }
-        tbody tr:hover { background: var(--container-bg); }
-        tbody tr:last-child td { border-bottom: none; }
-        .cell-content {
-            display: flex; align-items: center; gap: 8px; max-width: 280px;
-        }
-        .cell-text {
-            overflow: hidden; text-overflow: ellipsis;
-            white-space: nowrap; font-size: 12px;
-        }
-        .cell-filename {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px; font-weight: 600;
-        }
-        .copy-btn {
-            opacity: 0; padding: 4px; border-radius: 6px;
-            background: transparent; border: none; color: var(--text-muted);
-            cursor: pointer; transition: all 0.15s ease; flex-shrink: 0;
-        }
-        tr:hover .copy-btn, .cell-content:hover .copy-btn { opacity: 1; }
-        .copy-btn:hover { background: var(--indigo-soft); color: var(--indigo); }
-        @media (hover: none) { .copy-btn { opacity: 0.5; } }
-        .keyword-badge {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px; font-weight: 700; padding: 3px 8px;
-            border-radius: 100px; flex-shrink: 0;
-        }
-        .keyword-badge.full { background: var(--sage-soft); color: var(--sage); }
-        .keyword-badge.medium { background: var(--peach-soft); color: var(--peach); }
-        .keyword-badge.low { background: var(--rose-soft); color: var(--rose); }
-        .validation-list {
-            padding: 16px; display: flex; flex-direction: column; gap: 10px;
-        }
-        .validation-item {
-            padding: 14px 18px; border-radius: var(--radius);
-        }
-        .validation-item.error {
-            background: var(--rose-soft); border: 1px solid var(--rose-soft-border);
-        }
-        .validation-item.warn {
-            background: var(--peach-soft); border: 1px solid var(--peach-soft-border);
-        }
-        .validation-file {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px; font-weight: 600;
-            margin-bottom: 8px;
-        }
-        .validation-item.error .validation-file { color: var(--rose); }
-        .validation-item.warn .validation-file { color: var(--peach); }
-        .validation-errors {
-            list-style: none; padding: 0;
-            font-size: 12px; color: var(--text-secondary);
-        }
-        .validation-errors li { padding: 3px 0 3px 14px; position: relative; }
-        .validation-errors li::before {
-            content: '•'; position: absolute; left: 0; font-weight: bold;
-        }
-        .validation-item.error .validation-errors li::before { color: var(--rose); }
-        .validation-item.warn .validation-errors li::before { color: var(--peach); }
-        .toast {
-            position: fixed; bottom: 24px; right: 24px;
-            padding: 14px 20px; background: var(--text-primary); color: white;
-            border-radius: var(--radius); font-size: 13px; font-weight: 500;
-            box-shadow: var(--shadow-lg);
-            display: flex; align-items: center; gap: 10px;
-            transform: translateY(100px); opacity: 0;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1000; max-width: 320px;
-        }
-        .toast.show { transform: translateY(0); opacity: 1; }
-        .toast-icon { font-size: 16px; }
-        @media (max-width: 720px) {
-            body { padding: 12px; }
-            .app { border-radius: var(--radius-lg); }
-            .header { padding: 16px 20px; }
-            .logo-text { font-size: 16px; }
-            .main { padding: 16px 20px; gap: 16px; }
-            .dropzone { padding: 32px 20px; }
-            .dropzone-icon { width: 56px; height: 56px; }
-            .action-bar { flex-direction: column; align-items: stretch; }
-            .action-buttons { justify-content: stretch; }
-            .btn { flex: 1; justify-content: center; }
-            .logo-sub { display: none; }
-        }
-        @keyframes pulse-slow {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        .processing-pulse { animation: pulse-slow 1.5s ease-in-out infinite; }
-        .hidden { display: none !important; }
-    
-/* ===== v26: floating sidebar + responsive (UI only) ===== */
-body{padding:0;background:radial-gradient(900px 500px at 100% 0%,rgba(255,212,83,.45),transparent 60%),radial-gradient(800px 500px at 0% 100%,rgba(0,124,195,.14),transparent 60%),#FFF6DC;background-attachment:fixed}
-.app{display:grid;grid-template-columns:264px minmax(0,1fr);gap:24px;max-width:1480px;min-height:100vh;margin:0 auto;padding:16px;border-radius:0;overflow:visible;background:transparent;box-shadow:none}
-.header{grid-column:1;grid-row:1;position:sticky;top:16px;align-self:start;height:calc(100vh - 32px);overflow:hidden;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:18px;padding:26px 20px 20px;border:1px solid rgba(0,124,195,.14);border-radius:26px;color:var(--text-primary);background:radial-gradient(circle at 0% 0%,rgba(0,124,195,.20),transparent 52%),radial-gradient(circle at 100% 38%,rgba(255,212,83,.40),transparent 48%),#fff;box-shadow:0 1px 2px rgba(11,42,64,.05),0 24px 48px rgba(0,80,130,.10)}
-.header::after{display:none}
-.header::before{order:3;margin-top:auto;content:'CARA PAKAI\A 1 · Isi Gemini API key\A 2 · Drop aset ke area upload\A 3 · Klik Generate Metadata\A 4 · Export CSV per platform';white-space:pre-line;font-size:12px;line-height:1.9;font-weight:500;color:#44627A;padding:16px 16px 14px;border-radius:18px;background:rgba(255,255,255,.75);border:1px dashed rgba(0,124,195,.35);position:static;width:auto;height:auto;opacity:1;right:auto;bottom:auto;left:auto;text-transform:none;letter-spacing:0}
-.header>*{position:relative;z-index:1}
-.logo-group{flex-direction:column;align-items:flex-start;gap:14px}
-.logo-mark{width:54px;height:54px;border-radius:18px;font-size:24px;color:#fff;background:linear-gradient(135deg,#007CC3,#3DA3DE);box-shadow:0 10px 22px rgba(0,124,195,.35),inset 0 -3px 0 rgba(0,0,0,.12)}
-.logo-text{color:#0B2A40;font-size:20px;line-height:1.2;letter-spacing:-.01em}
-.logo-sub{display:inline-block;margin-top:8px;padding:3px 10px;border-radius:100px;background:#FFF0B8;color:#7A5A00;font-weight:700}
-.header-actions{flex-direction:column;align-items:stretch;gap:10px;width:100%;margin:0}
-.header .status-badge{justify-content:flex-start;padding:11px 14px;border-radius:14px;background:#DDF3EA;border:1px solid #B3E0CE;color:#1F6F55}
-.header .status-badge.offline{background:#FFE2EA;border-color:#FFB8C9;color:#C41E48}
-.header .btn-icon{border-radius:14px;padding:11px 14px;text-align:center;background:#fff;color:#0B2A40;border:1px solid #E2CC88}
-.header .btn-icon:hover{background:#FFF3CB;border-color:#D9A000;color:#0B2A40}
-.main{grid-column:2;grid-row:1;padding:12px 8px 40px;gap:22px;overflow:visible;min-width:0}
-.settings,.tabs-container{border-radius:20px;border:1px solid rgba(0,124,195,.10);box-shadow:0 1px 2px rgba(11,42,64,.04),0 14px 34px rgba(0,80,130,.07);background:#fff}
-.settings-header{background:linear-gradient(90deg,#EAF5FC,#fff)}
-.dropzone{border:2px dashed #007CC3;border-radius:22px;background:#fff}
-.btn,.btn-test{border-radius:12px}
-.btn-primary{background:#007CC3;box-shadow:0 6px 0 #005A91;transform:translateY(0)}
-.btn-primary:hover:not(:disabled){background:#0A8AD6;transform:translateY(-1px);box-shadow:0 7px 0 #005A91}
-.btn-primary:active:not(:disabled){transform:translateY(5px);box-shadow:0 1px 0 #005A91}
-.tabs-header{padding:0 10px;gap:0;background:#EAF5FC;border-bottom:none}
-.tab-btn{border-radius:0;padding:16px 18px;border-bottom:3px solid transparent;color:#44627A}
-.tab-btn:hover{background:transparent;color:#007CC3}
-.tab-btn.active{background:#fff;color:#007CC3;border-bottom-color:#FF3B67;box-shadow:none}
-.input,.select,.textarea{border-radius:12px;background:#fff;border:1.5px solid #E2CC88}
-.input:focus,.select:focus,.textarea:focus{border-color:#007CC3;box-shadow:0 0 0 4px rgba(0,124,195,.15)}
-@media(max-width:1100px){.app{grid-template-columns:232px minmax(0,1fr);gap:16px}}
-@media(max-width:900px){
- .app{display:flex;flex-direction:column;gap:12px;padding:10px}
- .header{position:static;height:auto;flex-direction:row;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:14px 16px;border-radius:20px}
- .header::before{display:none}
- .logo-group{flex-direction:row;align-items:center;gap:12px}
- .logo-mark{width:42px;height:42px;font-size:19px;border-radius:14px}
- .logo-text{font-size:16px}.logo-sub{margin-top:2px;padding:2px 8px;font-size:9px}
- .header-actions{flex-direction:row;width:auto}
- .header .status-badge,.header .btn-icon{padding:8px 12px}
- .main{padding:4px 0 30px}
- .tab-btn{padding:14px 14px}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MicroStock MetaGen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--bg:#0A0A0A;
+--bg-card:#141414;
+--bg-elevated:#0F0F0F;
+--bg-input:#0A0A0A;
+--border:#1F1F1F;
+--border-hover:#2A2A2A;
+--border-active:#333;
+
+--green:#1DB954;
+--green-light:#1ED760;
+--green-soft:rgba(29,185,84,0.15);
+--green-border:rgba(29,185,84,0.3);
+
+--orange:#FF6B35;
+--orange-soft:rgba(255,107,53,0.15);
+--orange-border:rgba(255,107,53,0.3);
+
+--text:#FFFFFF;
+--text-soft:#B3B3B3;
+--text-muted:#888888;
+--text-dim:#666666;
+
+--adobe:#FF0000;
+--ss:#4A4A4A;
+--vz:#1DB954;
+--mg:#9B59B6;
+--p5:#3498DB;
+
+--radius:10px;
+--radius-lg:14px;
+--radius-xl:18px;
+--shadow:0 4px 16px rgba(0,0,0,0.3);
+--shadow-lg:0 20px 48px rgba(0,0,0,0.5);
 }
-@media(max-width:520px){.header-actions{width:100%}.header-actions>*{flex:1;justify-content:center}.dropzone{padding:34px 16px}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:16px;font-size:14px;-webkit-font-smoothing:antialiased}
+.app{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+
+/* ============ HEADER ============ */
+.header{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:12px}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-mark{width:38px;height:38px;background:var(--green);border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;color:#000;box-shadow:0 4px 16px rgba(29,185,84,0.35);font-family:Inter,sans-serif}
+.logo-text{font-weight:700;font-size:16px;letter-spacing:-0.01em}
+.logo-sub{font-size:11px;color:var(--text-muted);font-weight:500;margin-top:1px}
+.header-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.status{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:100px;font-size:11.5px;font-weight:600;background:var(--green-soft);color:var(--green);border:1px solid var(--green-border)}
+.status.offline{background:var(--orange-soft);color:var(--orange);border-color:var(--orange-border)}
+.status-dot{width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor}
+.btn-icon{padding:7px 14px;border-radius:100px;background:transparent;border:1px solid var(--border-hover);color:var(--text-muted);font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;transition:all 0.2s}
+.btn-icon:hover{border-color:var(--orange);color:var(--orange)}
+
+/* ============ CARDS ============ */
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.card-header{padding:14px 20px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;transition:background 0.2s}
+.card-header:hover{background:#181818}
+.card-title{font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em}
+.card-title-icon{width:22px;height:22px;background:var(--green-soft);color:var(--green);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px}
+.card-arrow{color:var(--text-dim);font-size:11px;transition:transform 0.3s}
+.settings.collapsed .card-arrow{transform:rotate(-90deg)}
+.settings.collapsed .card-body{max-height:0;padding-top:0;padding-bottom:0;opacity:0}
+.card-body{padding:0 20px 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;max-height:3000px;overflow:hidden;transition:all 0.3s ease;opacity:1}
+
+/* ============ FIELDS ============ */
+.field{display:flex;flex-direction:column;gap:6px}
+.field-label{font-size:10.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;display:flex;justify-content:space-between;align-items:center}
+.field-label-hint{font-size:9.5px;color:var(--text-dim);text-transform:none;letter-spacing:0;font-weight:500}
+.input,.textarea,.select{width:100%;padding:10px 14px;border-radius:var(--radius);border:1px solid var(--border-hover);background:var(--bg-input);font-family:inherit;font-size:13px;color:var(--text);outline:none;transition:all 0.2s}
+.input:focus,.textarea:focus,.select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(29,185,84,0.12)}
+.textarea{resize:vertical;min-height:60px}
+.select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.input-group{display:flex;gap:8px}
+.input-group .input{flex:1}
+.btn-test{padding:10px 16px;background:var(--green-soft);color:var(--green);border:1px solid var(--green-border);border-radius:var(--radius);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+.btn-test:hover{background:var(--green);color:#000;border-color:transparent}
+
+/* ============ TOGGLES ============ */
+.toggles{display:flex;flex-direction:column;gap:8px}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:all 0.2s}
+.toggle-row:hover{border-color:var(--border-hover)}
+.toggle-label{font-size:12.5px;font-weight:500}
+.toggle-switch{position:relative;width:40px;height:22px;flex-shrink:0}
+.toggle-switch input{opacity:0;width:100%;height:100%;cursor:pointer;position:absolute;z-index:2;margin:0}
+.toggle-track{position:absolute;inset:0;background:#333;border-radius:100px;transition:all 0.25s}
+.toggle-track::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#FFF;transition:all 0.25s}
+.toggle-switch input:checked + .toggle-track{background:var(--green)}
+.toggle-switch input:checked + .toggle-track::after{transform:translateX(18px)}
+.toggle-hint{font-size:11px;line-height:1.5;color:var(--text-muted);padding:0 4px 2px}
+.toggle-hint.warn{color:var(--orange);font-weight:600}
+.flag-guide{margin-top:4px;padding:12px 14px;border-radius:var(--radius);background:rgba(29,185,84,0.05);border:1px solid var(--green-border);font-size:11.5px;line-height:1.6;color:var(--text-soft)}
+.flag-guide b{color:var(--text)}
+.flag-chip{margin-left:8px;font-size:10px;font-weight:800;padding:2px 7px;border-radius:100px;background:var(--green-soft);color:var(--green);border:1px solid var(--green-border)}
+.flag-chip.off{background:var(--orange-soft);color:var(--orange);border-color:var(--orange-border)}
+
+/* ============ MAGNIFIC SECTION ============ */
+.magnific-section{grid-column:1/-1;padding:14px;background:rgba(155,89,182,0.06);border:1px solid rgba(155,89,182,0.2);border-radius:var(--radius);display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.magnific-section.disabled{opacity:0.35;pointer-events:none}
+
+/* ============ TARGETS SLIDERS ============ */
+.targets-section{grid-column:1/-1;padding:16px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.targets-title{grid-column:1/-1;font-size:10.5px;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.slider-field{display:flex;flex-direction:column;gap:8px}
+.slider-header{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:600;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.05em}
+.slider-value{font-family:'JetBrains Mono',monospace;background:var(--green-soft);color:var(--green);padding:2px 8px;border-radius:100px;font-size:10.5px;font-weight:700;letter-spacing:0;text-transform:none}
+.slider-input{width:100%;height:4px;background:#222;border-radius:100px;-webkit-appearance:none;appearance:none;outline:none}
+.slider-input::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--green);cursor:pointer;box-shadow:0 0 0 4px rgba(29,185,84,0.15);transition:all 0.2s}
+.slider-input::-webkit-slider-thumb:hover{transform:scale(1.15)}
+.slider-input::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--green);cursor:pointer;border:none}
+.slider-hint{font-size:10px;color:var(--text-dim);line-height:1.4}
+
+/* ============ DROPZONE ============ */
+.dropzone{background:var(--bg-input);border:2px dashed var(--border-hover);border-radius:var(--radius-lg);padding:48px 24px;text-align:center;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden}
+.dropzone::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(29,185,84,0.05) 0%,transparent 50%,rgba(29,185,84,0.03) 100%);opacity:0;transition:opacity 0.3s;pointer-events:none}
+.dropzone:hover::before,.dropzone.active::before{opacity:1}
+.dropzone:hover{border-color:var(--green);transform:translateY(-2px)}
+.dropzone.active{border-color:var(--green);background:var(--green-soft)}
+.dropzone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2}
+.dropzone-inner{position:relative;z-index:1;pointer-events:none}
+.dropzone-icon{width:56px;height:56px;margin:0 auto 16px;background:var(--green);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 8px 24px rgba(29,185,84,0.25)}
+.dropzone-title{font-weight:700;font-size:16px;margin-bottom:6px;letter-spacing:-0.01em}
+.dropzone-hint{font-size:12px;color:var(--text-muted);font-weight:500;margin-bottom:4px}
+.dropzone-sub{font-size:10.5px;color:var(--text-dim)}
+
+/* ============ ACTION BAR ============ */
+.action-bar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.queue-info{font-size:12.5px;color:var(--text-muted);font-weight:500}
+.queue-info strong{color:var(--text);font-family:'JetBrains Mono',monospace;font-weight:700}
+.action-buttons{display:flex;gap:10px;flex-wrap:wrap}
+.btn{padding:11px 20px;border-radius:100px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:8px;transition:all 0.2s;white-space:nowrap}
+.btn-primary{background:var(--green);color:#000;box-shadow:0 4px 16px rgba(29,185,84,0.3)}
+.btn-primary:hover:not(:disabled){background:var(--green-light);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:0.4;cursor:not-allowed;box-shadow:none;transform:none}
+.btn-ghost{background:transparent;color:var(--text-muted);border:1px solid var(--border-hover)}
+.btn-ghost:hover{color:var(--orange);border-color:var(--orange)}
+
+/* ============ QUEUE ============ */
+.queue-list{display:flex;flex-direction:column;gap:8px}
+.queue-item{padding:14px 16px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;transition:all 0.2s}
+.queue-item:hover{border-color:var(--border-hover)}
+.queue-item.done{border-color:var(--green-border)}
+.queue-item.error{border-color:var(--orange-border);background:linear-gradient(to right,rgba(255,107,53,0.04) 0%,var(--bg-card) 30%)}
+.queue-item.processing{border-color:rgba(29,185,84,0.4)}
+.queue-top{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.queue-thumb{width:38px;height:38px;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;overflow:hidden}
+.queue-thumb img{width:100%;height:100%;object-fit:cover}
+.queue-info-block{flex:1;min-width:0}
+.queue-filename{font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.queue-meta{font-size:10.5px;color:var(--text-dim);margin-top:2px;font-family:'JetBrains Mono',monospace;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.queue-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:100px;text-transform:uppercase;letter-spacing:0.05em}
+.queue-badge.done{background:var(--green-soft);color:var(--green)}
+.queue-badge.processing{background:var(--green-soft);color:var(--green)}
+.queue-badge.waiting{background:rgba(255,255,255,0.06);color:var(--text-muted)}
+.queue-badge.error{background:var(--orange-soft);color:var(--orange)}
+.queue-delete{width:32px;height:32px;border-radius:8px;background:transparent;border:1px solid var(--border-hover);color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all 0.2s;flex-shrink:0}
+.queue-delete:hover{background:var(--orange-soft);border-color:var(--orange);color:var(--orange)}
+.queue-bar{height:4px;background:var(--border);border-radius:100px;overflow:hidden}
+.queue-bar-fill{height:100%;border-radius:100px;transition:width 0.4s ease}
+.queue-bar-fill.done{background:var(--green)}
+.queue-bar-fill.processing{background:linear-gradient(90deg,var(--green),var(--green-light));position:relative;overflow:hidden}
+.queue-bar-fill.processing::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);animation:shine 1.5s ease-in-out infinite}
+@keyframes shine{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.queue-bar-fill.waiting{background:#333}
+.queue-bar-fill.error{background:var(--orange)}
+.empty-state{padding:40px 20px;text-align:center;font-size:13px;color:var(--text-dim)}
+
+/* ============ TABS ============ */
+.tabs-container{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.tabs-header{display:flex;gap:4px;border-bottom:1px solid var(--border);padding:8px 12px;overflow-x:auto;scrollbar-width:none}
+.tabs-header::-webkit-scrollbar{display:none}
+.tab-platform{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:100px;border:1px solid var(--border);background:var(--bg-input);font-family:inherit;font-size:12px;font-weight:600;color:var(--text-muted);cursor:pointer;white-space:nowrap;transition:all 0.2s;position:relative}
+.tab-platform:hover{color:var(--text);border-color:var(--border-active)}
+.tab-platform.active{color:var(--text);background:var(--green-soft);border-color:transparent}
+.tab-platform.active::before{content:'';position:absolute;inset:0;border-radius:100px;border:1px solid var(--green-border);pointer-events:none}
+.tab-icon-badge{width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;color:#FFF;flex-shrink:0}
+.tab-icon-badge.adobe{background:var(--adobe)}
+.tab-icon-badge.ss{background:var(--ss)}
+.tab-icon-badge.vz{background:var(--vz)}
+.tab-icon-badge.mg{background:var(--mg)}
+.tab-icon-badge.p5{background:var(--p5)}
+.tab-icon-badge.val{background:var(--orange)}
+.tab-count{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:800;padding:1px 6px;border-radius:100px;background:var(--orange-soft);color:var(--orange);min-width:16px;text-align:center}
+
+/* ============ VIEW TOGGLE ============ */
+.view-toggle-bar{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
+.view-info{font-size:11.5px;color:var(--text-muted);font-weight:500}
+.view-switch{display:flex;gap:2px;background:var(--bg-input);border:1px solid var(--border);border-radius:100px;padding:3px}
+.view-switch-btn{padding:7px 14px;border-radius:100px;border:none;background:transparent;font-family:inherit;font-size:11.5px;font-weight:600;color:var(--text-dim);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all 0.2s}
+.view-switch-btn:hover{color:var(--text-soft)}
+.view-switch-btn.active{background:var(--green);color:#000}
+
+/* ============ RESULT CARDS ============ */
+.results-grid{padding:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.result-card{background:var(--bg-input);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:all 0.2s}
+.result-card:hover{border-color:var(--green-border)}
+.result-card-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--bg-elevated)}
+.result-filename{font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:600;color:var(--green);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.copy-all-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:6px;background:var(--green-soft);border:1px solid var(--green-border);color:var(--green);font-family:inherit;font-size:10.5px;font-weight:700;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+.copy-all-btn:hover{background:var(--green);color:#000;border-color:transparent}
+.result-body{padding:0}
+.result-field{padding:12px 16px;border-bottom:1px solid #1A1A1A;transition:background 0.2s}
+.result-field:last-child{border-bottom:none}
+.result-field:hover{background:var(--bg-elevated)}
+.result-field-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px}
+.result-label{font-size:9.5px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em}
+.result-copy{padding:3px 8px;border-radius:4px;background:var(--green-soft);border:none;color:var(--green);cursor:pointer;transition:all 0.15s;font-size:11px;display:inline-flex;align-items:center;gap:3px;font-weight:700;white-space:nowrap}
+.result-copy:hover{background:var(--green);color:#000}
+.result-value{font-size:12.5px;line-height:1.5;color:#DDD;word-break:break-word}
+.result-value.title{font-weight:600;color:var(--text);font-size:13px}
+.result-value.keywords{font-size:11px;color:var(--text-soft);line-height:1.6;max-height:64px;overflow:hidden;position:relative}
+.result-value.keywords::after{content:'';position:absolute;bottom:0;left:0;right:0;height:20px;background:linear-gradient(transparent,var(--bg-elevated));pointer-events:none}
+.result-field:hover .result-value.keywords::after{background:linear-gradient(transparent,#0F0F0F)}
+.result-tag{display:inline-block;background:var(--green-soft);color:var(--green);padding:3px 9px;border-radius:100px;font-size:10.5px;font-weight:700;border:1px solid var(--green-border)}
+.result-count{font-family:'JetBrains Mono',monospace;color:var(--green);font-weight:700}
+.keyword-badge{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;flex-shrink:0;display:inline-block;margin-left:6px}
+.keyword-badge.full{background:var(--green-soft);color:var(--green)}
+.keyword-badge.medium{background:var(--orange-soft);color:var(--orange)}
+.keyword-badge.low{background:var(--orange-soft);color:var(--orange)}
+
+/* ============ TABLE VIEW ============ */
+.results-table-wrap{padding:20px;overflow-x:auto}
+.results-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.results-table th{padding:12px 16px;text-align:left;font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;border-bottom:1px solid var(--border);background:var(--bg-elevated);position:sticky;top:0}
+.results-table td{padding:14px 16px;border-bottom:1px solid #1A1A1A;color:#DDD;vertical-align:top}
+.results-table tr:hover{background:var(--bg-elevated)}
+.results-table tr:last-child td{border-bottom:none}
+.cell-wrap{display:flex;align-items:center;gap:8px;max-width:400px}
+.cell-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;font-size:12px}
+.cell-filename{font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:600;color:var(--green)}
+.cell-copy{padding:3px 6px;border-radius:4px;background:var(--green-soft);border:none;color:var(--green);cursor:pointer;transition:all 0.15s;font-size:11px;flex-shrink:0}
+.cell-copy:hover{background:var(--green);color:#000}
+
+/* ============ VALIDATION ============ */
+.validation-list{padding:16px;display:flex;flex-direction:column;gap:10px}
+.validation-item{padding:14px 18px;border-radius:12px}
+.validation-item.error{background:var(--orange-soft);border:1px solid var(--orange-border)}
+.validation-item.warn{background:var(--orange-soft);border:1px solid var(--orange-border)}
+.validation-file{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;margin-bottom:8px;color:var(--orange)}
+.validation-errors{list-style:none;padding:0;font-size:12px;color:var(--text-soft)}
+.validation-errors li{padding:3px 0 3px 14px;position:relative}
+.validation-errors li::before{content:'•';position:absolute;left:0;font-weight:bold;color:var(--orange)}
+
+/* ============ TOAST ============ */
+.toast{position:fixed;bottom:24px;right:24px;left:24px;max-width:400px;margin-left:auto;padding:14px 20px;background:var(--bg-card);border:1px solid var(--green-border);color:var(--text);border-radius:12px;font-size:12.5px;font-weight:500;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;transform:translateY(120px);opacity:0;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);z-index:1000}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.error{border-color:var(--orange-border)}
+.toast-icon{font-size:16px}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:720px){
+body{padding:12px}
+.header{padding:12px 0}
+.logo-text{font-size:14px}
+.logo-sub{display:none}
+.dropzone{padding:32px 20px}
+.dropzone-icon{width:48px;height:48px}
+.card-body{grid-template-columns:1fr}
+.action-bar{flex-direction:column;align-items:stretch}
+.action-buttons{justify-content:stretch}
+.btn{flex:1;justify-content:center}
+.results-grid{grid-template-columns:1fr;padding:12px}
+.tabs-header{padding:6px 8px}
+}
 </style>
 </head>
 <body>
-    <div class="app">
-        <header class="header">
-            <div class="logo-group">
-                <div class="logo-mark">M</div>
-                <div>
-                    <div class="logo-text">MicroStock MetaGen</div>
-                    <div class="logo-sub">AI Metadata Generator · v24</div>
-                </div>
-            </div>
-            <div class="header-actions">
-                <span class="status-badge offline" id="api-status">
-                    <span class="status-dot"></span>
-                    <span id="api-status-text">No API Key</span>
-                </span>
-                <button class="btn-icon" id="btn-clear-data">Reset</button>
-            </div>
-        </header>
+<div class="app">
 
-        <main class="main">
-            <section class="settings" id="settings-section">
-                <div class="settings-header" onclick="toggleSettings()">
-                    <div class="settings-title">
-                        <span class="settings-title-icon">⚙️</span>
-                        Configuration
-                    </div>
-                    <span class="settings-toggle-arrow">▼</span>
-                </div>
-                <div class="settings-body">
-                    <div class="field">
-                        <label class="field-label">Gemini API Key</label>
-                        <div class="input-group">
-                            <input type="password" class="input" id="api-key" placeholder="AIzaSy...">
-                            <button class="btn-test" id="btn-test-key">Test</button>
-                        </div>
-                    </div>
+<!-- HEADER -->
+<header class="header">
+<div class="logo">
+<div class="logo-mark">M</div>
+<div>
+<div class="logo-text">MicroStock MetaGen</div>
+<div class="logo-sub">AI Metadata Generator · v26</div>
+</div>
+</div>
+<div class="header-actions">
+<span class="status offline" id="api-status">
+<span class="status-dot"></span>
+<span id="api-status-text">No API Key</span>
+</span>
+<button class="btn-icon" id="btn-clear-data">Reset</button>
+</div>
+</header>
 
-                    <div class="field">
-                        <label class="field-label">AI Model</label>
-                        <select class="select" id="model-select">
-                            <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite</option>
-                            <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</option>
-                            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
-                        </select>
-                    </div>
+<main class="main">
 
-                    <div class="field" style="grid-column: 1 / -1;">
-                        <label class="field-label">Global Context <span class="field-label-hint">Optional</span></label>
-                        <textarea class="textarea" id="global-context" placeholder="e.g., 'Flat vector illustration style, vibrant colors' — applied to all items"></textarea>
-                    </div>
+<!-- CONFIG SECTION -->
+<section class="card settings" id="settings-section">
+<div class="card-header" onclick="toggleSettings()">
+<div class="card-title"><span class="card-title-icon">⚙</span>Configuration</div>
+<span class="card-arrow">▼</span>
+</div>
+<div class="card-body">
 
-                    <div class="field" style="grid-column: 1 / -1;">
-                        <label class="field-label">Asset Flags <span class="field-label-hint">tersimpan otomatis</span></label>
-                        <div class="toggles-group">
-                            <label class="toggle-row">
-                                <span class="toggle-label">All assets are AI-generated</span>
-                                <div class="toggle-switch">
-                                    <input type="checkbox" id="toggle-ai">
-                                    <span class="toggle-track"></span>
-                                </div>
-                            </label>
-                            <div class="toggle-hint" id="hint-ai"></div>
-                            <label class="toggle-row">
-                                <span class="toggle-label">All assets are Editorial</span>
-                                <div class="toggle-switch">
-                                    <input type="checkbox" id="toggle-editorial">
-                                    <span class="toggle-track"></span>
-                                </div>
-                            </label>
-                            <div class="toggle-hint" id="hint-editorial"></div>
-                            <div class="toggle-hint warn" id="hint-both" style="display:none"></div>
-                        </div>
-                        <div class="flag-guide">
-                            <b>Kapan switch ON / OFF?</b><br>
-                            <b>AI-generated: ON</b> bila aset dibuat sebagian atau seluruhnya dengan AI (gambar AI, vektor hasil trace dari gambar AI, video AI). <b>OFF</b> hanya untuk karya tanpa AI (foto sendiri, gambar tangan). Salah label ke arah mana pun bisa membuat aset ditolak.<br>
-                            <b>Editorial: OFF</b> untuk aset komersial (default). <b>ON</b> hanya untuk konten berita, peristiwa, atau orang nyata. Tidak cocok untuk ilustrasi AI.<br>
-                            Batch campuran AI dan non-AI? Proses dan ekspor per kelompok.
-                        </div>
-                    </div>
+<div class="field">
+<label class="field-label">Gemini API Key</label>
+<div class="input-group">
+<input type="password" class="input" id="api-key" placeholder="AIzaSy...">
+<button class="btn-test" id="btn-test-key">Test</button>
+</div>
+</div>
 
-                    <div class="magnific-section disabled" id="ai-magnific-settings" style="grid-column: 1 / -1;">
-                        <div class="field">
-                            <label class="field-label">AI Model Name <span class="field-label-hint">for Magnific</span></label>
-                            <input type="text" class="input" id="ai-model-name" placeholder="e.g. Midjourney v6">
-                        </div>
-                        <div class="field">
-                            <label class="field-label">AI Prompt <span class="field-label-hint">for Magnific</span></label>
-                            <textarea class="textarea" id="ai-prompt-text" placeholder="Original prompt used..." style="min-height: 44px;"></textarea>
-                        </div>
-                    </div>
+<div class="field">
+<label class="field-label">AI Model</label>
+<select class="select" id="model-select">
+<option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite</option>
+<option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</option>
+<option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+</select>
+</div>
 
-                    <div class="targets-section">
-                        <div class="targets-title">
-                            <span>🎯</span> Target Metadata Length
-                        </div>
+<div class="field" style="grid-column:1/-1">
+<label class="field-label">Global Context <span class="field-label-hint">Optional</span></label>
+<textarea class="textarea" id="global-context" placeholder="e.g., 'Flat vector illustration style, vibrant colors' — applied to all items"></textarea>
+</div>
 
-                        <div class="slider-field">
-                            <div class="slider-header">
-                                <span>Title Length</span>
-                                <span class="slider-value" id="title-length-val">70</span>
-                            </div>
-                            <input type="range" class="slider-input" id="title-length" min="30" max="120" value="70">
-                            <div class="slider-hint">Rekomendasi: 50–80 karakter untuk microstock global</div>
-                        </div>
+<div class="field" style="grid-column:1/-1">
+<label class="field-label">Asset Flags <span class="field-label-hint">auto-saved</span></label>
+<div class="toggles">
+<label class="toggle-row">
+<span class="toggle-label">All assets are AI-generated</span>
+<div class="toggle-switch">
+<input type="checkbox" id="toggle-ai">
+<span class="toggle-track"></span>
+</div>
+</label>
+<div class="toggle-hint" id="hint-ai"></div>
 
-                        <div class="slider-field">
-                            <div class="slider-header">
-                                <span>Description Length</span>
-                                <span class="slider-value" id="desc-length-val">150</span>
-                            </div>
-                            <input type="range" class="slider-input" id="desc-length" min="50" max="250" value="150">
-                            <div class="slider-hint">Rekomendasi: 100–180 karakter untuk penjelasan detail</div>
-                        </div>
+<label class="toggle-row">
+<span class="toggle-label">All assets are Editorial</span>
+<div class="toggle-switch">
+<input type="checkbox" id="toggle-editorial">
+<span class="toggle-track"></span>
+</div>
+</label>
+<div class="toggle-hint" id="hint-editorial"></div>
+<div class="toggle-hint warn" id="hint-both" style="display:none"></div>
+</div>
 
-                        <div class="slider-field">
-                            <div class="slider-header">
-                                <span>Keywords Count</span>
-                                <span class="slider-value" id="kw-count-val">50</span>
-                            </div>
-                            <input type="range" class="slider-input" id="kw-count" min="20" max="50" value="50">
-                            <div class="slider-hint">Rekomendasi: 25–40 tag kata kunci yang relevan</div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+<div class="flag-guide">
+<b>Kapan switch ON / OFF?</b><br>
+<b>AI-generated: ON</b> bila aset dibuat sebagian atau seluruhnya dengan AI (gambar AI, vektor hasil trace dari gambar AI, video AI). <b>OFF</b> hanya untuk karya tanpa AI (foto sendiri, gambar tangan). Salah label ke arah mana pun bisa membuat aset ditolak.<br>
+<b>Editorial: OFF</b> untuk aset komersial (default). <b>ON</b> hanya untuk konten berita, peristiwa, atau orang nyata. Tidak cocok untuk ilustrasi AI.<br>
+Batch campuran AI dan non-AI? Proses dan ekspor per kelompok.
+</div>
+</div>
 
-            <section class="dropzone" id="dropzone">
-                <input type="file" id="file-input" multiple accept="image/jpeg, image/png, image/webp, image/gif, video/mp4, video/quicktime, image/svg+xml, .eps, .ai, .psd">
-                <div class="dropzone-inner">
-                    <div class="dropzone-icon">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="17 8 12 3 7 8"></polyline>
-                            <line x1="12" y1="3" x2="12" y2="15"></line>
-                        </svg>
-                    </div>
-                    <div class="dropzone-title">Drop your assets here</div>
-                    <div class="dropzone-hint">JPG · PNG · WEBP · MP4 · MOV · SVG · EPS · PSD · AI</div>
-                    <div class="dropzone-subhint">For EPS/PSD/AI, include a JPG preview with the same filename</div>
-                </div>
-            </section>
+<div class="magnific-section disabled" id="ai-magnific-settings" style="grid-column:1/-1">
+<div class="field">
+<label class="field-label">AI Model Name <span class="field-label-hint">for Magnific</span></label>
+<input type="text" class="input" id="ai-model-name" placeholder="e.g. Midjourney v6">
+</div>
+<div class="field">
+<label class="field-label">AI Prompt <span class="field-label-hint">for Magnific</span></label>
+<textarea class="textarea" id="ai-prompt-text" placeholder="Original prompt used..." style="min-height:44px"></textarea>
+</div>
+</div>
 
-            <div class="action-bar">
-                <div class="queue-info">
-                    Queue: <strong id="queue-count">0</strong> file · Est: <strong id="cost-estimate">0</strong> API calls
-                </div>
-                <div class="action-buttons">
-                    <button class="btn btn-ghost" id="btn-clear-queue">Clear Queue</button>
-                    <button class="btn btn-primary" id="btn-generate" disabled>
-                        ✨ Generate Metadata
-                    </button>
-                </div>
-            </div>
+<div class="targets-section">
+<div class="targets-title"><span>🎯</span> Target Metadata Length</div>
 
-            <div class="queue-list" id="queue-list">
-                <div class="empty-state">Queue is empty — drop files above to begin</div>
-            </div>
+<div class="slider-field">
+<div class="slider-header">
+<span>Title Length</span>
+<span class="slider-value" id="title-length-val">70</span>
+</div>
+<input type="range" class="slider-input" id="title-length" min="30" max="120" value="70">
+<div class="slider-hint">Rekomendasi: 50–80 karakter untuk microstock global</div>
+</div>
 
-            <section class="tabs-container">
-                <div class="tabs-header" id="tabs-header">
-                    <button class="tab-btn active" data-tab="tab-adobe">Adobe Stock</button>
-                    <button class="tab-btn" data-tab="tab-shutterstock">Shutterstock</button>
-                    <button class="tab-btn" data-tab="tab-vecteezy">Vecteezy</button>
-                    <button class="tab-btn" data-tab="tab-magnific">Magnific</button>
-                    <button class="tab-btn" data-tab="tab-pond5">Pond5</button>
-                    <button class="tab-btn" data-tab="tab-validation">
-                        ⚠️ Validation
-                        <span class="validation-badge hidden" id="validation-badge">0</span>
-                    </button>
-                </div>
+<div class="slider-field">
+<div class="slider-header">
+<span>Description Length</span>
+<span class="slider-value" id="desc-length-val">150</span>
+</div>
+<input type="range" class="slider-input" id="desc-length" min="50" max="250" value="150">
+<div class="slider-hint">Rekomendasi: 100–180 karakter untuk penjelasan detail</div>
+</div>
 
-                <div id="tab-adobe" class="tab-content active">
-                    <div class="tab-toolbar">
-                        <span class="tab-toolbar-info">Filename · Title · Keywords · Category ID</span>
-                        <button class="btn-export" onclick="exportCSV('adobe')">📥 Export Adobe CSV</button>
-                    </div>
-                    <div class="table-wrapper">
-                        <table>
-                            <thead><tr>
-                                <th>Filename</th><th>Title</th><th>Keywords</th><th>Category</th>
-                            </tr></thead>
-                            <tbody id="table-adobe"></tbody>
-                        </table>
-                    </div>
-                </div>
+<div class="slider-field">
+<div class="slider-header">
+<span>Keywords Count</span>
+<span class="slider-value" id="kw-count-val">50</span>
+</div>
+<input type="range" class="slider-input" id="kw-count" min="20" max="50" value="50">
+<div class="slider-hint">Rekomendasi: 25–40 tag kata kunci yang relevan</div>
+</div>
 
-                <div id="tab-shutterstock" class="tab-content">
-                    <div class="tab-toolbar">
-                        <span class="tab-toolbar-info">Filename · Description · Keywords · Categories</span>
-                        <button class="btn-export" onclick="exportCSV('shutterstock')">📥 Export Shutterstock CSV</button>
-                    </div>
-                    <div class="table-wrapper">
-                        <table>
-                            <thead><tr>
-                                <th>Filename</th><th>Description</th><th>Keywords</th><th>Categories</th>
-                            </tr></thead>
-                            <tbody id="table-shutterstock"></tbody>
-                        </table>
-                    </div>
-                </div>
+</div>
 
-                <div id="tab-vecteezy" class="tab-content">
-                    <div class="tab-toolbar">
-                        <span class="tab-toolbar-info">Filename · Title · Description · Keywords</span>
-                        <button class="btn-export" onclick="exportCSV('vecteezy')">📥 Export Vecteezy CSV</button>
-                    </div>
-                    <div class="table-wrapper">
-                        <table>
-                            <thead><tr>
-                                <th>Filename</th><th>Title</th><th>Description</th><th>Keywords</th><th>Category</th>
-                            </tr></thead>
-                            <tbody id="table-vecteezy"></tbody>
-                        </table>
-                    </div>
-                </div>
+</div>
+</section>
 
-                <div id="tab-magnific" class="tab-content">
-                    <div class="tab-toolbar">
-                        <span class="tab-toolbar-info">Filename · Title · Keywords · Type</span>
-                        <button class="btn-export" onclick="exportCSV('magnific')">📥 Export Magnific CSV</button>
-                    </div>
-                    <div class="table-wrapper">
-                        <table>
-                            <thead><tr>
-                                <th>Filename</th><th>Title</th><th>Keywords</th><th>Type</th>
-                            </tr></thead>
-                            <tbody id="table-magnific"></tbody>
-                        </table>
-                    </div>
-                </div>
+<!-- DROPZONE -->
+<section class="dropzone" id="dropzone">
+<input type="file" id="file-input" multiple accept="image/jpeg, image/png, image/webp, image/gif, video/mp4, video/quicktime, image/svg+xml, .eps, .ai, .psd">
+<div class="dropzone-inner">
+<div class="dropzone-icon">📁</div>
+<div class="dropzone-title">Drop your assets here</div>
+<div class="dropzone-hint">JPG · PNG · WEBP · MP4 · MOV · SVG · EPS · PSD · AI</div>
+<div class="dropzone-sub">For EPS/PSD/AI, include a JPG preview with the same filename</div>
+</div>
+</section>
 
-                <div id="tab-pond5" class="tab-content">
-                    <div class="tab-toolbar">
-                        <span class="tab-toolbar-info">Filename · Title · Description · Keywords</span>
-                        <button class="btn-export" onclick="exportCSV('pond5')">📥 Export Pond5 CSV</button>
-                    </div>
-                    <div class="table-wrapper">
-                        <table>
-                            <thead><tr>
-                                <th>Filename</th><th>Title</th><th>Description</th><th>Keywords</th><th>Category</th>
-                            </tr></thead>
-                            <tbody id="table-pond5"></tbody>
-                        </table>
-                    </div>
-                </div>
+<!-- ACTION BAR -->
+<div class="action-bar">
+<div class="queue-info">
+Queue: <strong id="queue-count">0</strong> file · Est: <strong id="cost-estimate">0</strong> API calls
+</div>
+<div class="action-buttons">
+<button class="btn btn-ghost" id="btn-clear-queue">🗑 Clear All</button>
+<button class="btn btn-primary" id="btn-generate" disabled>✨ Generate Metadata</button>
+</div>
+</div>
 
-                <div id="tab-validation" class="tab-content">
-                    <div class="validation-list" id="validation-list">
-                        <div class="empty-state">No validation errors — all clean ✨</div>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
+<!-- QUEUE LIST -->
+<div class="queue-list" id="queue-list">
+<div class="empty-state">Queue is empty — drop files above to begin</div>
+</div>
 
-    <canvas id="processing-canvas" style="display: none;"></canvas>
+<!-- TABS + HASIL -->
+<section class="tabs-container">
 
-    <div class="toast" id="toast">
-        <span class="toast-icon" id="toast-icon">ℹ️</span>
-        <span id="toast-message">Notification</span>
-    </div>
+<div class="tabs-header" id="tabs-header">
+<button class="tab-platform active" data-tab="tab-adobe" title="Adobe Stock">
+<span class="tab-icon-badge adobe">A</span> Adobe
+</button>
+<button class="tab-platform" data-tab="tab-shutterstock" title="Shutterstock">
+<span class="tab-icon-badge ss">S</span> Shutterstock
+</button>
+<button class="tab-platform" data-tab="tab-vecteezy" title="Vecteezy">
+<span class="tab-icon-badge vz">V</span> Vecteezy
+</button>
+<button class="tab-platform" data-tab="tab-magnific" title="Magnific">
+<span class="tab-icon-badge mg">M</span> Magnific
+</button>
+<button class="tab-platform" data-tab="tab-pond5" title="Pond5">
+<span class="tab-icon-badge p5">P5</span> Pond5
+</button>
+<button class="tab-platform" data-tab="tab-validation" title="Validation">
+<span class="tab-icon-badge val">⚠</span> Validation
+<span class="tab-count" id="validation-badge" style="display:none">0</span>
+</button>
+</div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var tabsHeader = document.getElementById('tabs-header');
-            if (tabsHeader) {
-                tabsHeader.addEventListener('click', function(event) {
-                    var btn = event.target.closest('.tab-btn');
-                    if (!btn) return;
-                    var targetId = btn.getAttribute('data-tab');
-                    if (!targetId) return;
-                    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
-                    document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
-                    btn.classList.add('active');
-                    var target = document.getElementById(targetId);
-                    if (target) target.classList.add('active');
-                });
-            }
+<!-- TAB: ADOBE -->
+<div id="tab-adobe" class="tab-content active">
+<div class="view-toggle-bar">
+<span class="view-info" id="view-info-adobe">0 hasil</span>
+<div class="view-switch">
+<button class="view-switch-btn active" data-view="card" data-tab="adobe">▦ Card</button>
+<button class="view-switch-btn" data-view="table" data-tab="adobe">☰ Table</button>
+</div>
+</div>
 
-            var apiKeyInput = document.getElementById('api-key');
-            if (apiKeyInput) {
-                apiKeyInput.addEventListener('input', function() {
-                    var key = apiKeyInput.value.trim();
-                    var status = document.getElementById('api-status');
-                    var statusText = document.getElementById('api-status-text');
-                    if (key.length > 20) {
-                        status.classList.remove('offline');
-                        statusText.textContent = 'Ready';
-                    } else {
-                        status.classList.add('offline');
-                        statusText.textContent = 'No API Key';
-                    }
-                    if (typeof window.updateGenerateButton === 'function') window.updateGenerateButton();
-                });
-            }
-            // NOTE: slider listeners dipindah ke module script (fix #4 — hindari double listener)
-        });
+<div class="results-grid" id="grid-adobe"></div>
+<div class="results-table-wrap" id="tablewrap-adobe" style="display:none">
+<table class="results-table">
+<thead><tr>
+<th>Filename</th><th>Title</th><th>Keywords</th><th>Category</th>
+</tr></thead>
+<tbody id="table-adobe"></tbody>
+</table>
+</div>
+</div>
 
-        window.toggleSettings = function() {
-            document.getElementById('settings-section').classList.toggle('collapsed');
+<!-- TAB: SHUTTERSTOCK -->
+<div id="tab-shutterstock" class="tab-content">
+<div class="view-toggle-bar">
+<span class="view-info" id="view-info-shutterstock">0 hasil</span>
+<div class="view-switch">
+<button class="view-switch-btn active" data-view="card" data-tab="shutterstock">▦ Card</button>
+<button class="view-switch-btn" data-view="table" data-tab="shutterstock">☰ Table</button>
+</div>
+</div>
+<div class="results-grid" id="grid-shutterstock"></div>
+<div class="results-table-wrap" id="tablewrap-shutterstock" style="display:none">
+<table class="results-table">
+<thead><tr>
+<th>Filename</th><th>Description</th><th>Keywords</th><th>Categories</th>
+</tr></thead>
+<tbody id="table-shutterstock"></tbody>
+</table>
+</div>
+</div>
+
+<!-- TAB: VECTEEZY -->
+<div id="tab-vecteezy" class="tab-content">
+<div class="view-toggle-bar">
+<span class="view-info" id="view-info-vecteezy">0 hasil</span>
+<div class="view-switch">
+<button class="view-switch-btn active" data-view="card" data-tab="vecteezy">▦ Card</button>
+<button class="view-switch-btn" data-view="table" data-tab="vecteezy">☰ Table</button>
+</div>
+</div>
+<div class="results-grid" id="grid-vecteezy"></div>
+<div class="results-table-wrap" id="tablewrap-vecteezy" style="display:none">
+<table class="results-table">
+<thead><tr>
+<th>Filename</th><th>Title</th><th>Description</th><th>Keywords</th><th>Category</th>
+</tr></thead>
+<tbody id="table-vecteezy"></tbody>
+</table>
+</div>
+</div>
+
+<!-- TAB: MAGNIFIC -->
+<div id="tab-magnific" class="tab-content">
+<div class="view-toggle-bar">
+<span class="view-info" id="view-info-magnific">0 hasil</span>
+<div class="view-switch">
+<button class="view-switch-btn active" data-view="card" data-tab="magnific">▦ Card</button>
+<button class="view-switch-btn" data-view="table" data-tab="magnific">☰ Table</button>
+</div>
+</div>
+<div class="results-grid" id="grid-magnific"></div>
+<div class="results-table-wrap" id="tablewrap-magnific" style="display:none">
+<table class="results-table">
+<thead><tr>
+<th>Filename</th><th>Title</th><th>Keywords</th><th>Type</th>
+</tr></thead>
+<tbody id="table-magnific"></tbody>
+</table>
+</div>
+</div>
+
+<!-- TAB: POND5 -->
+<div id="tab-pond5" class="tab-content">
+<div class="view-toggle-bar">
+<span class="view-info" id="view-info-pond5">0 hasil</span>
+<div class="view-switch">
+<button class="view-switch-btn active" data-view="card" data-tab="pond5">▦ Card</button>
+<button class="view-switch-btn" data-view="table" data-tab="pond5">☰ Table</button>
+</div>
+</div>
+<div class="results-grid" id="grid-pond5"></div>
+<div class="results-table-wrap" id="tablewrap-pond5" style="display:none">
+<table class="results-table">
+<thead><tr>
+<th>Filename</th><th>Title</th><th>Description</th><th>Keywords</th><th>Category</th>
+</tr></thead>
+<tbody id="table-pond5"></tbody>
+</table>
+</div>
+</div>
+
+<!-- TAB: VALIDATION -->
+<div id="tab-validation" class="tab-content">
+<div class="validation-list" id="validation-list">
+<div class="empty-state">No validation errors — all clean ✨</div>
+</div>
+</div>
+
+<!-- EXPORT BUTTONS (di bawah tabs) -->
+<div style="padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap">
+<button class="btn btn-ghost" onclick="exportCSV('adobe')">📥 Export Adobe</button>
+<button class="btn btn-ghost" onclick="exportCSV('shutterstock')">📥 Export Shutterstock</button>
+<button class="btn btn-ghost" onclick="exportCSV('vecteezy')">📥 Export Vecteezy</button>
+<button class="btn btn-ghost" onclick="exportCSV('magnific')">📥 Export Magnific</button>
+<button class="btn btn-ghost" onclick="exportCSV('pond5')">📥 Export Pond5</button>
+</div>
+
+</section>
+
+</main>
+</div>
+
+<canvas id="processing-canvas" style="display:none"></canvas>
+
+<div class="toast" id="toast">
+<span class="toast-icon" id="toast-icon">ℹ️</span>
+<span id="toast-message">Notification</span>
+</div>
+<script>
+// ============================================================
+// UTILITY FUNCTIONS
+// ============================================================
+const showToast = (msg, type = 'info') => {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-message').textContent = msg;
+  document.getElementById('toast-icon').textContent = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+  t.classList.toggle('error', type === 'error');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+};
+
+window.toggleSettings = () => {
+  document.getElementById('settings-section').classList.toggle('collapsed');
+};
+
+const esc = (u) => (u || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+
+window.copyText = (el) => {
+  const t = el.getAttribute('data-copy');
+  const ta = document.createElement('textarea');
+  ta.value = t;
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    showToast('Copied!', 'success');
+  } catch (e) {
+    showToast('Copy failed', 'error');
+  }
+  document.body.removeChild(ta);
+};
+
+// Copy semua field (dari card)
+window.copyAllFields = (filename) => {
+  const item = appState.queue.find(q => q.filename === filename && q.result);
+  if (!item) return;
+  const r = item.result;
+  const text = [
+    `Filename: ${item.filename}`,
+    ``,
+    `Title: ${r.adobe_title || ''}`,
+    ``,
+    `Description: ${r.ss_desc || ''}`,
+    ``,
+    `Keywords: ${(r._cleanKeywords || r.keywords || []).join(', ')}`,
+    ``,
+    `Category: ${r.adobe_cat || ''}`
+  ].join('\n');
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    showToast('All fields copied!', 'success');
+  } catch (e) {
+    showToast('Copy failed', 'error');
+  }
+  document.body.removeChild(ta);
+};
+
+window.copyField = (filename, field) => {
+  const item = appState.queue.find(q => q.filename === filename && q.result);
+  if (!item) return;
+  let value = '';
+  const r = item.result;
+  if (field === 'title') value = r.adobe_title || '';
+  else if (field === 'desc') value = r.ss_desc || '';
+  else if (field === 'keywords') value = (r._cleanKeywords || r.keywords || []).join(', ');
+  else if (field === 'category') value = r.adobe_cat || '';
+  const ta = document.createElement('textarea');
+  ta.value = value;
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    showToast('Copied!', 'success');
+  } catch (e) {
+    showToast('Copy failed', 'error');
+  }
+  document.body.removeChild(ta);
+};
+
+// ============================================================
+// SETTINGS — localStorage only (queue tidak persist)
+// ============================================================
+const loadSettings = () => {
+  document.getElementById('api-key').value = localStorage.getItem('mmg_api_key') || '';
+  document.getElementById('model-select').value = localStorage.getItem('mmg_model') || 'gemini-3.1-flash-lite';
+  document.getElementById('global-context').value = localStorage.getItem('mmg_context') || '';
+  if (localStorage.getItem('mmg_flags_v26') !== '1') {
+    localStorage.setItem('mmg_ai', 'true');
+    localStorage.setItem('mmg_flags_v26', '1');
+  }
+  document.getElementById('toggle-ai').checked = localStorage.getItem('mmg_ai') === 'true';
+  document.getElementById('toggle-editorial').checked = localStorage.getItem('mmg_editorial') === 'true';
+  document.getElementById('ai-model-name').value = localStorage.getItem('mmg_ai_model_name') || '';
+  document.getElementById('ai-prompt-text').value = localStorage.getItem('mmg_ai_prompt_text') || '';
+
+  document.getElementById('title-length').value = localStorage.getItem('mmg_title_len') || '70';
+  document.getElementById('desc-length').value = localStorage.getItem('mmg_desc_len') || '150';
+  document.getElementById('kw-count').value = localStorage.getItem('mmg_kw_count') || '50';
+  document.getElementById('title-length-val').textContent = document.getElementById('title-length').value;
+  document.getElementById('desc-length-val').textContent = document.getElementById('desc-length').value;
+  document.getElementById('kw-count-val').textContent = document.getElementById('kw-count').value;
+
+  const k = document.getElementById('api-key').value.trim();
+  if (k.length > 20) {
+    appState.isApiValid = true;
+    const status = document.getElementById('api-status');
+    const statusText = document.getElementById('api-status-text');
+    status.classList.remove('offline');
+    statusText.textContent = 'Ready';
+  }
+  toggleMagnificSettings();
+  updateGenerateButton();
+};
+
+const saveSettings = () => {
+  localStorage.setItem('mmg_api_key', document.getElementById('api-key').value.trim());
+  localStorage.setItem('mmg_model', document.getElementById('model-select').value);
+  localStorage.setItem('mmg_context', document.getElementById('global-context').value);
+  localStorage.setItem('mmg_ai', document.getElementById('toggle-ai').checked);
+  localStorage.setItem('mmg_editorial', document.getElementById('toggle-editorial').checked);
+  localStorage.setItem('mmg_ai_model_name', document.getElementById('ai-model-name').value);
+  localStorage.setItem('mmg_ai_prompt_text', document.getElementById('ai-prompt-text').value);
+  localStorage.setItem('mmg_title_len', document.getElementById('title-length').value);
+  localStorage.setItem('mmg_desc_len', document.getElementById('desc-length').value);
+  localStorage.setItem('mmg_kw_count', document.getElementById('kw-count').value);
+  updateGenerateButton();
+  toggleMagnificSettings();
+};
+
+const toggleMagnificSettings = () => {
+  const s = document.getElementById('ai-magnific-settings');
+  if (!s) return;
+  if (document.getElementById('toggle-ai').checked) s.classList.remove('disabled');
+  else s.classList.add('disabled');
+  refreshFlagUI();
+};
+
+const refreshFlagUI = () => {
+  const ai = document.getElementById('toggle-ai').checked;
+  const ed = document.getElementById('toggle-editorial').checked;
+  const hAi = document.getElementById('hint-ai');
+  hAi.className = 'toggle-hint' + (ai ? '' : ' warn');
+  hAi.textContent = ai
+    ? 'ON: Adobe kolom "Is generative AI" = yes · Magnific menambah kolom Prompt/Model dan keyword _ai_generated · nama file CSV berakhiran _ai.'
+    : 'OFF: SEMUA baris diekspor sebagai BUKAN AI. Pakai hanya jika aset benar-benar bebas AI.';
+  const hEd = document.getElementById('hint-editorial');
+  hEd.className = 'toggle-hint' + (ed ? ' warn' : '');
+  hEd.textContent = ed
+    ? 'ON: Shutterstock Editorial = yes, Vecteezy License = editorial. Hanya untuk konten berita/peristiwa/orang nyata.'
+    : 'OFF: diekspor sebagai komersial (default).';
+  const hBoth = document.getElementById('hint-both');
+  if (ai && ed) {
+    hBoth.style.display = '';
+    hBoth.textContent = '⚠ AI dan Editorial sama-sama ON: kombinasi ini jarang cocok.';
+  } else {
+    hBoth.style.display = 'none';
+  }
+};
+
+const getTargetSettings = () => ({
+  titleLen: parseInt(document.getElementById('title-length').value) || 70,
+  descLen: parseInt(document.getElementById('desc-length').value) || 150,
+  kwCount: parseInt(document.getElementById('kw-count').value) || 50
+});
+
+const updateGenerateButton = () => {
+  const key = document.getElementById('api-key').value.trim();
+  const hasKey = appState.isApiValid || key.length > 20;
+  const pending = appState.queue.filter(i => ['waiting', 'error'].includes(i.status)).length;
+  const btn = document.getElementById('btn-generate');
+  btn.disabled = !hasKey || pending === 0 || appState.isProcessing;
+  if (appState.isProcessing) btn.textContent = '⏳ Processing...';
+  else btn.textContent = '✨ Generate Metadata';
+  document.getElementById('cost-estimate').textContent = pending;
+};
+
+// ============================================================
+// APP STATE — no IndexedDB, fresh setiap refresh
+// ============================================================
+const appState = {
+  queue: [],
+  isProcessing: false,
+  isApiValid: false
+};
+
+// ============================================================
+// EVENT LISTENERS — SETTINGS
+// ============================================================
+['api-key', 'model-select', 'global-context', 'ai-model-name', 'ai-prompt-text'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', saveSettings);
+});
+
+['toggle-ai', 'toggle-editorial'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', saveSettings);
+});
+
+['title-length', 'desc-length', 'kw-count'].forEach(id => {
+  const slider = document.getElementById(id);
+  const display = document.getElementById(id + '-val');
+  if (slider && display) {
+    slider.addEventListener('input', function () {
+      display.textContent = slider.value;
+      saveSettings();
+    });
+  }
+});
+
+// API Status update on input
+const apiKeyEl = document.getElementById('api-key');
+if (apiKeyEl) {
+  apiKeyEl.addEventListener('input', () => {
+    const key = apiKeyEl.value.trim();
+    const status = document.getElementById('api-status');
+    const statusText = document.getElementById('api-status-text');
+    if (key.length > 20) {
+      status.classList.remove('offline');
+      statusText.textContent = 'Ready';
+    } else {
+      status.classList.add('offline');
+      statusText.textContent = 'No API Key';
+    }
+  });
+}
+
+// Test API Key
+document.getElementById('btn-test-key').addEventListener('click', async () => {
+  const key = document.getElementById('api-key').value.trim();
+  if (!key) return showToast('Enter API key first', 'error');
+  const model = document.getElementById('model-select').value;
+  try {
+    showToast('Testing key...', 'info');
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{ text: "Respond with exactly the word 'OK'." }] }] })
+    });
+    if (!r.ok) throw new Error('Invalid key');
+    showToast('API Key is valid!', 'success');
+    appState.isApiValid = true;
+    const status = document.getElementById('api-status');
+    const statusText = document.getElementById('api-status-text');
+    status.classList.remove('offline');
+    statusText.textContent = 'Ready';
+    updateGenerateButton();
+  } catch (e) {
+    showToast('API Key test failed: ' + e.message, 'error');
+    appState.isApiValid = false;
+    updateGenerateButton();
+  }
+});
+
+// Clear All Settings
+document.getElementById('btn-clear-data').addEventListener('click', () => {
+  if (confirm('Clear all settings? (API key, model, preferences, dll)')) {
+    localStorage.clear();
+    location.reload();
+  }
+});
+
+// Clear Queue
+document.getElementById('btn-clear-queue').addEventListener('click', () => {
+  if (appState.isProcessing) return showToast('Cannot clear while processing', 'error');
+  if (appState.queue.length === 0) return showToast('Queue sudah kosong', 'info');
+  if (!confirm(`Clear ${appState.queue.length} file dari queue?`)) return;
+  appState.queue = [];
+  renderQueue();
+  updateResultsUI();
+  updateGenerateButton();
+});
+
+// ============================================================
+// TAB SWITCHING + VIEW TOGGLE
+// ============================================================
+document.getElementById('tabs-header').addEventListener('click', (e) => {
+  const btn = e.target.closest('.tab-platform');
+  if (!btn) return;
+  const targetId = btn.dataset.tab;
+  document.querySelectorAll('.tab-platform').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  const target = document.getElementById(targetId);
+  if (target) target.classList.add('active');
+});
+
+document.querySelectorAll('.view-switch-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    const view = btn.dataset.view;
+    document.querySelectorAll(`.view-switch-btn[data-tab="${tab}"]`).forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const grid = document.getElementById(`grid-${tab}`);
+    const tableWrap = document.getElementById(`tablewrap-${tab}`);
+    if (view === 'card') {
+      grid.style.display = '';
+      tableWrap.style.display = 'none';
+    } else {
+      grid.style.display = 'none';
+      tableWrap.style.display = '';
+    }
+  });
+});
+
+// ============================================================
+// DROPZONE
+// ============================================================
+const dz = document.getElementById('dropzone');
+dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('active'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('active'));
+dz.addEventListener('drop', (e) => { e.preventDefault(); dz.classList.remove('active'); handleFiles(e.dataTransfer.files); });
+document.getElementById('file-input').addEventListener('change', (e) => handleFiles(e.target.files));
+
+const genId = () => Math.random().toString(36).substr(2, 9);
+const fmtBytes = (b) => {
+  if (b === 0) return '0 B';
+  const i = Math.floor(Math.log(b) / Math.log(1024));
+  return parseFloat((b / Math.pow(1024, i)).toFixed(2)) + ' ' + ['B', 'KB', 'MB', 'GB'][i];
+};
+
+// Image resize (JPG/PNG/WEBP/SVG)
+const resizeImg = (file, maxDim = 1024) => new Promise((res, rej) => {
+  const isSvg = file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg');
+  let to = null;
+  if (isSvg) to = setTimeout(() => rej(new Error("SVG render timeout")), 5000);
+  const rd = new FileReader();
+  rd.readAsDataURL(file);
+  rd.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      if (isSvg) clearTimeout(to);
+      let w = img.naturalWidth || img.width || 1024;
+      let h = img.naturalHeight || img.height || 1024;
+      if (!w || !h) { w = 1024; h = 1024; }
+      if (w > maxDim || h > maxDim) {
+        if (w > h) { h *= maxDim / w; w = maxDim; } else { w *= maxDim / h; h = maxDim; }
+      }
+      const cv = document.getElementById('processing-canvas');
+      cv.width = w; cv.height = h;
+      const ctx = cv.getContext('2d');
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(img, 0, 0, w, h);
+      try {
+        const d = ctx.getImageData(0, 0, w, h).data;
+        let hasContent = false;
+        for (let i = 0; i < d.length; i += 400) {
+          if (d[i] < 240 || d[i + 1] < 240 || d[i + 2] < 240) { hasContent = true; break; }
+        }
+        if (!hasContent) return rej(new Error("Image appears blank"));
+      } catch (err) {}
+      res({
+        data: cv.toDataURL('image/jpeg', 0.85).split(',')[1],
+        mimeType: 'image/jpeg',
+        thumb: cv.toDataURL('image/jpeg', 0.2)
+      });
+    };
+    img.onerror = () => { if (isSvg) clearTimeout(to); rej(new Error("Image load failed")); };
+    img.src = e.target.result;
+  };
+  rd.onerror = rej;
+});
+
+// Video frame extraction
+const extractVideo = (file) => new Promise((res, rej) => {
+  const v = document.createElement('video');
+  v.src = URL.createObjectURL(file);
+  v.muted = true;
+  v.playsInline = true;
+  v.setAttribute('playsinline', '');
+  v.setAttribute('webkit-playsinline', '');
+  v.preload = 'auto';
+  const frames = [];
+  let thumb = null;
+  let metadataLoaded = false;
+  let finished = false;
+
+  const cleanup = () => { try { URL.revokeObjectURL(v.src); } catch (e) {} };
+
+  const globalTimeout = setTimeout(() => {
+    if (!finished) {
+      finished = true;
+      cleanup();
+      if (frames.length === 0) rej(new Error("Video frame extraction timeout"));
+      else res({ frames, thumb, duration: v.duration || 0 });
+    }
+  }, 30000);
+
+  v.addEventListener('loadedmetadata', async () => {
+    if (metadataLoaded) return;
+    metadataLoaded = true;
+    const dur = v.duration;
+    if (!dur || dur < 0.1) {
+      clearTimeout(globalTimeout);
+      cleanup();
+      return rej(new Error("Video duration invalid"));
+    }
+    if (dur < 5) showToast(`Warning: ${file.name} < 5s`, 'error');
+
+    const pts = [dur * 0.15, dur * 0.5, dur * 0.85];
+    const cv = document.getElementById('processing-canvas');
+    const ctx = cv.getContext('2d');
+    let w = v.videoWidth, h = v.videoHeight;
+    const mx = 768;
+    if (w > mx || h > mx) { if (w > h) { h *= mx / w; w = mx; } else { w *= mx / h; h = mx; } }
+    cv.width = w; cv.height = h;
+
+    for (let i = 0; i < pts.length; i++) {
+      await new Promise((resolve) => {
+        let resolved = false;
+        const cleanupFrame = () => { clearTimeout(frameTimeout); v.removeEventListener('seeked', onSeeked); };
+        const frameTimeout = setTimeout(() => {
+          if (resolved) return;
+          resolved = true;
+          cleanupFrame();
+          resolve(false);
+        }, 10000);
+        const onSeeked = () => {
+          if (resolved) return;
+          clearTimeout(frameTimeout);
+          v.removeEventListener('seeked', onSeeked);
+          setTimeout(() => {
+            if (resolved) return;
+            resolved = true;
+            try {
+              ctx.fillStyle = '#FFFFFF';
+              ctx.fillRect(0, 0, w, h);
+              ctx.drawImage(v, 0, 0, w, h);
+              const d = ctx.getImageData(0, 0, w, h).data;
+              let hasContent = false;
+              for (let j = 0; j < d.length; j += 400) {
+                if (d[j] < 240 || d[j + 1] < 240 || d[j + 2] < 240) { hasContent = true; break; }
+              }
+              if (hasContent) {
+                const b64 = cv.toDataURL('image/jpeg', 0.8).split(',')[1];
+                frames.push({ data: b64, mimeType: 'image/jpeg' });
+                if (i === 1) thumb = cv.toDataURL('image/jpeg', 0.2);
+              }
+            } catch (err) {}
+            resolve(true);
+          }, 100);
         };
-    </script>
+        v.addEventListener('seeked', onSeeked);
+        v.currentTime = pts[i];
+      });
+    }
 
-    <script type="module">
-        import { GoogleGenAI, Type } from 'https://esm.run/@google/genai';
+    finished = true;
+    clearTimeout(globalTimeout);
+    cleanup();
 
-        const ADOBE_CATS = ["Animals","Buildings and architecture","Business","Drinks","The environment","States of mind","Food","Graphic resources","Hobbies and leisure","Industry","Landscape","Lifestyle","People","Plants and flowers","Culture and religion","Science","Social issues","Sports","Technology","Transport","Travel"];
-        const ADOBE_CAT_IDS = { "Animals":1,"Buildings and architecture":2,"Business":3,"Drinks":4,"The environment":5,"States of mind":6,"Food":7,"Graphic resources":8,"Hobbies and leisure":9,"Industry":10,"Landscape":11,"Lifestyle":12,"People":13,"Plants and flowers":14,"Culture and religion":15,"Science":16,"Social issues":17,"Sports":18,"Technology":19,"Transport":20,"Travel":21 };
-        const SS_CATS_IMAGE = ["Abstract","Animals/Wildlife","The Arts","Backgrounds/Textures","Beauty/Fashion","Buildings/Landmarks","Business/Finance","Celebrities","Education","Food and Drink","Healthcare/Medical","Holidays","Industrial","Interiors","Miscellaneous","Nature","Objects","Parks/Outdoor","People","Religion","Science","Signs/Symbols","Sports/Recreation","Technology","Transportation","Vintage"];
-        const SS_CATS_VIDEO = ["Animals/Wildlife","The Arts","Backgrounds/Textures","Buildings/Landmarks","Business/Finance","Education","Food and Drink","Healthcare/Medical","Holidays","Industrial","Nature","Objects","People","Religion","Science","Signs/Symbols","Sports/Recreation","Technology","Transportation"];
-        const VZ_CATS = ["Animals and Plants","Activity and Events","Composition","Food and Drink","Location","Objects and Colors","People"];
-        const MG_TYPES = ["Photo","Vector","PSD","Mockup","AI Image"];
-        const P5_CATS = ["abstract","aerials","alpha channel/greenscreen","archival","animation","animals/wildlife","buildings and monuments","business","celebrities","current events","education","food and drink","healthcare/medical","industry","landscapes","lifestyle","medical & health","nature","people","religion","science","sports","technology","transportation","vintage","other"];
+    if (frames.length === 0) rej(new Error("No valid frames extracted"));
+    else res({ frames, thumb, duration: dur });
+  });
 
-        const RELEASE_TAGS = ['_model_release_needed', '_property_release_needed'];
-        // Cocokkan semua variasi: _model_release_needed, model-release-needed, "model release needed", property release, dst.
-        const isReleaseTag = (x) => /^_?(model|property)[\s_-]*release([\s_-]*(needed|required))?$/i.test(String(x).trim());
-        const kwKey = (x) => String(x).toLowerCase().replace(/[\s_-]+/g, ' ').trim();
-        // Urutan kolom Shutterstock: 'official' = Illustration, Mature content, Editorial. Ganti ke 'legacy' bila format lama Anda yang berhasil.
-        const SS_COLUMN_ORDER = 'official';
+  v.addEventListener('error', () => {
+    clearTimeout(globalTimeout);
+    cleanup();
+    rej(new Error("Video load failed"));
+  });
+});
 
-        const RESPONSE_SCHEMA = {
-            type: Type.OBJECT,
-            properties: {
-                visible_elements: { type: Type.ARRAY, items: { type: Type.STRING }, description: "List of 3-8 main visible objects/subjects in the image, in English" },
-                dominant_colors: { type: Type.ARRAY, items: { type: Type.STRING }, description: "List of 2-5 dominant colors, in English" },
-                scene_type: { type: Type.STRING, description: "One of: isolated_character, isolated_object, scene, pattern, background, text_based" },
-                has_people: { type: Type.BOOLEAN, description: "True if any identifiable human faces or bodies visible" },
-                has_text: { type: Type.BOOLEAN, description: "True if readable text or labels visible" },
-                has_brand_or_logo: { type: Type.BOOLEAN, description: "True if recognizable brand logos or trademarks visible" },
-                keywords: { type: Type.ARRAY, items: { type: Type.STRING } },
-                adobe_title: { type: Type.STRING }, adobe_cat: { type: Type.STRING },
-                ss_desc: { type: Type.STRING }, ss_cat: { type: Type.STRING }, ss_cat2: { type: Type.STRING },
-                vz_title: { type: Type.STRING }, vz_desc: { type: Type.STRING }, vz_cat: { type: Type.STRING },
-                mg_title: { type: Type.STRING }, mg_desc: { type: Type.STRING }, mg_type: { type: Type.STRING },
-                p5_title: { type: Type.STRING }, p5_desc: { type: Type.STRING }, p5_cat: { type: Type.STRING }
-            },
-            propertyOrdering: ["visible_elements","dominant_colors","scene_type","has_people","has_text","has_brand_or_logo","keywords","adobe_title","adobe_cat","ss_desc","ss_cat","ss_cat2","vz_title","vz_desc","vz_cat","mg_title","mg_desc","mg_type","p5_title","p5_desc","p5_cat"],
-            required: ["visible_elements","dominant_colors","scene_type","has_people","has_text","has_brand_or_logo","keywords","adobe_title","adobe_cat","ss_desc","ss_cat","vz_title","vz_desc","vz_cat","mg_title","mg_type","p5_title","p5_desc","p5_cat"]
-        };
+// Handle dropped files
+const handleFiles = async (files) => {
+  const parsed = [];
+  for (let i = 0; i < files.length; i++) {
+    const f = files[i];
+    const ld = f.name.lastIndexOf('.');
+    const ext = ld === -1 ? '' : f.name.substring(ld + 1).toLowerCase();
+    const stem = ld === -1 ? f.name : f.name.substring(0, ld);
+    parsed.push({ file: f, ext, stem });
+  }
+  const vectors = parsed.filter(p => ['eps', 'ai', 'psd'].includes(p.ext));
+  const videos = parsed.filter(p => ['mp4', 'mov'].includes(p.ext));
+  const svgs = parsed.filter(p => p.ext === 'svg');
+  const rasters = parsed.filter(p => ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(p.ext));
+  const usedRasters = new Set();
 
-        // FIX #3: Prompt Vecteezy tidak lagi kontradiktif
-        function buildPrompt(isVideo, titleLen, descLen, kwCount) {
-            const ssList = isVideo ? SS_CATS_VIDEO : SS_CATS_IMAGE;
-            const ssNote = isVideo ? "\n\nIMPORTANT: This is VIDEO content. Shutterstock does NOT accept these categories for video: Abstract, Beauty/Fashion, Celebrities, Interiors, Miscellaneous, Parks/Outdoor, Vintage. You MUST pick from the list above." : "";
-            const minKw = Math.max(15, kwCount - 5);
-            return `You are a senior microstock SEO expert. Look carefully at the attached image(s) (frames of ONE asset) and describe ONLY what is clearly visible.
+  for (const vec of vectors) {
+    const preview = rasters.find(r => r.stem.toLowerCase() === vec.stem.toLowerCase() && !usedRasters.has(r.file.name));
+    if (preview) { usedRasters.add(preview.file.name); await addItem(vec.file, preview.file); }
+    else showToast(`${vec.file.name}: butuh JPG/PNG preview nama sama`, 'info');
+  }
+  for (const vid of videos) await addItem(vid.file, null);
+  for (const svg of svgs) {
+    const preview = rasters.find(r => r.stem.toLowerCase() === svg.stem.toLowerCase() && !usedRasters.has(r.file.name));
+    if (preview) { usedRasters.add(preview.file.name); await addItem(svg.file, preview.file); }
+    else await addItem(svg.file, null);
+  }
+  for (const r of rasters) {
+    if (!usedRasters.has(r.file.name)) await addItem(r.file, null);
+  }
+  updateGenerateButton();
+};
 
-STEP 1 — GROUNDING (answer first):
-- visible_elements: list 3-8 main objects/subjects you SEE
+const addItem = async (targetFile, previewFile) => {
+  if (!targetFile) return;
+  const ext = targetFile.name.split('.').pop().toLowerCase();
+  const isV = ['mp4', 'mov'].includes(ext);
+  const isVec = ['eps', 'ai', 'psd'].includes(ext);
+  const isSvg = ext === 'svg';
+  let mx = 20 * 1024 * 1024, lbl = "Image";
+  if (isV) { mx = 500 * 1024 * 1024; lbl = "Video"; }
+  else if (isVec || isSvg) { mx = 100 * 1024 * 1024; lbl = "Vector"; }
+  if (targetFile.size > mx) return showToast(`${targetFile.name} exceeds ${mx / (1024 * 1024)}MB (${lbl})`, 'error');
+
+  let finalName = targetFile.name;
+  if (appState.queue.find(q => q.filename === finalName)) {
+    const base = finalName.substring(0, finalName.lastIndexOf('.'));
+    const ex = finalName.substring(finalName.lastIndexOf('.'));
+    let i = 1;
+    while (appState.queue.find(q => q.filename === `${base}_${i}${ex}`)) i++;
+    finalName = `${base}_${i}${ex}`;
+  }
+  let ft = 'image';
+  if (isV) ft = 'video'; else if (isVec) ft = 'vector';
+  appState.queue.push({
+    id: genId(), filename: finalName, targetFile, previewFile: previewFile || targetFile,
+    type: ft, status: 'waiting', progress: 0, size: targetFile.size,
+    result: null, error: null, thumb: null, validationErrors: [], warnings: []
+  });
+  renderQueue();
+  updateGenerateButton();
+};
+
+// ============================================================
+// RENDER QUEUE — dengan tombol hapus per item
+// ============================================================
+const renderQueue = () => {
+  const list = document.getElementById('queue-list');
+  document.getElementById('queue-count').textContent = appState.queue.length;
+  if (appState.queue.length === 0) {
+    list.innerHTML = '<div class="empty-state">Queue is empty — drop files above to begin</div>';
+    return;
+  }
+  list.innerHTML = appState.queue.map(item => {
+    const statusClass = item.status === 'done' ? 'done' : item.status === 'error' ? 'error' : item.status === 'processing' ? 'processing' : '';
+    const statusLabel = item.status === 'waiting' ? 'Waiting' : item.status === 'processing' ? `${item.progress || 0}%` : item.status === 'error' ? 'Failed' : 'Done';
+    const statusType = item.status === 'done' ? 'done' : item.status === 'error' ? 'error' : item.status === 'processing' ? 'processing' : 'waiting';
+    const progressPct = item.status === 'done' ? 100 : item.status === 'error' ? 100 : item.status === 'processing' ? (item.progress || 45) : 0;
+    const barFillClass = item.status === 'done' ? 'done' : item.status === 'error' ? 'error' : item.status === 'processing' ? 'processing' : 'waiting';
+    return `<div class="queue-item ${statusClass}">
+      <div class="queue-top">
+        <div class="queue-thumb">${item.thumb ? `<img src="${item.thumb}">` : (item.type === 'video' ? '🎬' : item.type === 'vector' ? '🔷' : '🖼️')}</div>
+        <div class="queue-info-block">
+          <div class="queue-filename" title="${esc(item.filename)}">${esc(item.filename)}</div>
+          <div class="queue-meta">
+            <span>${fmtBytes(item.size)}</span>
+            <span>·</span>
+            <span>${item.type}</span>
+            ${item.error ? `<span>·</span><span style="color:var(--orange)">${esc(item.error)}</span>` : ''}
+          </div>
+        </div>
+        <span class="queue-badge ${statusType}">${statusLabel}</span>
+        <button class="queue-delete" onclick="removeQueueItem('${item.id}')" title="Hapus">🗑</button>
+      </div>
+      <div class="queue-bar"><div class="queue-bar-fill ${barFillClass}" style="width:${progressPct}%"></div></div>
+    </div>`;
+  }).join('');
+};
+
+// Hapus item dari queue
+window.removeQueueItem = (id) => {
+  if (appState.isProcessing) {
+    const item = appState.queue.find(q => q.id === id);
+    if (item && item.status === 'processing') return showToast('Tidak bisa hapus saat sedang diproses', 'error');
+  }
+  const idx = appState.queue.findIndex(q => q.id === id);
+  if (idx === -1) return;
+  const item = appState.queue[idx];
+  appState.queue.splice(idx, 1);
+  renderQueue();
+  updateResultsUI();
+  updateGenerateButton();
+  showToast(`${item.filename} dihapus`, 'info');
+};
+
+// ============================================================
+// GEMINI API + METADATA GENERATION
+// ============================================================
+const ADOBE_CATS = ["Animals", "Buildings and architecture", "Business", "Drinks", "The environment", "States of mind", "Food", "Graphic resources", "Hobbies and leisure", "Industry", "Landscape", "Lifestyle", "People", "Plants and flowers", "Culture and religion", "Science", "Social issues", "Sports", "Technology", "Transport", "Travel"];
+const ADOBE_CAT_IDS = { "Animals": 1, "Buildings and architecture": 2, "Business": 3, "Drinks": 4, "The environment": 5, "States of mind": 6, "Food": 7, "Graphic resources": 8, "Hobbies and leisure": 9, "Industry": 10, "Landscape": 11, "Lifestyle": 12, "People": 13, "Plants and flowers": 14, "Culture and religion": 15, "Science": 16, "Social issues": 17, "Sports": 18, "Technology": 19, "Transport": 20, "Travel": 21 };
+const SS_CATS_IMAGE = ["Abstract", "Animals/Wildlife", "The Arts", "Backgrounds/Textures", "Beauty/Fashion", "Buildings/Landmarks", "Business/Finance", "Celebrities", "Education", "Food and Drink", "Healthcare/Medical", "Holidays", "Industrial", "Interiors", "Miscellaneous", "Nature", "Objects", "Parks/Outdoor", "People", "Religion", "Science", "Signs/Symbols", "Sports/Recreation", "Technology", "Transportation", "Vintage"];
+const SS_CATS_VIDEO = ["Animals/Wildlife", "The Arts", "Backgrounds/Textures", "Buildings/Landmarks", "Business/Finance", "Education", "Food and Drink", "Healthcare/Medical", "Holidays", "Industrial", "Nature", "Objects", "People", "Religion", "Science", "Signs/Symbols", "Sports/Recreation", "Technology", "Transportation"];
+const VZ_CATS = ["Animals and Plants", "Activity and Events", "Composition", "Food and Drink", "Location", "Objects and Colors", "People"];
+const MG_TYPES = ["Photo", "Vector", "PSD", "Mockup", "AI Image"];
+const P5_CATS = ["abstract", "aerials", "alpha channel/greenscreen", "archival", "animation", "animals/wildlife", "buildings and monuments", "business", "celebrities", "current events", "education", "food and drink", "healthcare/medical", "industry", "landscapes", "lifestyle", "medical & health", "nature", "people", "religion", "science", "sports", "technology", "transportation", "vintage", "other"];
+
+const isReleaseTag = (x) => /^_?(model|property)[\s_-]*release([\s_-]*(needed|required))?$/i.test(String(x).trim());
+const kwKey = (x) => String(x).toLowerCase().replace(/[\s_-]+/g, ' ').trim();
+
+const KW_STOP = new Set(['and', 'or', 'of', 'the', 'a', 'an', 'with', 'in', 'on', 'for', 'to', 'vs']);
+const kwVecteezy = (list, isVideo) => {
+  const out = [], seen = new Set();
+  for (const raw of list) {
+    const parts = String(raw).toLowerCase().trim().split(/[\s_-]+/).filter(Boolean);
+    if (!parts.length || ['no', 'non', 'without'].includes(parts[0])) continue;
+    for (let w of parts) {
+      w = w.replace(/[^\p{L}\p{N}]/gu, '');
+      if (w.length < 2 || KW_STOP.has(w) || seen.has(w)) continue;
+      if (isVideo && w === 'vector') continue;
+      seen.add(w);
+      out.push(w);
+    }
+  }
+  return out;
+};
+
+const kwShutterstock = (list) => {
+  const out = [], seen = new Set(), cnt = {};
+  for (const raw of list) {
+    const t = String(raw).toLowerCase().replace(/[-_]+/g, ' ').replace(/[^\p{L}\p{N}\s]/gu, '').replace(/\s+/g, ' ').trim();
+    if (!t || seen.has(t)) continue;
+    const words = t.split(' ').filter(w => !KW_STOP.has(w));
+    if (words.some(w => (cnt[w] || 0) >= 3)) continue;
+    words.forEach(w => { cnt[w] = (cnt[w] || 0) + 1; });
+    seen.add(t);
+    out.push(t);
+  }
+  return out;
+};
+
+const kwForPlatform = (list, p, r) => {
+  if (p === 'vecteezy') return kwVecteezy(list, !!(r && r._isVideo));
+  if (p === 'shutterstock') return kwShutterstock(list);
+  return list;
+};
+
+// Build prompt
+function buildPrompt(isVideo, titleLen, descLen, kwCount) {
+  const ssList = isVideo ? SS_CATS_VIDEO : SS_CATS_IMAGE;
+  const ssNote = isVideo ? "\n\nIMPORTANT: This is VIDEO. Shutterstock does NOT accept: Abstract, Beauty/Fashion, Celebrities, Interiors, Miscellaneous, Parks/Outdoor, Vintage." : "";
+  const minKw = Math.max(15, kwCount - 5);
+  return `You are a senior microstock SEO expert. Look carefully at the attached image(s) and describe ONLY what is clearly visible.
+
+STEP 1 — GROUNDING:
+- visible_elements: list 3-8 main objects
 - dominant_colors: list 2-5 dominant colors
-- scene_type: classify the scene
+- scene_type: classify scene
 - has_people: true only if identifiable humans visible
 - has_text: true only if readable text visible
 - has_brand_or_logo: true only if brand marks visible
 
-STEP 2 — GENERATE METADATA (based on grounded vision above):
+STEP 2 — GENERATE METADATA:
 
 Rules:
-- English only. No trademarks, no real names, no personal info, no keyword spam.
+- English only. No trademarks, no real names.
 - Title MUST NOT contain commas. Description MUST NOT contain commas.
-- If identifiable faces/children/brands/copyrighted property visible, add "_model_release_needed" or "_property_release_needed" at very end of keywords.
+- If identifiable faces/children/brands visible, add "_model_release_needed" or "_property_release_needed" at end of keywords.
 
 keywords: exactly ${kwCount} keywords (min ${minKw}), ordered by importance.
-- POSITION 1-5: core subject + asset type (e.g. "cat", "cartoon", "illustration")
-- POSITION 6-10: secondary visual elements (colors, actions, setting)
-- Include 5+ abstract concepts (teamwork, happiness, freedom, success, innovation).
-- FORBIDDEN keywords: beautiful, amazing, stunning, nice, lovely, gorgeous, wonderful, best, great
-- Do NOT repeat same word more than 3 times across all keywords (use synonyms instead)
-- Do NOT include keywords for things NOT visible in the image
-- Include dominant COLOR keywords (e.g. blue background, warm tones)
-- For vectors include STYLE if visible: flat design, line art, 3D render, isometric, minimalist
-- Lowercase, no plurals + singular duplicates, no special chars except hyphen
+- POSITION 1-5: core subject + asset type
+- POSITION 6-10: secondary visual elements
+- Include 5+ abstract concepts.
+- FORBIDDEN: beautiful, amazing, stunning, nice, lovely, gorgeous, wonderful, best, great
+- Do NOT repeat same word more than 3 times
+- Include dominant COLOR keywords
+- For vectors include STYLE: flat design, line art, 3D render, isometric, minimalist
+- Lowercase, no special chars except hyphen
 
-adobe_title: max ${titleLen} chars, clear, most important visual elements first. NO commas.
-ss_desc: one natural descriptive sentence around ${descLen} chars. NO commas.
-vz_title: 3-8 words ONLY. Allowed chars: letters, numbers, periods, hyphens, apostrophes. NO commas or other special chars.
-vz_desc: 1 sentence around ${descLen} chars. NO commas.
+adobe_title: max ${titleLen} chars, NO commas.
+ss_desc: ~${descLen} chars. NO commas.
+vz_title: 3-8 words ONLY. Letters, numbers, periods, hyphens, apostrophes only.
+vz_desc: 1 sentence ~${descLen} chars. NO commas.
 mg_title: 35-100 chars. NO file types/digits. NO commas.
 p5_title: 40-80 chars (+ HD/4K if video). NO commas.
 p5_desc: detailed scene description. NO commas.
 
-Vecteezy keyword extras (add to keywords list):
-- "no people" if scene has no humans
-- orientation ("landscape orientation" or "portrait orientation")
-- background type ("white background", "blue background", etc.)
+Vecteezy keyword extras:
+- "no people" if no humans
+- orientation
+- background type
 
-Categories MUST be exact matches:
+Categories MUST be exact:
 adobe_cat: ${JSON.stringify(ADOBE_CATS)}
 ss_cat and ss_cat2: ${JSON.stringify(ssList)}${ssNote}
 vz_cat: ${JSON.stringify(VZ_CATS)}
 mg_type: ${JSON.stringify(MG_TYPES)}
-p5_cat: ${JSON.stringify(P5_CATS)}`;
-        }
-
-        let appState = { queue: [], isProcessing: false, db: null, isApiValid: false };
-
-        const initDB = () => new Promise((resolve, reject) => {
-            const req = indexedDB.open('MicroStockMetaGenDB', 1);
-            req.onerror = () => reject(req.error);
-            req.onsuccess = (e) => { appState.db = e.target.result; resolve(); };
-            req.onupgradeneeded = (e) => {
-                const db = e.target.result;
-                if (!db.objectStoreNames.contains('results')) db.createObjectStore('results', { keyPath: 'filename' });
-            };
-        });
-
-        const saveToDB = async (filename, data) => {
-            if (!appState.db) return;
-            return new Promise((res, rej) => {
-                const tx = appState.db.transaction(['results'], 'readwrite');
-                tx.objectStore('results').put({ filename, ...data });
-                tx.oncomplete = () => res();
-                tx.onerror = () => rej(tx.error);
-            });
-        };
-
-        const loadFromDB = async () => {
-            if (!appState.db) return [];
-            return new Promise((res) => {
-                const req = appState.db.transaction(['results'], 'readonly').objectStore('results').getAll();
-                req.onsuccess = () => res(req.result);
-            });
-        };
-
-        const clearDB = async () => {
-            if (!appState.db) return;
-            return new Promise((res) => {
-                const tx = appState.db.transaction(['results'], 'readwrite');
-                tx.objectStore('results').clear();
-                tx.oncomplete = () => res();
-            });
-        };
-
-        const getTargetSettings = () => ({
-            titleLen: parseInt(document.getElementById('title-length').value) || 70,
-            descLen: parseInt(document.getElementById('desc-length').value) || 150,
-            kwCount: parseInt(document.getElementById('kw-count').value) || 50
-        });
-
-        const loadSettings = () => {
-            document.getElementById('api-key').value = localStorage.getItem('mmg_api_key') || '';
-            document.getElementById('model-select').value = localStorage.getItem('mmg_model') || 'gemini-3.1-flash-lite';
-            document.getElementById('global-context').value = localStorage.getItem('mmg_context') || '';
-            if (localStorage.getItem('mmg_flags_v24') !== '1') { localStorage.setItem('mmg_ai', 'true'); localStorage.setItem('mmg_flags_v24', '1'); }
-            document.getElementById('toggle-ai').checked = localStorage.getItem('mmg_ai') === 'true';
-            document.getElementById('toggle-editorial').checked = localStorage.getItem('mmg_editorial') === 'true';
-            document.getElementById('ai-model-name').value = localStorage.getItem('mmg_ai_model_name') || '';
-            document.getElementById('ai-prompt-text').value = localStorage.getItem('mmg_ai_prompt_text') || '';
-
-            document.getElementById('title-length').value = localStorage.getItem('mmg_title_len') || '70';
-            document.getElementById('desc-length').value = localStorage.getItem('mmg_desc_len') || '150';
-            document.getElementById('kw-count').value = localStorage.getItem('mmg_kw_count') || '50';
-            document.getElementById('title-length-val').textContent = document.getElementById('title-length').value;
-            document.getElementById('desc-length-val').textContent = document.getElementById('desc-length').value;
-            document.getElementById('kw-count-val').textContent = document.getElementById('kw-count').value;
-
-            const k = document.getElementById('api-key').value.trim();
-            if (k.length > 20) {
-                appState.isApiValid = true;
-                const status = document.getElementById('api-status');
-                const statusText = document.getElementById('api-status-text');
-                status.classList.remove('offline');
-                statusText.textContent = 'Ready';
-            }
-            toggleMagnificSettings();
-            updateGenerateButton();
-        };
-
-        const saveSettings = () => {
-            localStorage.setItem('mmg_api_key', document.getElementById('api-key').value.trim());
-            localStorage.setItem('mmg_model', document.getElementById('model-select').value);
-            localStorage.setItem('mmg_context', document.getElementById('global-context').value);
-            localStorage.setItem('mmg_ai', document.getElementById('toggle-ai').checked);
-            localStorage.setItem('mmg_editorial', document.getElementById('toggle-editorial').checked);
-            localStorage.setItem('mmg_ai_model_name', document.getElementById('ai-model-name').value);
-            localStorage.setItem('mmg_ai_prompt_text', document.getElementById('ai-prompt-text').value);
-            localStorage.setItem('mmg_title_len', document.getElementById('title-length').value);
-            localStorage.setItem('mmg_desc_len', document.getElementById('desc-length').value);
-            localStorage.setItem('mmg_kw_count', document.getElementById('kw-count').value);
-            updateGenerateButton();
-            toggleMagnificSettings();
-        };
-        window.saveSettings = saveSettings;
-
-        const toggleMagnificSettings = () => {
-            const s = document.getElementById('ai-magnific-settings');
-            if (document.getElementById('toggle-ai').checked) s.classList.remove('disabled');
-            else s.classList.add('disabled');
-            refreshFlagUI();
-        };
-
-        const refreshFlagUI = () => {
-            const ai = document.getElementById('toggle-ai').checked;
-            const ed = document.getElementById('toggle-editorial').checked;
-            const hAi = document.getElementById('hint-ai');
-            hAi.className = 'toggle-hint' + (ai ? '' : ' warn');
-            hAi.textContent = ai
-                ? 'ON: Adobe kolom "Is generative AI" = yes · Magnific menambah kolom Prompt/Model dan keyword _ai_generated · nama file CSV berakhiran _ai.'
-                : 'OFF: SEMUA baris diekspor sebagai BUKAN AI. Pakai hanya jika aset benar-benar bebas AI. Salah label bisa membuat aset ditolak.';
-            const hEd = document.getElementById('hint-editorial');
-            hEd.className = 'toggle-hint' + (ed ? ' warn' : '');
-            hEd.textContent = ed
-                ? 'ON: Shutterstock Editorial = yes, Vecteezy License = editorial. Hanya untuk konten berita/peristiwa/orang nyata, bukan ilustrasi komersial.'
-                : 'OFF: diekspor sebagai komersial (default untuk ilustrasi, vektor, dan video stok).';
-            const hBoth = document.getElementById('hint-both');
-            if (ai && ed) {
-                hBoth.style.display = '';
-                hBoth.textContent = '⚠ AI dan Editorial sama-sama ON: kombinasi ini jarang cocok. Adobe melarang judul konten AI yang menyiratkan peristiwa nyata.';
-            } else hBoth.style.display = 'none';
-            document.querySelectorAll('.btn-export').forEach(b => {
-                let c = b.querySelector('.flag-chip');
-                if (!c) { c = document.createElement('span'); b.appendChild(c); }
-                c.textContent = ai ? 'AI ON' : 'AI OFF';
-                c.className = 'flag-chip' + (ai ? '' : ' off');
-            });
-        };
-
-        const showToast = (msg, type = 'info') => {
-            const t = document.getElementById('toast');
-            document.getElementById('toast-message').textContent = msg;
-            document.getElementById('toast-icon').textContent = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
-        };
-
-        const updateGenerateButton = () => {
-            const key = document.getElementById('api-key').value.trim();
-            const hasKey = appState.isApiValid || key.length > 20;
-            const pending = appState.queue.filter(i => ['waiting','error'].includes(i.status)).length;
-            const btn = document.getElementById('btn-generate');
-            btn.disabled = !hasKey || pending === 0 || appState.isProcessing;
-            if (appState.isProcessing) btn.textContent = '⏳ Processing...';
-            else btn.textContent = '✨ Generate Metadata';
-            document.getElementById('cost-estimate').textContent = pending;
-        };
-        window.updateGenerateButton = updateGenerateButton;
-
-        ['api-key','model-select','global-context','ai-model-name','ai-prompt-text'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.addEventListener('input', saveSettings);
-        });
-        ['toggle-ai','toggle-editorial'].forEach(id => {
-            document.getElementById(id).addEventListener('change', saveSettings);
-        });
-
-        // FIX #4: Slider listener tunggal — update display + save sekaligus
-        ['title-length','desc-length','kw-count'].forEach(id => {
-            const slider = document.getElementById(id);
-            const display = document.getElementById(id + '-val');
-            if (slider && display) {
-                slider.addEventListener('input', function() {
-                    display.textContent = slider.value;
-                    saveSettings();
-                });
-            }
-        });
-
-        const dz = document.getElementById('dropzone');
-        dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('active'); });
-        dz.addEventListener('dragleave', () => dz.classList.remove('active'));
-        dz.addEventListener('drop', (e) => { e.preventDefault(); dz.classList.remove('active'); handleFiles(e.dataTransfer.files); });
-        document.getElementById('file-input').addEventListener('change', (e) => handleFiles(e.target.files));
-
-        document.getElementById('btn-clear-queue').addEventListener('click', () => {
-            if (appState.isProcessing) return showToast('Cannot clear while processing', 'error');
-            appState.queue = []; renderQueue(); updateGenerateButton();
-        });
-
-        document.getElementById('btn-clear-data').addEventListener('click', async () => {
-            if (confirm("Clear all settings and processed results?")) {
-                localStorage.clear(); await clearDB(); location.reload();
-            }
-        });
-
-        document.getElementById('btn-test-key').addEventListener('click', async () => {
-            const key = document.getElementById('api-key').value.trim();
-            if (!key) return showToast('Enter API key first', 'error');
-            const model = document.getElementById('model-select').value;
-            const ai = new GoogleGenAI({ apiKey: key });
-            try {
-                showToast('Testing key...', 'info');
-                await ai.models.generateContent({ model: model, contents: "Respond with exactly the word 'OK'." });
-                showToast('API Key is valid!', 'success');
-                appState.isApiValid = true;
-                const status = document.getElementById('api-status');
-                const statusText = document.getElementById('api-status-text');
-                status.classList.remove('offline');
-                statusText.textContent = 'Ready';
-                updateGenerateButton();
-            } catch (e) {
-                showToast('API Key test failed: ' + e.message, 'error');
-                appState.isApiValid = false;
-                updateGenerateButton();
-            }
-        });
-
-        const genId = () => Math.random().toString(36).substr(2, 9);
-        const fmtBytes = (b) => {
-            if (b === 0) return '0 B';
-            const i = Math.floor(Math.log(b) / Math.log(1024));
-            return parseFloat((b / Math.pow(1024, i)).toFixed(2)) + ' ' + ['B','KB','MB','GB'][i];
-        };
-
-        const resizeImg = (file, maxDim = 1024) => new Promise((res, rej) => {
-            const isSvg = file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg');
-            let to = null;
-            if (isSvg) to = setTimeout(() => rej(new Error("SVG render timeout")), 5000);
-            const rd = new FileReader();
-            rd.readAsDataURL(file);
-            rd.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    if (isSvg) clearTimeout(to);
-                    let w = img.naturalWidth || img.width || 1024;
-                    let h = img.naturalHeight || img.height || 1024;
-                    if (!w || !h) { w = 1024; h = 1024; }
-                    if (w > maxDim || h > maxDim) {
-                        if (w > h) { h *= maxDim / w; w = maxDim; } else { w *= maxDim / h; h = maxDim; }
-                    }
-                    const cv = document.getElementById('processing-canvas');
-                    cv.width = w; cv.height = h;
-                    const ctx = cv.getContext('2d');
-                    ctx.fillStyle = '#FFFFFF';
-                    ctx.fillRect(0, 0, w, h);
-                    ctx.drawImage(img, 0, 0, w, h);
-                    try {
-                        const d = ctx.getImageData(0, 0, w, h).data;
-                        let hasContent = false;
-                        for (let i = 0; i < d.length; i += 400) {
-                            if (d[i] < 240 || d[i+1] < 240 || d[i+2] < 240) { hasContent = true; break; }
-                        }
-                        if (!hasContent) return rej(new Error("Image appears blank (all white)"));
-                    } catch (err) {}
-                    res({
-                        data: cv.toDataURL('image/jpeg', 0.85).split(',')[1],
-                        mimeType: 'image/jpeg',
-                        thumb: cv.toDataURL('image/jpeg', 0.2)
-                    });
-                };
-                img.onerror = () => { if (isSvg) clearTimeout(to); rej(new Error("Image load failed")); };
-                img.src = e.target.result;
-            };
-            rd.onerror = rej;
-        });
-
-        // FIX #2: Video frame extraction — listener cleanup on timeout
-        const extractVideo = (file) => new Promise((res, rej) => {
-            const v = document.createElement('video');
-            v.src = URL.createObjectURL(file);
-            v.muted = true;
-            v.playsInline = true;
-            v.setAttribute('playsinline', '');
-            v.setAttribute('webkit-playsinline', '');
-            v.preload = 'auto';
-            const frames = []; let thumb = null;
-            let metadataLoaded = false;
-            let finished = false;
-
-            const cleanup = () => {
-                try { URL.revokeObjectURL(v.src); } catch (e) {}
-            };
-
-            const globalTimeout = setTimeout(() => {
-                if (!finished) {
-                    finished = true;
-                    cleanup();
-                    if (frames.length === 0) rej(new Error("Video frame extraction timeout"));
-                    else res({ frames, thumb, duration: v.duration || 0 });
-                }
-            }, 30000);
-
-            v.addEventListener('loadedmetadata', async () => {
-                if (metadataLoaded) return;
-                metadataLoaded = true;
-                const dur = v.duration;
-                if (!dur || dur < 0.1) {
-                    clearTimeout(globalTimeout);
-                    cleanup();
-                    return rej(new Error("Video duration invalid"));
-                }
-                if (dur < 5) showToast(`Warning: ${file.name} < 5s (Pond5 min)`, 'error');
-
-                const pts = [dur * 0.15, dur * 0.5, dur * 0.85];
-                const cv = document.getElementById('processing-canvas');
-                const ctx = cv.getContext('2d');
-                let w = v.videoWidth, h = v.videoHeight;
-                const mx = 768;
-                if (w > mx || h > mx) { if (w > h) { h *= mx / w; w = mx; } else { w *= mx / h; h = mx; } }
-                cv.width = w; cv.height = h;
-
-                for (let i = 0; i < pts.length; i++) {
-                    await new Promise((resolve) => {
-                        let resolved = false;
-                        const cleanupFrame = () => {
-                            clearTimeout(frameTimeout);
-                            v.removeEventListener('seeked', onSeeked);
-                        };
-                        const frameTimeout = setTimeout(() => {
-                            if (resolved) return;
-                            resolved = true;
-                            cleanupFrame();  // FIX #2: bersihkan listener
-                            resolve(false);
-                        }, 10000);
-
-                        const onSeeked = () => {
-                            if (resolved) return;
-                            clearTimeout(frameTimeout);
-                            v.removeEventListener('seeked', onSeeked);
-                            setTimeout(() => {
-                                if (resolved) return;
-                                resolved = true;
-                                try {
-                                    ctx.fillStyle = '#FFFFFF';
-                                    ctx.fillRect(0, 0, w, h);
-                                    ctx.drawImage(v, 0, 0, w, h);
-                                    const d = ctx.getImageData(0, 0, w, h).data;
-                                    let hasContent = false;
-                                    for (let j = 0; j < d.length; j += 400) {
-                                        if (d[j] < 240 || d[j+1] < 240 || d[j+2] < 240) { hasContent = true; break; }
-                                    }
-                                    if (hasContent) {
-                                        const b64 = cv.toDataURL('image/jpeg', 0.8).split(',')[1];
-                                        frames.push({ data: b64, mimeType: 'image/jpeg' });
-                                        if (i === 1) thumb = cv.toDataURL('image/jpeg', 0.2);
-                                    }
-                                } catch (err) {}
-                                resolve(true);
-                            }, 100);
-                        };
-                        v.addEventListener('seeked', onSeeked);
-                        v.currentTime = pts[i];
-                    });
-                }
-
-                finished = true;
-                clearTimeout(globalTimeout);
-                cleanup();
-
-                if (frames.length === 0) {
-                    rej(new Error("No valid frames extracted (all blank or timed out)"));
-                } else {
-                    res({ frames, thumb, duration: dur });
-                }
-            });
-
-            v.addEventListener('error', () => {
-                clearTimeout(globalTimeout);
-                cleanup();
-                rej(new Error("Video load failed"));
-            });
-        });
-
-        const handleFiles = async (files) => {
-            const parsed = [];
-            for (let i = 0; i < files.length; i++) {
-                const f = files[i];
-                const ld = f.name.lastIndexOf('.');
-                const ext = ld === -1 ? '' : f.name.substring(ld + 1).toLowerCase();
-                const stem = ld === -1 ? f.name : f.name.substring(0, ld);
-                parsed.push({ file: f, ext, stem });
-            }
-            const vectors = parsed.filter(p => ['eps','ai','psd'].includes(p.ext));
-            const videos = parsed.filter(p => ['mp4','mov'].includes(p.ext));
-            const svgs = parsed.filter(p => p.ext === 'svg');
-            const rasters = parsed.filter(p => ['jpg','jpeg','png','webp','gif'].includes(p.ext));
-            const usedRasters = new Set();
-
-            for (const vec of vectors) {
-                const preview = rasters.find(r => r.stem.toLowerCase() === vec.stem.toLowerCase() && !usedRasters.has(r.file.name));
-                if (preview) { usedRasters.add(preview.file.name); await addItem(vec.file, preview.file); }
-                else showToast(`${vec.file.name}: butuh JPG/PNG preview nama sama`, 'info');
-            }
-            for (const vid of videos) await addItem(vid.file, null);
-            for (const svg of svgs) {
-                const preview = rasters.find(r => r.stem.toLowerCase() === svg.stem.toLowerCase() && !usedRasters.has(r.file.name));
-                if (preview) { usedRasters.add(preview.file.name); await addItem(svg.file, preview.file); }
-                else await addItem(svg.file, null);
-            }
-            for (const r of rasters) {
-                if (!usedRasters.has(r.file.name)) await addItem(r.file, null);
-            }
-            updateGenerateButton();
-        };
-
-        const addItem = async (targetFile, previewFile) => {
-            if (!targetFile) return;
-            const ext = targetFile.name.split('.').pop().toLowerCase();
-            const isV = ['mp4','mov'].includes(ext);
-            const isVec = ['eps','ai','psd'].includes(ext);
-            const isSvg = ext === 'svg';
-            let mx = 20 * 1024 * 1024, lbl = "Image";
-            if (isV) { mx = 500 * 1024 * 1024; lbl = "Video"; }
-            else if (isVec || isSvg) { mx = 100 * 1024 * 1024; lbl = "Vector"; }
-            if (targetFile.size > mx) return showToast(`${targetFile.name} exceeds ${mx/(1024*1024)}MB (${lbl})`, 'error');
-
-            let finalName = targetFile.name;
-            if (appState.queue.find(q => q.filename === finalName)) {
-                const base = finalName.substring(0, finalName.lastIndexOf('.'));
-                const ex = finalName.substring(finalName.lastIndexOf('.'));
-                let i = 1;
-                while (appState.queue.find(q => q.filename === `${base}_${i}${ex}`)) i++;
-                finalName = `${base}_${i}${ex}`;
-            }
-            let ft = 'image';
-            if (isV) ft = 'video'; else if (isVec) ft = 'vector';
-            appState.queue.push({
-                id: genId(), filename: finalName, targetFile, previewFile: previewFile || targetFile,
-                type: ft, status: 'waiting', progress: 0, size: targetFile.size,
-                result: null, error: null, thumb: null, validationErrors: [], warnings: []
-            });
-            renderQueue();
-            updateGenerateButton();
-        };
-
-        const renderQueue = () => {
-            const list = document.getElementById('queue-list');
-            document.getElementById('queue-count').textContent = appState.queue.length;
-            if (appState.queue.length === 0) {
-                list.innerHTML = '<div class="empty-state">Queue is empty — drop files above to begin</div>';
-                return;
-            }
-            const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-            list.innerHTML = appState.queue.map(item => {
-                const statusClass = item.status === 'done' ? 'done' : item.status === 'error' ? 'error' : '';
-                const statusLabel = item.status === 'waiting' ? 'Waiting' : item.status === 'processing' ? 'Analyzing...' : item.status === 'error' ? 'Failed' : 'Done';
-                const statusType = item.status === 'done' ? 'done' : item.status === 'error' ? 'error' : item.status === 'processing' ? 'processing' : 'waiting';
-                return `<div class="queue-item ${statusClass}">
-                    <div class="queue-thumb">
-                        ${item.thumb ? `<img src="${item.thumb}">` : (item.type === 'video' ? '🎬' : '🖼️')}
-                    </div>
-                    <div class="queue-info-block">
-                        <div class="queue-filename" title="${esc(item.filename)}">${esc(item.filename)}</div>
-                        <div class="queue-meta">
-                            <span>${fmtBytes(item.size)}</span>
-                            ${item.error ? `· <span style="color:var(--rose)">${esc(item.error)}</span>` : ''}
-                        </div>
-                    </div>
-                    <span class="queue-status ${statusType} ${item.status === 'processing' ? 'processing-pulse' : ''}">${statusLabel}</span>
-                </div>`;
-            }).join('');
-        };
-
-        const validate = (d, isVideo, targets) => {
-            const e = [];
-            const ssList = isVideo ? SS_CATS_VIDEO : SS_CATS_IMAGE;
-            const kwCount = (d.keywords || []).length;
-            const minKw = Math.max(15, targets.kwCount - 5);
-
-            if (kwCount < minKw) e.push(`Keywords count ${kwCount}, need at least ${minKw}`);
-            if (d.adobe_title?.length > targets.titleLen) e.push(`adobe_title ${d.adobe_title.length} chars (max ${targets.titleLen})`);
-            if (d.mg_title && (d.mg_title.length < 35 || d.mg_title.length > 100)) e.push(`mg_title length ${d.mg_title.length} (need 35-100)`);
-            if (d.p5_title && (d.p5_title.length < 40 || d.p5_title.length > 80)) e.push(`p5_title length ${d.p5_title.length} (need 40-80)`);
-
-            ['adobe_title','ss_desc','mg_title','mg_desc','p5_title','p5_desc','vz_title','vz_desc'].forEach(field => {
-                if (d[field] && d[field].includes(',')) e.push(`${field} contains comma`);
-            });
-
-            if (!ADOBE_CATS.includes(d.adobe_cat)) e.push(`adobe_cat '${d.adobe_cat}' invalid`);
-            if (!ssList.includes(d.ss_cat)) e.push(`ss_cat '${d.ss_cat}' invalid${isVideo ? ' for VIDEO' : ''}`);
-            if (d.ss_cat2 && !ssList.includes(d.ss_cat2)) e.push(`ss_cat2 '${d.ss_cat2}' invalid${isVideo ? ' for VIDEO' : ''}`);
-            if (!VZ_CATS.includes(d.vz_cat)) e.push(`vz_cat invalid`);
-            if (!MG_TYPES.includes(d.mg_type)) e.push(`mg_type invalid`);
-            if (!P5_CATS.includes(d.p5_cat)) e.push(`p5_cat invalid`);
-
-            if (!d.ss_desc) e.push("ss_desc empty");
-
-            if (d.vz_title) {
-                const badChars = d.vz_title.match(/[^a-zA-Z0-9\s\.\,\-\']/g);
-                if (badChars) e.push(`vz_title contains invalid chars: ${badChars.join(' ')}`);
-            }
-
-            return e;
-        };
-
-        const callGemini = async (ai, payload, maxRetries = 5) => {
-            let a = 0;
-            while (a < maxRetries) {
-                try { return await ai.models.generateContent(payload); }
-                catch (err) {
-                    a++;
-                    const st = err.status || (err.message.includes('429') ? 429 : err.message.includes('503') ? 503 : 500);
-                    if (st === 400 && err.message.includes('API key not valid')) throw new Error("INVALID_API_KEY");
-                    if ([429, 503].includes(st) && a < maxRetries) await new Promise(r => setTimeout(r, Math.pow(2, a) * 2000));
-                    else throw err;
-                }
-            }
-            throw new Error("Max retries");
-        };
-
-        // FIX #1: Filter release tags + existing _ai_generated dari keywords
-        const processKeywords = (kwArray) => {
-            const releaseTags = [];
-            const clean = [];
-            const seen = new Set();
-            for (const k of kwArray) {
-                const str = String(k).trim();
-                if (!str) continue;
-                if (isReleaseTag(str)) {
-                    const t = /model/i.test(str) ? '_model_release_needed' : '_property_release_needed';
-                    if (!releaseTags.includes(t)) releaseTags.push(t);
-                    continue;
-                }
-                const key = kwKey(str);
-                if (seen.has(key)) continue; // buang duplikat (beda huruf besar, spasi, atau tanda hubung)
-                seen.add(key);
-                clean.push(str);
-            }
-            return { clean, releaseTags };
-        };
-
-        const processFile = async (idx) => {
-            const item = appState.queue[idx];
-            item.status = 'processing';
-            item.warnings = [];
-            renderQueue();
-            const isVideo = item.type === 'video';
-            const targets = getTargetSettings();
-            try {
-                let parts = [];
-                if (isVideo) {
-                    const ex = await extractVideo(item.previewFile);
-                    item.thumb = ex.thumb;
-                    parts = ex.frames.map(f => ({ inlineData: f }));
-                } else {
-                    const rz = await resizeImg(item.previewFile);
-                    item.thumb = rz.thumb;
-                    parts = [{ inlineData: { data: rz.data, mimeType: rz.mimeType } }];
-                }
-                renderQueue();
-                const ai = new GoogleGenAI({ apiKey: document.getElementById('api-key').value.trim() });
-                const model = document.getElementById('model-select').value;
-                const gc = document.getElementById('global-context').value.trim();
-                let prompt = buildPrompt(isVideo, targets.titleLen, targets.descLen, targets.kwCount);
-                if (gc) prompt += `\n\nGlobal Context: ${gc}`;
-
-                let errs = [], data = null, att = 0;
-                while (att <= 3) {
-                    let p = prompt;
-                    if (errs.length) p += `\n\nFIX THESE PROBLEMS FROM PREVIOUS ATTEMPT:\n- ${errs.join('\n- ')}`;
-                    const payload = {
-                        model,
-                        contents: [{ role: 'user', parts: [{ text: p }, ...parts] }],
-                        config: { responseMimeType: "application/json", responseSchema: RESPONSE_SCHEMA, temperature: 0.2 }
-                    };
-                    const r = await callGemini(ai, payload);
-                    try {
-                        data = JSON.parse(r.text);
-                        errs = validate(data, isVideo, targets);
-                        if (!errs.length) break;
-                    } catch (pe) { errs = ["Parse fail"]; }
-                    att++;
-                }
-                if (errs.length) {
-                    item.status = 'error';
-                    item.error = "Validation failed";
-                    item.validationErrors = errs;
-                } else {
-                    const processed = processKeywords(data.keywords || []);
-                    data._cleanKeywords = processed.clean;
-                    data._releaseTags = processed.releaseTags;
-
-                    if (data.has_people && !processed.releaseTags.includes('_model_release_needed')) {
-                        data._releaseTags.push('_model_release_needed');
-                    }
-                    if (data.has_brand_or_logo && !processed.releaseTags.includes('_property_release_needed')) {
-                        data._releaseTags.push('_property_release_needed');
-                    }
-
-                    item.status = 'done';
-                    item.result = data;
-                    item.error = null;
-                    item.warnings = data._releaseTags.map(t => `⚠️ ${t.replace(/_/g, ' ').replace(' needed', '')}`);
-                    await saveToDB(item.filename, { result: data, thumb: item.thumb, timestamp: Date.now() });
-                }
-            } catch (err) {
-                item.status = 'error';
-                if (err.message === 'INVALID_API_KEY') {
-                    item.error = "Invalid API Key";
-                    appState.isProcessing = false;
-                    showToast('Invalid API Key', 'error');
-                } else item.error = err.message || "Unknown error";
-            }
-            renderQueue();
-            updateResultsUI();
-        };
-
-        document.getElementById('btn-generate').addEventListener('click', async () => {
-            if (appState.isProcessing) return;
-            appState.isProcessing = true;
-            updateGenerateButton();
-            for (let i = 0; i < appState.queue.length; i++) {
-                if (!appState.isProcessing) break;
-                if (['waiting', 'error'].includes(appState.queue[i].status)) await processFile(i);
-            }
-            appState.isProcessing = false;
-            updateGenerateButton();
-            showToast('Processing complete', 'success');
-        });
-
-        const esc = (u) => (u || "").toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-
-        window.copyText = (el) => {
-            const t = el.getAttribute('data-copy');
-            const ta = document.createElement("textarea");
-            ta.value = t; document.body.appendChild(ta); ta.select();
-            try { document.execCommand('copy'); showToast('Copied', 'success'); } catch(e) { showToast('Copy failed', 'error'); }
-            document.body.removeChild(ta);
-        };
-
-        const cell = (txt, filename = false) => {
-            const s = String(txt || '');
-            const h = esc(s);
-            const cls = filename ? 'cell-text cell-filename' : 'cell-text';
-            return `<td>
-                <div class="cell-content">
-                    <span class="${cls}" title="${h}">${h}</span>
-                    <button class="copy-btn" data-copy="${h}" onclick="copyText(this)" title="Copy">
-                        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                    </button>
-                </div>
-            </td>`;
-        };
-
-        const kwBadge = (r, p, targets) => {
-            const k = r._cleanKeywords || r.keywords || [];
-            let c = k.length;
-            const maxKw = targets.kwCount;
-            if (p === 'magnific' && document.getElementById('toggle-ai').checked) {
-                let t = k.filter(x => !isReleaseTag(x) && x !== '_ai_generated').slice(0, maxKw - 1);
-                c = t.length + 1;
-            } else c = Math.min(k.length, maxKw);
-            const cls = c >= maxKw ? 'full' : c >= maxKw * 0.8 ? 'medium' : 'low';
-            return `<span class="keyword-badge ${cls}">${c}/${maxKw}</span>`;
-        };
-
-        // FIX #1: getKw — filter release tags AND existing _ai_generated
-        const getKw = (r, p, targets) => {
-            let k = (r._cleanKeywords || r.keywords || []).filter(x => !isReleaseTag(x));
-            const maxKw = (targets || getTargetSettings()).kwCount;
-            const ai = document.getElementById('toggle-ai').checked;
-            if (p === 'magnific' && ai) {
-                k = k.filter(x => {
-                    const lower = String(x).toLowerCase();
-                    return !isReleaseTag(lower) && lower !== '_ai_generated';
-                }).slice(0, maxKw - 1);
-                k.push('_ai_generated');
-            } else {
-                k = k.slice(0, maxKw);
-            }
-            return k.join(',');
-        };
-
-        const cellKw = (r, p, targets) => {
-            const kw = getKw(r, p, targets);
-            const h = esc(kw);
-            return `<td>
-                <div class="cell-content">
-                    <span class="cell-text" title="${h}">${h}</span>
-                    ${kwBadge(r, p, targets)}
-                    <button class="copy-btn" data-copy="${h}" onclick="copyText(this)" title="Copy">
-                        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                    </button>
-                </div>
-            </td>`;
-        };
-
-        const updateResultsUI = () => {
-            const targets = getTargetSettings();
-            const done = appState.queue.filter(i => i.status === 'done' && i.result);
-            document.getElementById('table-adobe').innerHTML = done.map(i => {
-                const catId = ADOBE_CAT_IDS[i.result.adobe_cat] || i.result.adobe_cat;
-                return `<tr>${cell(i.filename, true)}${cell(i.result.adobe_title)}${cellKw(i.result,'adobe', targets)}${cell(catId)}</tr>`;
-            }).join('');
-            document.getElementById('table-shutterstock').innerHTML = done.map(i => {
-                const c = [i.result.ss_cat, i.result.ss_cat2].filter(Boolean).join(', ');
-                return `<tr>${cell(i.filename, true)}${cell(i.result.ss_desc)}${cellKw(i.result,'shutterstock', targets)}${cell(c)}</tr>`;
-            }).join('');
-            document.getElementById('table-vecteezy').innerHTML = done.map(i => `<tr>${cell(i.filename, true)}${cell(i.result.vz_title)}${cell(i.result.vz_desc)}${cellKw(i.result,'vecteezy', targets)}${cell(i.result.vz_cat)}</tr>`).join('');
-            document.getElementById('table-magnific').innerHTML = done.map(i => `<tr>${cell(i.filename, true)}${cell(i.result.mg_title)}${cellKw(i.result,'magnific', targets)}${cell(i.result.mg_type)}</tr>`).join('');
-            document.getElementById('table-pond5').innerHTML = done.map(i => `<tr>${cell(i.filename, true)}${cell(i.result.p5_title)}${cell(i.result.p5_desc)}${cellKw(i.result,'pond5', targets)}${cell(i.result.p5_cat)}</tr>`).join('');
-
-            let allErrors = [];
-            let allWarnings = [];
-            appState.queue.forEach(i => {
-                if (i.validationErrors?.length) allErrors.push({ file: i.filename, errors: i.validationErrors });
-                if (i.warnings?.length) allWarnings.push({ file: i.filename, warnings: i.warnings });
-            });
-            const b = document.getElementById('validation-badge');
-            const vList = document.getElementById('validation-list');
-            const totalIssues = allErrors.reduce((s, e) => s + e.errors.length, 0) + allWarnings.reduce((s, e) => s + e.warnings.length, 0);
-
-            if (allErrors.length || allWarnings.length) {
-                b.textContent = totalIssues;
-                b.classList.remove('hidden');
-                if (allErrors.length === 0 && allWarnings.length > 0) b.classList.add('warn');
-                else b.classList.remove('warn');
-
-                let html = '';
-                allErrors.forEach(e => {
-                    html += `<div class="validation-item error"><div class="validation-file">${esc(e.file)}</div><ul class="validation-errors">${e.errors.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`;
-                });
-                allWarnings.forEach(e => {
-                    html += `<div class="validation-item warn"><div class="validation-file">${esc(e.file)}</div><ul class="validation-errors">${e.warnings.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`;
-                });
-                vList.innerHTML = html;
-            } else {
-                b.classList.add('hidden');
-                vList.innerHTML = '<div class="empty-state">No validation errors — all clean ✨</div>';
-            }
-        };
-
-        const download = (content, filename) => {
-            const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-            const l = document.createElement('a');
-            const u = URL.createObjectURL(blob);
-            l.setAttribute('href', u);
-            l.setAttribute('download', filename);
-            l.style.visibility = 'hidden';
-            document.body.appendChild(l);
-            l.click();
-            document.body.removeChild(l);
-        };
-
-        const eC = (s, d = ',') => {
-            if (s === null || s === undefined) return '';
-            const x = String(s).replace(/"/g, '""');
-            return new RegExp(`[${d}"\\n\\r]`).test(x) ? `"${x}"` : x;
-        };
-
-        window.exportCSV = (platform) => {
-            const targets = getTargetSettings();
-            const done = appState.queue.filter(i => i.status === 'done' && i.result);
-            if (!done.length) return showToast('No processed items to export', 'error');
-            showToast(`Exporting ${platform} CSV...`, 'info');
-            const ai = document.getElementById('toggle-ai').checked;
-            const ed = document.getElementById('toggle-editorial').checked;
-            if (!ai && !confirm('Switch "AI-generated" sedang OFF.\n\nSemua baris akan diekspor sebagai BUKAN AI. Jika aset ini dibuat dengan AI, salah label bisa membuat aset ditolak.\n\nLanjut ekspor?')) return showToast('Ekspor dibatalkan', 'info');
-            if (ed && !confirm('Switch "Editorial" sedang ON.\n\nHanya untuk konten berita atau peristiwa nyata. Ilustrasi komersial seharusnya OFF.\n\nLanjut ekspor?')) return showToast('Ekspor dibatalkan', 'info');
-            let csv = '', ext = ai ? '_ai' : '';
-
-            if (platform === 'adobe') {
-                csv = 'Filename,Title,Keywords,Category,Is generative AI\n';
-                done.forEach(i => {
-                    const catId = ADOBE_CAT_IDS[i.result.adobe_cat] || i.result.adobe_cat;
-                    csv += [i.filename, i.result.adobe_title, getKw(i.result,'adobe', targets), catId, ai ? 'yes' : 'no'].map(v => eC(v)).join(',') + '\n';
-                });
-                download(csv, `adobe_stock${ext}.csv`);
-            } else if (platform === 'shutterstock') {
-                const ssOff = SS_COLUMN_ORDER === 'official';
-                csv = ssOff ? 'Filename,Description,Keywords,Categories,Illustration,Mature content,Editorial\n' : 'Filename,Description,Keywords,Categories,Editorial,Mature content,illustration\n';
-                done.forEach(i => {
-                    const c = [i.result.ss_cat, i.result.ss_cat2].filter(Boolean).join(',');
-                    const isVec = i.filename.toLowerCase().match(/\.(eps|ai|svg)$/) ? 'yes' : 'no';
-                    const base = [i.filename, i.result.ss_desc, getKw(i.result,'shutterstock', targets), c];
-                    csv += base.concat(ssOff ? [isVec, 'no', ed ? 'yes' : 'no'] : [ed ? 'yes' : 'no', 'no', isVec]).map(v => eC(v)).join(',') + '\n';
-                });
-                download(csv, `shutterstock${ext}.csv`);
-            } else if (platform === 'vecteezy') {
-                csv = 'Filename,Title,Description,Keywords,License\n';
-                done.forEach(i => {
-                    const safeFilename = i.filename.replace(/ /g, '_');
-                    csv += [safeFilename, i.result.vz_title, i.result.vz_desc, getKw(i.result,'vecteezy', targets), ed ? 'editorial' : ''].map(v => eC(v)).join(',') + '\n';
-                });
-                download(csv, `vecteezy${ext}.csv`);
-            } else if (platform === 'magnific') {
-                const p = document.getElementById('ai-prompt-text').value.trim() || "";
-                const m = document.getElementById('ai-model-name').value.trim() || "";
-                csv = 'filename;title;keywords' + (ai ? ';prompt;model' : '') + '\n';
-                done.forEach(i => {
-                    let r = [i.filename, i.result.mg_title, getKw(i.result,'magnific', targets)];
-                    if (ai) { r.push(p); r.push(m); }
-                    csv += r.map(v => eC(v, ';')).join(';') + '\n';
-                });
-                download(csv, `magnific${ext}.csv`);
-            } else if (platform === 'pond5') {
-                csv = 'originalfilename,title,description,keywords,copyright,location,price,pricelarge,priceweb,setpriceforme,aspectratio,specifysource,datecreated,containsaudio,cameraspeed,curatornote,PrimaryCategory\n';
-                done.forEach(i => {
-                    csv += [i.filename, i.result.p5_title, i.result.p5_desc, getKw(i.result,'pond5', targets), '', '', '', '', '', '', '', '', '', '', '', '', i.result.p5_cat].map(v => eC(v)).join(',') + '\n';
-                });
-                download(csv, `pond5${ext}.csv`);
-            }
-        };
-
-        (async () => {
-            loadSettings();
-            try {
-                await initDB();
-                const past = await loadFromDB();
-                if (past && past.length > 0) {
-                    appState.queue = past.map(p => ({
-                        id: genId(), filename: p.filename, type: 'unknown', status: 'done',
-                        progress: 100, size: 0, result: p.result, thumb: p.thumb,
-                        error: null, validationErrors: [], warnings: []
-                    }));
-                    renderQueue(); updateResultsUI();
-                    showToast(`Restored ${past.length} results`, 'info');
-                }
-            } catch (e) { console.error('DB init failed:', e); }
-            updateGenerateButton();
-        })();
-    </script>
+p5_cat: ${JSON.stringify(P5_CATS)}
+
+Respond ONLY with valid JSON in this exact format:
+{
+  "visible_elements": ["...", "..."],
+  "dominant_colors": ["...", "..."],
+  "scene_type": "...",
+  "has_people": false,
+  "has_text": false,
+  "has_brand_or_logo": false,
+  "keywords": ["...", "..."],
+  "adobe_title": "...",
+  "adobe_cat": "...",
+  "ss_desc": "...",
+  "ss_cat": "...",
+  "ss_cat2": "...",
+  "vz_title": "...",
+  "vz_desc": "...",
+  "vz_cat": "...",
+  "mg_title": "...",
+  "mg_desc": "...",
+  "mg_type": "...",
+  "p5_title": "...",
+  "p5_desc": "...",
+  "p5_cat": "..."
+}`;
+}
+
+// Call Gemini API via REST
+const callGemini = async (apiKey, model, payload, maxRetries = 5) => {
+  let a = 0;
+  while (a < maxRetries) {
+    try {
+      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!r.ok) {
+        const errData = await r.json().catch(() => ({}));
+        const errMsg = errData.error?.message || r.statusText;
+        const err = new Error(errMsg);
+        err.status = r.status;
+        throw err;
+      }
+      return await r.json();
+    } catch (err) {
+      a++;
+      const st = err.status || 500;
+      if (st === 400 && err.message.includes('API key not valid')) throw new Error("INVALID_API_KEY");
+      if ([429, 503].includes(st) && a < maxRetries) await new Promise(r => setTimeout(r, Math.pow(2, a) * 2000));
+      else throw err;
+    }
+  }
+  throw new Error("Max retries");
+};
+
+// Process keywords
+const processKeywords = (kwArray) => {
+  const releaseTags = [];
+  const clean = [];
+  const seen = new Set();
+  for (const k of kwArray) {
+    const str = String(k).trim();
+    if (!str) continue;
+    if (isReleaseTag(str)) {
+      const t = /model/i.test(str) ? '_model_release_needed' : '_property_release_needed';
+      if (!releaseTags.includes(t)) releaseTags.push(t);
+      continue;
+    }
+    const key = kwKey(str);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    clean.push(str);
+  }
+  return { clean, releaseTags };
+};
+
+// Validate response
+const validate = (d, isVideo, targets) => {
+  const e = [];
+  const ssList = isVideo ? SS_CATS_VIDEO : SS_CATS_IMAGE;
+  const kwCount = (d.keywords || []).length;
+  const minKw = Math.max(15, targets.kwCount - 5);
+  if (kwCount < minKw) e.push(`Keywords count ${kwCount}, need at least ${minKw}`);
+  if (d.adobe_title?.length > targets.titleLen) e.push(`adobe_title ${d.adobe_title.length} chars (max ${targets.titleLen})`);
+  if (d.mg_title && (d.mg_title.length < 35 || d.mg_title.length > 100)) e.push(`mg_title length ${d.mg_title.length}`);
+  if (d.p5_title && (d.p5_title.length < 40 || d.p5_title.length > 80)) e.push(`p5_title length ${d.p5_title.length}`);
+  ['adobe_title', 'ss_desc', 'mg_title', 'mg_desc', 'p5_title', 'p5_desc', 'vz_title', 'vz_desc'].forEach(field => {
+    if (d[field] && d[field].includes(',')) e.push(`${field} contains comma`);
+  });
+  if (!ADOBE_CATS.includes(d.adobe_cat)) e.push(`adobe_cat '${d.adobe_cat}' invalid`);
+  if (!ssList.includes(d.ss_cat)) e.push(`ss_cat '${d.ss_cat}' invalid`);
+  if (d.ss_cat2 && !ssList.includes(d.ss_cat2)) e.push(`ss_cat2 '${d.ss_cat2}' invalid`);
+  if (!VZ_CATS.includes(d.vz_cat)) e.push(`vz_cat invalid`);
+  if (!MG_TYPES.includes(d.mg_type)) e.push(`mg_type invalid`);
+  if (!P5_CATS.includes(d.p5_cat)) e.push(`p5_cat invalid`);
+  if (!d.ss_desc) e.push("ss_desc empty");
+  if (d.vz_title) {
+    const badChars = d.vz_title.match(/[^a-zA-Z0-9\s\.\,\-\']/g);
+    if (badChars) e.push(`vz_title invalid chars: ${badChars.join(' ')}`);
+  }
+  return e;
+};
+
+// Process single file
+const processFile = async (idx) => {
+  const item = appState.queue[idx];
+  if (!item) return;
+  item.status = 'processing';
+  item.progress = 10;
+  item.warnings = [];
+  renderQueue();
+
+  const isVideo = item.type === 'video';
+  const targets = getTargetSettings();
+  const apiKey = document.getElementById('api-key').value.trim();
+  const model = document.getElementById('model-select').value;
+
+  try {
+    let parts = [];
+    if (isVideo) {
+      item.progress = 25; renderQueue();
+      const ex = await extractVideo(item.previewFile);
+      item.thumb = ex.thumb;
+      parts = ex.frames.map(f => ({ inline_data: { mime_type: f.mimeType, data: f.data } }));
+    } else {
+      item.progress = 25; renderQueue();
+      const rz = await resizeImg(item.previewFile);
+      item.thumb = rz.thumb;
+      parts = [{ inline_data: { mime_type: rz.mimeType, data: rz.data } }];
+    }
+    renderQueue();
+
+    const gc = document.getElementById('global-context').value.trim();
+    let prompt = buildPrompt(isVideo, targets.titleLen, targets.descLen, targets.kwCount);
+    if (gc) prompt += `\n\nGlobal Context: ${gc}`;
+
+    let errs = [], data = null, att = 0;
+    while (att <= 3) {
+      let p = prompt;
+      if (errs.length) p += `\n\nFIX THESE:\n- ${errs.join('\n- ')}`;
+      const payload = {
+        contents: [{ role: 'user', parts: [{ text: p }, ...parts] }],
+        generationConfig: { responseMimeType: "application/json", temperature: 0.2 }
+      };
+      item.progress = 25 + att * 15;
+      renderQueue();
+      const r = await callGemini(apiKey, model, payload);
+      try {
+        const txt = r.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        data = JSON.parse(txt);
+        errs = validate(data, isVideo, targets);
+        if (!errs.length) break;
+      } catch (pe) {
+        errs = ["Parse fail"];
+      }
+      att++;
+    }
+
+    if (errs.length) {
+      item.status = 'error';
+      item.progress = 100;
+      item.error = "Validation failed";
+      item.validationErrors = errs;
+    } else {
+      const processed = processKeywords(data.keywords || []);
+      data._cleanKeywords = processed.clean;
+      data._releaseTags = processed.releaseTags;
+      if (data.has_people && !processed.releaseTags.includes('_model_release_needed')) {
+        data._releaseTags.push('_model_release_needed');
+      }
+      if (data.has_brand_or_logo && !processed.releaseTags.includes('_property_release_needed')) {
+        data._releaseTags.push('_property_release_needed');
+      }
+      item.status = 'done';
+      item.progress = 100;
+      item.result = data;
+      item.result._isVideo = isVideo;
+      item.error = null;
+      item.warnings = data._releaseTags.map(t => `⚠️ ${t.replace(/_/g, ' ').replace(' needed', '')}`);
+    }
+  } catch (err) {
+    item.status = 'error';
+    item.progress = 100;
+    if (err.message === 'INVALID_API_KEY') {
+      item.error = "Invalid API Key";
+      appState.isProcessing = false;
+      showToast('Invalid API Key', 'error');
+    } else {
+      item.error = err.message || "Unknown error";
+    }
+  }
+  renderQueue();
+  updateResultsUI();
+};
+
+// Generate button
+document.getElementById('btn-generate').addEventListener('click', async () => {
+  if (appState.isProcessing) return;
+  appState.isProcessing = true;
+  updateGenerateButton();
+  for (let i = 0; i < appState.queue.length; i++) {
+    if (!appState.isProcessing) break;
+    if (['waiting', 'error'].includes(appState.queue[i].status)) await processFile(i);
+  }
+  appState.isProcessing = false;
+  updateGenerateButton();
+  showToast('Processing complete', 'success');
+});
+
+// ============================================================
+// RENDER RESULTS — Card + Table dengan copy per field
+// ============================================================
+const cardField = (filename, label, value, field, extra = '') => `
+<div class="result-field">
+  <div class="result-field-header">
+    <span class="result-label">${label} ${extra}</span>
+    <button class="result-copy" onclick="copyField('${filename.replace(/'/g, "\\'")}', '${field}')">📋 Copy</button>
+  </div>
+  <div class="result-value">${value}</div>
+</div>`;
+
+const resultCard = (item) => {
+  const r = item.result;
+  const fname = item.filename.replace(/'/g, "\\'");
+  const kws = (r._cleanKeywords || r.keywords || []).filter(x => !isReleaseTag(x));
+  const kwStr = kws.join(', ');
+  const kwCount = kws.length;
+  const targets = getTargetSettings();
+  const catId = ADOBE_CAT_IDS[r.adobe_cat] || '';
+  return `<div class="result-card">
+    <div class="result-card-header">
+      <span class="result-filename" title="${esc(item.filename)}">${esc(item.filename)}</span>
+      <button class="copy-all-btn" onclick="copyAllFields('${fname}')">📋 Copy All</button>
+    </div>
+    <div class="result-body">
+      ${cardField(item.filename, 'Title', `<div class="result-value title">${esc(r.adobe_title || '')}</div>`, 'title')}
+      ${cardField(item.filename, 'Keywords', `<span class="result-count">${kwCount}/${targets.kwCount}</span>`, 'keywords', `<span class="result-count">${kwCount}/${targets.kwCount}</span>`)}
+      ${cardField(item.filename, 'Description', esc(r.ss_desc || ''), 'desc')}
+      ${cardField(item.filename, 'Category', `<span class="result-tag">${esc(r.adobe_cat || '')} ${catId ? '· ID ' + catId : ''}</span>`, 'category')}
+    </div>
+  </div>`;
+};
+
+const updateResultsUI = () => {
+  const done = appState.queue.filter(i => i.status === 'done' && i.result);
+  ['adobe', 'shutterstock', 'vecteezy', 'magnific', 'pond5'].forEach(p => {
+    const info = document.getElementById(`view-info-${p}`);
+    if (info) info.textContent = `${done.length} hasil`;
+  });
+
+  // Card grids
+  const gridAdAdobe = document.getElementById('grid-adobe');
+  if (gridAdAdobe) gridAdAdobe.innerHTML = done.map(resultCard).join('') || '<div class="empty-state" style="grid-column:1/-1">Belum ada hasil — generate dulu</div>';
+
+  const gridSS = document.getElementById('grid-shutterstock');
+  if (gridSS) gridSS.innerHTML = done.map(resultCard).join('') || '<div class="empty-state" style="grid-column:1/-1">Belum ada hasil</div>';
+
+  const gridVZ = document.getElementById('grid-vecteezy');
+  if (gridVZ) gridVZ.innerHTML = done.map(resultCard).join('') || '<div class="empty-state" style="grid-column:1/-1">Belum ada hasil</div>';
+
+  const gridMG = document.getElementById('grid-magnific');
+  if (gridMG) gridMG.innerHTML = done.map(resultCard).join('') || '<div class="empty-state" style="grid-column:1/-1">Belum ada hasil</div>';
+
+  const gridP5 = document.getElementById('grid-pond5');
+  if (gridP5) gridP5.innerHTML = done.map(resultCard).join('') || '<div class="empty-state" style="grid-column:1/-1">Belum ada hasil</div>';
+
+  // Tables
+  const tbAdobe = document.getElementById('table-adobe');
+  if (tbAdobe) tbAdobe.innerHTML = done.map(i => {
+    const catId = ADOBE_CAT_IDS[i.result.adobe_cat] || i.result.adobe_cat;
+    const kws = (i.result._cleanKeywords || []).join(', ');
+    return `<tr>
+      <td><div class="cell-wrap"><span class="cell-text cell-filename">${esc(i.filename)}</span><button class="cell-copy" onclick="copyField('${i.filename.replace(/'/g, "\\'")}','title')">📋</button></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(i.result.adobe_title || '')}</span><button class="cell-copy" onclick="copyField('${i.filename.replace(/'/g, "\\'")}','title')">📋</button></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${i.filename.replace(/'/g, "\\'")}','keywords')">📋</button></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(String(catId))}</span><button class="cell-copy" onclick="copyField('${i.filename.replace(/'/g, "\\'")}','category')">📋</button></div></td>
+    </tr>`;
+  }).join('');
+
+  const tbSS = document.getElementById('table-shutterstock');
+  if (tbSS) tbSS.innerHTML = done.map(i => {
+    const kws = (i.result._cleanKeywords || []).join(', ');
+    const cat = [i.result.ss_cat, i.result.ss_cat2].filter(Boolean).join(', ');
+    return `<tr>
+      <td><div class="cell-wrap"><span class="cell-text cell-filename">${esc(i.filename)}</span></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(i.result.ss_desc || '')}</span><button class="cell-copy" onclick="copyField('${i.filename.replace(/'/g, "\\'")}','desc')">📋</button></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${i.filename.replace(/'/g, "\\'")}','keywords')">📋</button></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(cat)}</span></div></td>
+    </tr>`;
+  }).join('');
+
+  const tbVZ = document.getElementById('table-vecteezy');
+  if (tbVZ) tbVZ.innerHTML = done.map(i => {
+    const kws = (i.result._cleanKeywords || []).join(', ');
+    return `<tr>
+      <td><div class="cell-wrap"><span class="cell-text cell-filename">${esc(i.filename)}</span></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(i.result.vz_title || '')}</span></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(i.result.vz_desc || '')}</span></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${i.filename.replace(/'/g, "\\'")}','keywords')">📋</button></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(i.result.vz_cat || '')}</span></div></td>
+    </tr>`;
+  }).join('');
+
+  const tbMG = document.getElementById('table-magnific');
+  if (tbMG) tbMG.innerHTML = done.map(i => {
+    const kws = (i.result._cleanKeywords || []).join(', ');
+    return `<tr>
+      <td><div class="cell-wrap"><span class="cell-text cell-filename">${esc(i.filename)}</span></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(i.result.mg_title || '')}</span></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${i.filename.replace(/'/g, "\\'")}','keywords')">📋</button></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(i.result.mg_type || '')}</span></div></td>
+    </tr>`;
+  }).join('');
+
+  const tbP5 = document.getElementById('table-pond5');
+  if (tbP5) tbP5.innerHTML = done.map(i => {
+    const kws = (i.result._cleanKeywords || []).join(', ');
+    return `<tr>
+      <td><div class="cell-wrap"><span class="cell-text cell-filename">${esc(i.filename)}</span></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(i.result.p5_title || '')}</span></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(i.result.p5_desc || '')}</span></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${i.filename.replace(/'/g, "\\'")}','keywords')">📋</button></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(i.result.p5_cat || '')}</span></div></td>
+    </tr>`;
+  }).join('');
+
+  // Validation
+  let allErrors = [];
+  let allWarnings = [];
+  appState.queue.forEach(i => {
+    if (i.validationErrors?.length) allErrors.push({ file: i.filename, errors: i.validationErrors });
+    if (i.warnings?.length) allWarnings.push({ file: i.filename, warnings: i.warnings });
+  });
+
+  const b = document.getElementById('validation-badge');
+  const vList = document.getElementById('validation-list');
+  const totalIssues = allErrors.reduce((s, e) => s + e.errors.length, 0) + allWarnings.reduce((s, e) => s + e.warnings.length, 0);
+
+  if (allErrors.length || allWarnings.length) {
+    b.textContent = totalIssues;
+    b.style.display = '';
+    let html = '';
+    allErrors.forEach(e => {
+      html += `<div class="validation-item error"><div class="validation-file">${esc(e.file)}</div><ul class="validation-errors">${e.errors.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`;
+    });
+    allWarnings.forEach(e => {
+      html += `<div class="validation-item warn"><div class="validation-file">${esc(e.file)}</div><ul class="validation-errors">${e.warnings.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`;
+    });
+    vList.innerHTML = html;
+  } else {
+    b.style.display = 'none';
+    vList.innerHTML = '<div class="empty-state">No validation errors — all clean ✨</div>';
+  }
+};
+
+// ============================================================
+// EXPORT CSV
+// ============================================================
+const download = (content, filename) => {
+  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+  const l = document.createElement('a');
+  const u = URL.createObjectURL(blob);
+  l.setAttribute('href', u);
+  l.setAttribute('download', filename);
+  l.style.visibility = 'hidden';
+  document.body.appendChild(l);
+  l.click();
+  document.body.removeChild(l);
+};
+
+const eC = (s, d = ',') => {
+  if (s === null || s === undefined) return '';
+  const x = String(s).replace(/"/g, '""');
+  return new RegExp(`[${d}"\\n\\r]`).test(x) ? `"${x}"` : x;
+};
+
+const getKw = (r, p, targets) => {
+  let k = kwForPlatform((r._cleanKeywords || r.keywords || []).filter(x => !isReleaseTag(x)), p, r);
+  const maxKw = (targets || getTargetSettings()).kwCount;
+  const ai = document.getElementById('toggle-ai').checked;
+  if (p === 'magnific' && ai) {
+    k = k.filter(x => {
+      const lower = String(x).toLowerCase();
+      return !isReleaseTag(lower) && lower !== '_ai_generated';
+    }).slice(0, maxKw - 1);
+    k.push('_ai_generated');
+  } else {
+    k = k.slice(0, maxKw);
+  }
+  return k.join(',');
+};
+
+window.exportCSV = (platform) => {
+  appState.queue.forEach(i => {
+    if (i.result && i.result._isVideo === undefined) {
+      i.result._isVideo = /\.(mp4|mov|m4v|webm)$/i.test(i.filename);
+    }
+  });
+  const targets = getTargetSettings();
+  const done = appState.queue.filter(i => i.status === 'done' && i.result);
+  if (!done.length) return showToast('No processed items to export', 'error');
+
+  const ai = document.getElementById('toggle-ai').checked;
+  const ed = document.getElementById('toggle-editorial').checked;
+  if (!ai && !confirm('Switch "AI-generated" sedang OFF. Semua baris akan diekspor sebagai BUKAN AI.\n\nLanjut?')) return;
+  if (ed && !confirm('Switch "Editorial" sedang ON. Hanya untuk konten berita/peristiwa nyata.\n\nLanjut?')) return;
+
+  let csv = '', ext = ai ? '_ai' : '';
+
+  if (platform === 'adobe') {
+    csv = 'Filename,Title,Keywords,Category,Is generative AI\n';
+    done.forEach(i => {
+      const catId = ADOBE_CAT_IDS[i.result.adobe_cat] || i.result.adobe_cat;
+      csv += [i.filename, i.result.adobe_title, getKw(i.result, 'adobe', targets), catId, ai ? 'yes' : 'no'].map(v => eC(v)).join(',') + '\n';
+    });
+    download(csv, `adobe_stock${ext}.csv`);
+  } else if (platform === 'shutterstock') {
+    csv = 'Filename,Description,Keywords,Categories,Illustration,Mature content,Editorial\n';
+    done.forEach(i => {
+      const c = [i.result.ss_cat, i.result.ss_cat2].filter(Boolean).join(',');
+      const isVec = i.filename.toLowerCase().match(/\.(eps|ai|svg)$/) ? 'yes' : 'no';
+      csv += [i.filename, i.result.ss_desc, getKw(i.result, 'shutterstock', targets), c, isVec, 'no', ed ? 'yes' : 'no'].map(v => eC(v)).join(',') + '\n';
+    });
+    download(csv, `shutterstock${ext}.csv`);
+  } else if (platform === 'vecteezy') {
+    csv = 'Filename,Title,Description,Keywords,License\n';
+    done.forEach(i => {
+      const safeFilename = i.filename.replace(/ /g, '_');
+      csv += [safeFilename, i.result.vz_title, i.result.vz_desc, getKw(i.result, 'vecteezy', targets), ed ? 'editorial' : ''].map(v => eC(v)).join(',') + '\n';
+    });
+    download(csv, `vecteezy${ext}.csv`);
+  } else if (platform === 'magnific') {
+    const p = document.getElementById('ai-prompt-text').value.trim() || "";
+    const m = document.getElementById('ai-model-name').value.trim() || "";
+    csv = 'filename;title;keywords' + (ai ? ';prompt;model' : '') + '\n';
+    done.forEach(i => {
+      let r = [i.filename, i.result.mg_title, getKw(i.result, 'magnific', targets)];
+      if (ai) { r.push(p); r.push(m); }
+      csv += r.map(v => eC(v, ';')).join(';') + '\n';
+    });
+    download(csv, `magnific${ext}.csv`);
+  } else if (platform === 'pond5') {
+    csv = 'originalfilename,title,description,keywords,copyright,location,price,pricelarge,priceweb,setpriceforme,aspectratio,specifysource,datecreated,containsaudio,cameraspeed,curatornote,PrimaryCategory\n';
+    done.forEach(i => {
+      csv += [i.filename, i.result.p5_title, i.result.p5_desc, getKw(i.result, 'pond5', targets), '', '', '', '', '', '', '', '', '', '', '', '', i.result.p5_cat].map(v => eC(v)).join(',') + '\n';
+    });
+    download(csv, `pond5${ext}.csv`);
+  }
+  showToast(`Export ${platform} berhasil!`, 'success');
+};
+
+// ============================================================
+// INIT
+// ============================================================
+loadSettings();
+renderQueue();
+updateResultsUI();
+updateGenerateButton();
+</script>
 </body>
 </html>
