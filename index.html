@@ -16,41 +16,35 @@
 --border:#1F1F1F;
 --border-hover:#2A2A2A;
 --border-active:#333;
-
 --green:#1DB954;
 --green-light:#1ED760;
 --green-soft:rgba(29,185,84,0.15);
 --green-border:rgba(29,185,84,0.3);
-
 --orange:#FF6B35;
 --orange-soft:rgba(255,107,53,0.15);
 --orange-border:rgba(255,107,53,0.3);
-
 --text:#FFFFFF;
 --text-soft:#B3B3B3;
 --text-muted:#888888;
 --text-dim:#666666;
-
 --adobe:#FF0000;
 --ss:#4A4A4A;
 --vz:#1DB954;
 --mg:#9B59B6;
 --p5:#3498DB;
-
 --radius:10px;
 --radius-lg:14px;
 --radius-xl:18px;
---shadow:0 4px 16px rgba(0,0,0,0.3);
 --shadow-lg:0 20px 48px rgba(0,0,0,0.5);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:16px;font-size:14px;-webkit-font-smoothing:antialiased}
 .app{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
 
-/* ============ HEADER ============ */
+/* HEADER */
 .header{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:12px}
 .logo{display:flex;align-items:center;gap:12px}
-.logo-mark{width:38px;height:38px;background:var(--green);border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;color:#000;box-shadow:0 4px 16px rgba(29,185,84,0.35);font-family:Inter,sans-serif}
+.logo-mark{width:38px;height:38px;background:var(--green);border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;color:#000;box-shadow:0 4px 16px rgba(29,185,84,0.35)}
 .logo-text{font-weight:700;font-size:16px;letter-spacing:-0.01em}
 .logo-sub{font-size:11px;color:var(--text-muted);font-weight:500;margin-top:1px}
 .header-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -60,18 +54,18 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .btn-icon{padding:7px 14px;border-radius:100px;background:transparent;border:1px solid var(--border-hover);color:var(--text-muted);font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;transition:all 0.2s}
 .btn-icon:hover{border-color:var(--orange);color:var(--orange)}
 
-/* ============ CARDS ============ */
+/* CARDS */
 .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
 .card-header{padding:14px 20px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;transition:background 0.2s}
 .card-header:hover{background:#181818}
-.card-title{font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em}
+.card-title{font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:10px}
 .card-title-icon{width:22px;height:22px;background:var(--green-soft);color:var(--green);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px}
 .card-arrow{color:var(--text-dim);font-size:11px;transition:transform 0.3s}
 .settings.collapsed .card-arrow{transform:rotate(-90deg)}
 .settings.collapsed .card-body{max-height:0;padding-top:0;padding-bottom:0;opacity:0}
 .card-body{padding:0 20px 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;max-height:3000px;overflow:hidden;transition:all 0.3s ease;opacity:1}
 
-/* ============ FIELDS ============ */
+/* FIELDS */
 .field{display:flex;flex-direction:column;gap:6px}
 .field-label{font-size:10.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;display:flex;justify-content:space-between;align-items:center}
 .field-label-hint{font-size:9.5px;color:var(--text-dim);text-transform:none;letter-spacing:0;font-weight:500}
@@ -84,7 +78,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .btn-test{padding:10px 16px;background:var(--green-soft);color:var(--green);border:1px solid var(--green-border);border-radius:var(--radius);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;white-space:nowrap}
 .btn-test:hover{background:var(--green);color:#000;border-color:transparent}
 
-/* ============ TOGGLES ============ */
+/* TOGGLES */
 .toggles{display:flex;flex-direction:column;gap:8px}
 .toggle-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:all 0.2s}
 .toggle-row:hover{border-color:var(--border-hover)}
@@ -99,26 +93,21 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .toggle-hint.warn{color:var(--orange);font-weight:600}
 .flag-guide{margin-top:4px;padding:12px 14px;border-radius:var(--radius);background:rgba(29,185,84,0.05);border:1px solid var(--green-border);font-size:11.5px;line-height:1.6;color:var(--text-soft)}
 .flag-guide b{color:var(--text)}
-.flag-chip{margin-left:8px;font-size:10px;font-weight:800;padding:2px 7px;border-radius:100px;background:var(--green-soft);color:var(--green);border:1px solid var(--green-border)}
-.flag-chip.off{background:var(--orange-soft);color:var(--orange);border-color:var(--orange-border)}
 
-/* ============ MAGNIFIC SECTION ============ */
 .magnific-section{grid-column:1/-1;padding:14px;background:rgba(155,89,182,0.06);border:1px solid rgba(155,89,182,0.2);border-radius:var(--radius);display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
 .magnific-section.disabled{opacity:0.35;pointer-events:none}
 
-/* ============ TARGETS SLIDERS ============ */
 .targets-section{grid-column:1/-1;padding:16px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
 .targets-title{grid-column:1/-1;font-size:10.5px;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
 .slider-field{display:flex;flex-direction:column;gap:8px}
 .slider-header{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:600;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.05em}
 .slider-value{font-family:'JetBrains Mono',monospace;background:var(--green-soft);color:var(--green);padding:2px 8px;border-radius:100px;font-size:10.5px;font-weight:700;letter-spacing:0;text-transform:none}
 .slider-input{width:100%;height:4px;background:#222;border-radius:100px;-webkit-appearance:none;appearance:none;outline:none}
-.slider-input::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--green);cursor:pointer;box-shadow:0 0 0 4px rgba(29,185,84,0.15);transition:all 0.2s}
-.slider-input::-webkit-slider-thumb:hover{transform:scale(1.15)}
+.slider-input::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--green);cursor:pointer;box-shadow:0 0 0 4px rgba(29,185,84,0.15)}
 .slider-input::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--green);cursor:pointer;border:none}
 .slider-hint{font-size:10px;color:var(--text-dim);line-height:1.4}
 
-/* ============ DROPZONE ============ */
+/* DROPZONE */
 .dropzone{background:var(--bg-input);border:2px dashed var(--border-hover);border-radius:var(--radius-lg);padding:48px 24px;text-align:center;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden}
 .dropzone::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(29,185,84,0.05) 0%,transparent 50%,rgba(29,185,84,0.03) 100%);opacity:0;transition:opacity 0.3s;pointer-events:none}
 .dropzone:hover::before,.dropzone.active::before{opacity:1}
@@ -127,11 +116,11 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .dropzone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2}
 .dropzone-inner{position:relative;z-index:1;pointer-events:none}
 .dropzone-icon{width:56px;height:56px;margin:0 auto 16px;background:var(--green);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 8px 24px rgba(29,185,84,0.25)}
-.dropzone-title{font-weight:700;font-size:16px;margin-bottom:6px;letter-spacing:-0.01em}
+.dropzone-title{font-weight:700;font-size:16px;margin-bottom:6px}
 .dropzone-hint{font-size:12px;color:var(--text-muted);font-weight:500;margin-bottom:4px}
 .dropzone-sub{font-size:10.5px;color:var(--text-dim)}
 
-/* ============ ACTION BAR ============ */
+/* ACTION BAR */
 .action-bar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
 .queue-info{font-size:12.5px;color:var(--text-muted);font-weight:500}
 .queue-info strong{color:var(--text);font-family:'JetBrains Mono',monospace;font-weight:700}
@@ -143,7 +132,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .btn-ghost{background:transparent;color:var(--text-muted);border:1px solid var(--border-hover)}
 .btn-ghost:hover{color:var(--orange);border-color:var(--orange)}
 
-/* ============ QUEUE ============ */
+/* QUEUE */
 .queue-list{display:flex;flex-direction:column;gap:8px}
 .queue-item{padding:14px 16px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;transition:all 0.2s}
 .queue-item:hover{border-color:var(--border-hover)}
@@ -173,7 +162,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .queue-bar-fill.error{background:var(--orange)}
 .empty-state{padding:40px 20px;text-align:center;font-size:13px;color:var(--text-dim)}
 
-/* ============ TABS ============ */
+/* TABS */
 .tabs-container{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
 .tabs-header{display:flex;gap:4px;border-bottom:1px solid var(--border);padding:8px 12px;overflow-x:auto;scrollbar-width:none}
 .tabs-header::-webkit-scrollbar{display:none}
@@ -190,15 +179,21 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .tab-icon-badge.val{background:var(--orange)}
 .tab-count{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:800;padding:1px 6px;border-radius:100px;background:var(--orange-soft);color:var(--orange);min-width:16px;text-align:center}
 
-/* ============ VIEW TOGGLE ============ */
-.view-toggle-bar{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
-.view-info{font-size:11.5px;color:var(--text-muted);font-weight:500}
+/* TAB TOOLBAR — dengan tombol export */
+.tab-toolbar{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
+.tab-toolbar-left{font-size:11.5px;color:var(--text-muted);font-weight:500}
+.tab-toolbar-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn-export{padding:8px 16px;border-radius:100px;background:var(--green-soft);color:var(--green);border:1px solid var(--green-border);font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px}
+.btn-export:hover{background:var(--green);color:#000;border-color:transparent}
 .view-switch{display:flex;gap:2px;background:var(--bg-input);border:1px solid var(--border);border-radius:100px;padding:3px}
-.view-switch-btn{padding:7px 14px;border-radius:100px;border:none;background:transparent;font-family:inherit;font-size:11.5px;font-weight:600;color:var(--text-dim);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all 0.2s}
+.view-switch-btn{padding:6px 12px;border-radius:100px;border:none;background:transparent;font-family:inherit;font-size:11px;font-weight:600;color:var(--text-dim);cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all 0.2s}
 .view-switch-btn:hover{color:var(--text-soft)}
 .view-switch-btn.active{background:var(--green);color:#000}
 
-/* ============ RESULT CARDS ============ */
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* RESULT CARDS */
 .results-grid{padding:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
 .result-card{background:var(--bg-input);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:all 0.2s}
 .result-card:hover{border-color:var(--green-border)}
@@ -218,44 +213,36 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .result-value.title{font-weight:600;color:var(--text);font-size:13px}
 .result-value.keywords{font-size:11px;color:var(--text-soft);line-height:1.6;max-height:64px;overflow:hidden;position:relative}
 .result-value.keywords::after{content:'';position:absolute;bottom:0;left:0;right:0;height:20px;background:linear-gradient(transparent,var(--bg-elevated));pointer-events:none}
-.result-field:hover .result-value.keywords::after{background:linear-gradient(transparent,#0F0F0F)}
 .result-tag{display:inline-block;background:var(--green-soft);color:var(--green);padding:3px 9px;border-radius:100px;font-size:10.5px;font-weight:700;border:1px solid var(--green-border)}
 .result-count{font-family:'JetBrains Mono',monospace;color:var(--green);font-weight:700}
-.keyword-badge{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;flex-shrink:0;display:inline-block;margin-left:6px}
-.keyword-badge.full{background:var(--green-soft);color:var(--green)}
-.keyword-badge.medium{background:var(--orange-soft);color:var(--orange)}
-.keyword-badge.low{background:var(--orange-soft);color:var(--orange)}
 
-/* ============ TABLE VIEW ============ */
-.results-table-wrap{padding:20px;overflow-x:auto}
+/* TABLE VIEW */
+.results-table-wrap{padding:20px;overflow-x:auto;display:none}
 .results-table{width:100%;border-collapse:collapse;font-size:12.5px}
 .results-table th{padding:12px 16px;text-align:left;font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;border-bottom:1px solid var(--border);background:var(--bg-elevated);position:sticky;top:0}
 .results-table td{padding:14px 16px;border-bottom:1px solid #1A1A1A;color:#DDD;vertical-align:top}
 .results-table tr:hover{background:var(--bg-elevated)}
-.results-table tr:last-child td{border-bottom:none}
 .cell-wrap{display:flex;align-items:center;gap:8px;max-width:400px}
 .cell-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;font-size:12px}
 .cell-filename{font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:600;color:var(--green)}
 .cell-copy{padding:3px 6px;border-radius:4px;background:var(--green-soft);border:none;color:var(--green);cursor:pointer;transition:all 0.15s;font-size:11px;flex-shrink:0}
 .cell-copy:hover{background:var(--green);color:#000}
 
-/* ============ VALIDATION ============ */
+/* VALIDATION */
 .validation-list{padding:16px;display:flex;flex-direction:column;gap:10px}
-.validation-item{padding:14px 18px;border-radius:12px}
-.validation-item.error{background:var(--orange-soft);border:1px solid var(--orange-border)}
-.validation-item.warn{background:var(--orange-soft);border:1px solid var(--orange-border)}
+.validation-item{padding:14px 18px;border-radius:12px;background:var(--orange-soft);border:1px solid var(--orange-border)}
 .validation-file{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;margin-bottom:8px;color:var(--orange)}
 .validation-errors{list-style:none;padding:0;font-size:12px;color:var(--text-soft)}
 .validation-errors li{padding:3px 0 3px 14px;position:relative}
 .validation-errors li::before{content:'•';position:absolute;left:0;font-weight:bold;color:var(--orange)}
 
-/* ============ TOAST ============ */
+/* TOAST */
 .toast{position:fixed;bottom:24px;right:24px;left:24px;max-width:400px;margin-left:auto;padding:14px 20px;background:var(--bg-card);border:1px solid var(--green-border);color:var(--text);border-radius:12px;font-size:12.5px;font-weight:500;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;transform:translateY(120px);opacity:0;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);z-index:1000}
 .toast.show{transform:translateY(0);opacity:1}
 .toast.error{border-color:var(--orange-border)}
 .toast-icon{font-size:16px}
 
-/* ============ RESPONSIVE ============ */
+/* RESPONSIVE */
 @media (max-width:720px){
 body{padding:12px}
 .header{padding:12px 0}
@@ -281,7 +268,7 @@ body{padding:12px}
 <div class="logo-mark">M</div>
 <div>
 <div class="logo-text">MicroStock MetaGen</div>
-<div class="logo-sub">AI Metadata Generator · v26</div>
+<div class="logo-sub">AI Metadata Generator · v27</div>
 </div>
 </div>
 <div class="header-actions">
@@ -322,7 +309,7 @@ body{padding:12px}
 
 <div class="field" style="grid-column:1/-1">
 <label class="field-label">Global Context <span class="field-label-hint">Optional</span></label>
-<textarea class="textarea" id="global-context" placeholder="e.g., 'Flat vector illustration style, vibrant colors' — applied to all items"></textarea>
+<textarea class="textarea" id="global-context" placeholder="e.g., 'Flat vector illustration style, vibrant colors'"></textarea>
 </div>
 
 <div class="field" style="grid-column:1/-1">
@@ -350,9 +337,8 @@ body{padding:12px}
 
 <div class="flag-guide">
 <b>Kapan switch ON / OFF?</b><br>
-<b>AI-generated: ON</b> bila aset dibuat sebagian atau seluruhnya dengan AI (gambar AI, vektor hasil trace dari gambar AI, video AI). <b>OFF</b> hanya untuk karya tanpa AI (foto sendiri, gambar tangan). Salah label ke arah mana pun bisa membuat aset ditolak.<br>
-<b>Editorial: OFF</b> untuk aset komersial (default). <b>ON</b> hanya untuk konten berita, peristiwa, atau orang nyata. Tidak cocok untuk ilustrasi AI.<br>
-Batch campuran AI dan non-AI? Proses dan ekspor per kelompok.
+<b>AI-generated: ON</b> bila aset dibuat sebagian atau seluruhnya dengan AI. <b>OFF</b> hanya untuk karya tanpa AI. Salah label bisa membuat aset ditolak.<br>
+<b>Editorial: OFF</b> untuk aset komersial (default). <b>ON</b> hanya untuk konten berita, peristiwa, atau orang nyata.
 </div>
 </div>
 
@@ -376,7 +362,7 @@ Batch campuran AI dan non-AI? Proses dan ekspor per kelompok.
 <span class="slider-value" id="title-length-val">70</span>
 </div>
 <input type="range" class="slider-input" id="title-length" min="30" max="120" value="70">
-<div class="slider-hint">Rekomendasi: 50–80 karakter untuk microstock global</div>
+<div class="slider-hint">Rekomendasi: 50–80 karakter</div>
 </div>
 
 <div class="slider-field">
@@ -385,7 +371,7 @@ Batch campuran AI dan non-AI? Proses dan ekspor per kelompok.
 <span class="slider-value" id="desc-length-val">150</span>
 </div>
 <input type="range" class="slider-input" id="desc-length" min="50" max="250" value="150">
-<div class="slider-hint">Rekomendasi: 100–180 karakter untuk penjelasan detail</div>
+<div class="slider-hint">Rekomendasi: 100–180 karakter</div>
 </div>
 
 <div class="slider-field">
@@ -394,7 +380,7 @@ Batch campuran AI dan non-AI? Proses dan ekspor per kelompok.
 <span class="slider-value" id="kw-count-val">50</span>
 </div>
 <input type="range" class="slider-input" id="kw-count" min="20" max="50" value="50">
-<div class="slider-hint">Rekomendasi: 25–40 tag kata kunci yang relevan</div>
+<div class="slider-hint">Rekomendasi: 25–40 tag</div>
 </div>
 
 </div>
@@ -456,20 +442,20 @@ Queue: <strong id="queue-count">0</strong> file · Est: <strong id="cost-estimat
 
 <!-- TAB: ADOBE -->
 <div id="tab-adobe" class="tab-content active">
-<div class="view-toggle-bar">
-<span class="view-info" id="view-info-adobe">0 hasil</span>
+<div class="tab-toolbar">
+<div class="tab-toolbar-left" id="info-adobe">0 hasil</div>
+<div class="tab-toolbar-right">
+<button class="btn-export" onclick="exportCSV('adobe')">📥 Export Adobe CSV</button>
 <div class="view-switch">
 <button class="view-switch-btn active" data-view="card" data-tab="adobe">▦ Card</button>
 <button class="view-switch-btn" data-view="table" data-tab="adobe">☰ Table</button>
 </div>
 </div>
-
+</div>
 <div class="results-grid" id="grid-adobe"></div>
-<div class="results-table-wrap" id="tablewrap-adobe" style="display:none">
+<div class="results-table-wrap" id="tablewrap-adobe">
 <table class="results-table">
-<thead><tr>
-<th>Filename</th><th>Title</th><th>Keywords</th><th>Category</th>
-</tr></thead>
+<thead><tr><th>Filename</th><th>Title</th><th>Keywords</th><th>Category</th></tr></thead>
 <tbody id="table-adobe"></tbody>
 </table>
 </div>
@@ -477,19 +463,20 @@ Queue: <strong id="queue-count">0</strong> file · Est: <strong id="cost-estimat
 
 <!-- TAB: SHUTTERSTOCK -->
 <div id="tab-shutterstock" class="tab-content">
-<div class="view-toggle-bar">
-<span class="view-info" id="view-info-shutterstock">0 hasil</span>
+<div class="tab-toolbar">
+<div class="tab-toolbar-left" id="info-shutterstock">0 hasil</div>
+<div class="tab-toolbar-right">
+<button class="btn-export" onclick="exportCSV('shutterstock')">📥 Export Shutterstock CSV</button>
 <div class="view-switch">
 <button class="view-switch-btn active" data-view="card" data-tab="shutterstock">▦ Card</button>
 <button class="view-switch-btn" data-view="table" data-tab="shutterstock">☰ Table</button>
 </div>
 </div>
+</div>
 <div class="results-grid" id="grid-shutterstock"></div>
-<div class="results-table-wrap" id="tablewrap-shutterstock" style="display:none">
+<div class="results-table-wrap" id="tablewrap-shutterstock">
 <table class="results-table">
-<thead><tr>
-<th>Filename</th><th>Description</th><th>Keywords</th><th>Categories</th>
-</tr></thead>
+<thead><tr><th>Filename</th><th>Description</th><th>Keywords</th><th>Categories</th></tr></thead>
 <tbody id="table-shutterstock"></tbody>
 </table>
 </div>
@@ -497,19 +484,20 @@ Queue: <strong id="queue-count">0</strong> file · Est: <strong id="cost-estimat
 
 <!-- TAB: VECTEEZY -->
 <div id="tab-vecteezy" class="tab-content">
-<div class="view-toggle-bar">
-<span class="view-info" id="view-info-vecteezy">0 hasil</span>
+<div class="tab-toolbar">
+<div class="tab-toolbar-left" id="info-vecteezy">0 hasil</div>
+<div class="tab-toolbar-right">
+<button class="btn-export" onclick="exportCSV('vecteezy')">📥 Export Vecteezy CSV</button>
 <div class="view-switch">
 <button class="view-switch-btn active" data-view="card" data-tab="vecteezy">▦ Card</button>
 <button class="view-switch-btn" data-view="table" data-tab="vecteezy">☰ Table</button>
 </div>
 </div>
+</div>
 <div class="results-grid" id="grid-vecteezy"></div>
-<div class="results-table-wrap" id="tablewrap-vecteezy" style="display:none">
+<div class="results-table-wrap" id="tablewrap-vecteezy">
 <table class="results-table">
-<thead><tr>
-<th>Filename</th><th>Title</th><th>Description</th><th>Keywords</th><th>Category</th>
-</tr></thead>
+<thead><tr><th>Filename</th><th>Title</th><th>Description</th><th>Keywords</th><th>Category</th></tr></thead>
 <tbody id="table-vecteezy"></tbody>
 </table>
 </div>
@@ -517,19 +505,20 @@ Queue: <strong id="queue-count">0</strong> file · Est: <strong id="cost-estimat
 
 <!-- TAB: MAGNIFIC -->
 <div id="tab-magnific" class="tab-content">
-<div class="view-toggle-bar">
-<span class="view-info" id="view-info-magnific">0 hasil</span>
+<div class="tab-toolbar">
+<div class="tab-toolbar-left" id="info-magnific">0 hasil</div>
+<div class="tab-toolbar-right">
+<button class="btn-export" onclick="exportCSV('magnific')">📥 Export Magnific CSV</button>
 <div class="view-switch">
 <button class="view-switch-btn active" data-view="card" data-tab="magnific">▦ Card</button>
 <button class="view-switch-btn" data-view="table" data-tab="magnific">☰ Table</button>
 </div>
 </div>
+</div>
 <div class="results-grid" id="grid-magnific"></div>
-<div class="results-table-wrap" id="tablewrap-magnific" style="display:none">
+<div class="results-table-wrap" id="tablewrap-magnific">
 <table class="results-table">
-<thead><tr>
-<th>Filename</th><th>Title</th><th>Keywords</th><th>Type</th>
-</tr></thead>
+<thead><tr><th>Filename</th><th>Title</th><th>Keywords</th><th>Type</th></tr></thead>
 <tbody id="table-magnific"></tbody>
 </table>
 </div>
@@ -537,19 +526,20 @@ Queue: <strong id="queue-count">0</strong> file · Est: <strong id="cost-estimat
 
 <!-- TAB: POND5 -->
 <div id="tab-pond5" class="tab-content">
-<div class="view-toggle-bar">
-<span class="view-info" id="view-info-pond5">0 hasil</span>
+<div class="tab-toolbar">
+<div class="tab-toolbar-left" id="info-pond5">0 hasil</div>
+<div class="tab-toolbar-right">
+<button class="btn-export" onclick="exportCSV('pond5')">📥 Export Pond5 CSV</button>
 <div class="view-switch">
 <button class="view-switch-btn active" data-view="card" data-tab="pond5">▦ Card</button>
 <button class="view-switch-btn" data-view="table" data-tab="pond5">☰ Table</button>
 </div>
 </div>
+</div>
 <div class="results-grid" id="grid-pond5"></div>
-<div class="results-table-wrap" id="tablewrap-pond5" style="display:none">
+<div class="results-table-wrap" id="tablewrap-pond5">
 <table class="results-table">
-<thead><tr>
-<th>Filename</th><th>Title</th><th>Description</th><th>Keywords</th><th>Category</th>
-</tr></thead>
+<thead><tr><th>Filename</th><th>Title</th><th>Description</th><th>Keywords</th><th>Category</th></tr></thead>
 <tbody id="table-pond5"></tbody>
 </table>
 </div>
@@ -560,15 +550,6 @@ Queue: <strong id="queue-count">0</strong> file · Est: <strong id="cost-estimat
 <div class="validation-list" id="validation-list">
 <div class="empty-state">No validation errors — all clean ✨</div>
 </div>
-</div>
-
-<!-- EXPORT BUTTONS (di bawah tabs) -->
-<div style="padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap">
-<button class="btn btn-ghost" onclick="exportCSV('adobe')">📥 Export Adobe</button>
-<button class="btn btn-ghost" onclick="exportCSV('shutterstock')">📥 Export Shutterstock</button>
-<button class="btn btn-ghost" onclick="exportCSV('vecteezy')">📥 Export Vecteezy</button>
-<button class="btn btn-ghost" onclick="exportCSV('magnific')">📥 Export Magnific</button>
-<button class="btn btn-ghost" onclick="exportCSV('pond5')">📥 Export Pond5</button>
 </div>
 
 </section>
@@ -601,22 +582,20 @@ window.toggleSettings = () => {
 
 const esc = (u) => (u || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 
-window.copyText = (el) => {
-  const t = el.getAttribute('data-copy');
+const copyToClipboard = (text, msg = 'Copied!') => {
   const ta = document.createElement('textarea');
-  ta.value = t;
+  ta.value = text;
   document.body.appendChild(ta);
   ta.select();
   try {
     document.execCommand('copy');
-    showToast('Copied!', 'success');
+    showToast(msg, 'success');
   } catch (e) {
     showToast('Copy failed', 'error');
   }
   document.body.removeChild(ta);
 };
 
-// Copy semua field (dari card)
 window.copyAllFields = (filename) => {
   const item = appState.queue.find(q => q.filename === filename && q.result);
   if (!item) return;
@@ -632,17 +611,7 @@ window.copyAllFields = (filename) => {
     ``,
     `Category: ${r.adobe_cat || ''}`
   ].join('\n');
-  const ta = document.createElement('textarea');
-  ta.value = text;
-  document.body.appendChild(ta);
-  ta.select();
-  try {
-    document.execCommand('copy');
-    showToast('All fields copied!', 'success');
-  } catch (e) {
-    showToast('Copy failed', 'error');
-  }
-  document.body.removeChild(ta);
+  copyToClipboard(text, 'All fields copied!');
 };
 
 window.copyField = (filename, field) => {
@@ -650,33 +619,25 @@ window.copyField = (filename, field) => {
   if (!item) return;
   let value = '';
   const r = item.result;
-  if (field === 'title') value = r.adobe_title || '';
-  else if (field === 'desc') value = r.ss_desc || '';
+  if (field === 'title') value = r.adobe_title || r.vz_title || r.mg_title || r.p5_title || '';
+  else if (field === 'desc') value = r.ss_desc || r.vz_desc || r.p5_desc || '';
   else if (field === 'keywords') value = (r._cleanKeywords || r.keywords || []).join(', ');
-  else if (field === 'category') value = r.adobe_cat || '';
-  const ta = document.createElement('textarea');
-  ta.value = value;
-  document.body.appendChild(ta);
-  ta.select();
-  try {
-    document.execCommand('copy');
-    showToast('Copied!', 'success');
-  } catch (e) {
-    showToast('Copy failed', 'error');
-  }
-  document.body.removeChild(ta);
+  else if (field === 'category') value = r.adobe_cat || r.vz_cat || r.p5_cat || '';
+  else if (field === 'categories') value = [r.ss_cat, r.ss_cat2].filter(Boolean).join(', ');
+  else if (field === 'type') value = r.mg_type || '';
+  copyToClipboard(value, 'Copied!');
 };
 
 // ============================================================
-// SETTINGS — localStorage only (queue tidak persist)
+// SETTINGS — localStorage only
 // ============================================================
 const loadSettings = () => {
   document.getElementById('api-key').value = localStorage.getItem('mmg_api_key') || '';
   document.getElementById('model-select').value = localStorage.getItem('mmg_model') || 'gemini-3.1-flash-lite';
   document.getElementById('global-context').value = localStorage.getItem('mmg_context') || '';
-  if (localStorage.getItem('mmg_flags_v26') !== '1') {
+  if (localStorage.getItem('mmg_flags_v27') !== '1') {
     localStorage.setItem('mmg_ai', 'true');
-    localStorage.setItem('mmg_flags_v26', '1');
+    localStorage.setItem('mmg_flags_v27', '1');
   }
   document.getElementById('toggle-ai').checked = localStorage.getItem('mmg_ai') === 'true';
   document.getElementById('toggle-editorial').checked = localStorage.getItem('mmg_editorial') === 'true';
@@ -730,21 +691,15 @@ const refreshFlagUI = () => {
   const ed = document.getElementById('toggle-editorial').checked;
   const hAi = document.getElementById('hint-ai');
   hAi.className = 'toggle-hint' + (ai ? '' : ' warn');
-  hAi.textContent = ai
-    ? 'ON: Adobe kolom "Is generative AI" = yes · Magnific menambah kolom Prompt/Model dan keyword _ai_generated · nama file CSV berakhiran _ai.'
-    : 'OFF: SEMUA baris diekspor sebagai BUKAN AI. Pakai hanya jika aset benar-benar bebas AI.';
+  hAi.textContent = ai ? 'ON: Adobe "Is generative AI" = yes · Magnific + Prompt/Model + _ai_generated.' : 'OFF: SEMUA baris diekspor sebagai BUKAN AI.';
   const hEd = document.getElementById('hint-editorial');
   hEd.className = 'toggle-hint' + (ed ? ' warn' : '');
-  hEd.textContent = ed
-    ? 'ON: Shutterstock Editorial = yes, Vecteezy License = editorial. Hanya untuk konten berita/peristiwa/orang nyata.'
-    : 'OFF: diekspor sebagai komersial (default).';
+  hEd.textContent = ed ? 'ON: Shutterstock Editorial = yes, Vecteezy License = editorial.' : 'OFF: diekspor sebagai komersial (default).';
   const hBoth = document.getElementById('hint-both');
   if (ai && ed) {
     hBoth.style.display = '';
     hBoth.textContent = '⚠ AI dan Editorial sama-sama ON: kombinasi ini jarang cocok.';
-  } else {
-    hBoth.style.display = 'none';
-  }
+  } else hBoth.style.display = 'none';
 };
 
 const getTargetSettings = () => ({
@@ -759,13 +714,12 @@ const updateGenerateButton = () => {
   const pending = appState.queue.filter(i => ['waiting', 'error'].includes(i.status)).length;
   const btn = document.getElementById('btn-generate');
   btn.disabled = !hasKey || pending === 0 || appState.isProcessing;
-  if (appState.isProcessing) btn.textContent = '⏳ Processing...';
-  else btn.textContent = '✨ Generate Metadata';
+  btn.textContent = appState.isProcessing ? '⏳ Processing...' : '✨ Generate Metadata';
   document.getElementById('cost-estimate').textContent = pending;
 };
 
 // ============================================================
-// APP STATE — no IndexedDB, fresh setiap refresh
+// APP STATE
 // ============================================================
 const appState = {
   queue: [],
@@ -774,7 +728,7 @@ const appState = {
 };
 
 // ============================================================
-// EVENT LISTENERS — SETTINGS
+// EVENT LISTENERS
 // ============================================================
 ['api-key', 'model-select', 'global-context', 'ai-model-name', 'ai-prompt-text'].forEach(id => {
   const el = document.getElementById(id);
@@ -797,7 +751,6 @@ const appState = {
   }
 });
 
-// API Status update on input
 const apiKeyEl = document.getElementById('api-key');
 if (apiKeyEl) {
   apiKeyEl.addEventListener('input', () => {
@@ -814,7 +767,6 @@ if (apiKeyEl) {
   });
 }
 
-// Test API Key
 document.getElementById('btn-test-key').addEventListener('click', async () => {
   const key = document.getElementById('api-key').value.trim();
   if (!key) return showToast('Enter API key first', 'error');
@@ -829,10 +781,8 @@ document.getElementById('btn-test-key').addEventListener('click', async () => {
     if (!r.ok) throw new Error('Invalid key');
     showToast('API Key is valid!', 'success');
     appState.isApiValid = true;
-    const status = document.getElementById('api-status');
-    const statusText = document.getElementById('api-status-text');
-    status.classList.remove('offline');
-    statusText.textContent = 'Ready';
+    document.getElementById('api-status').classList.remove('offline');
+    document.getElementById('api-status-text').textContent = 'Ready';
     updateGenerateButton();
   } catch (e) {
     showToast('API Key test failed: ' + e.message, 'error');
@@ -841,15 +791,13 @@ document.getElementById('btn-test-key').addEventListener('click', async () => {
   }
 });
 
-// Clear All Settings
 document.getElementById('btn-clear-data').addEventListener('click', () => {
-  if (confirm('Clear all settings? (API key, model, preferences, dll)')) {
+  if (confirm('Clear all settings? (API key, model, preferences)')) {
     localStorage.clear();
     location.reload();
   }
 });
 
-// Clear Queue
 document.getElementById('btn-clear-queue').addEventListener('click', () => {
   if (appState.isProcessing) return showToast('Cannot clear while processing', 'error');
   if (appState.queue.length === 0) return showToast('Queue sudah kosong', 'info');
@@ -860,9 +808,7 @@ document.getElementById('btn-clear-queue').addEventListener('click', () => {
   updateGenerateButton();
 });
 
-// ============================================================
-// TAB SWITCHING + VIEW TOGGLE
-// ============================================================
+// TAB SWITCHING
 document.getElementById('tabs-header').addEventListener('click', (e) => {
   const btn = e.target.closest('.tab-platform');
   if (!btn) return;
@@ -874,6 +820,7 @@ document.getElementById('tabs-header').addEventListener('click', (e) => {
   if (target) target.classList.add('active');
 });
 
+// VIEW TOGGLE
 document.querySelectorAll('.view-switch-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const tab = btn.dataset.tab;
@@ -892,9 +839,7 @@ document.querySelectorAll('.view-switch-btn').forEach(btn => {
   });
 });
 
-// ============================================================
 // DROPZONE
-// ============================================================
 const dz = document.getElementById('dropzone');
 dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('active'); });
 dz.addEventListener('dragleave', () => dz.classList.remove('active'));
@@ -908,7 +853,6 @@ const fmtBytes = (b) => {
   return parseFloat((b / Math.pow(1024, i)).toFixed(2)) + ' ' + ['B', 'KB', 'MB', 'GB'][i];
 };
 
-// Image resize (JPG/PNG/WEBP/SVG)
 const resizeImg = (file, maxDim = 1024) => new Promise((res, rej) => {
   const isSvg = file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg');
   let to = null;
@@ -951,7 +895,6 @@ const resizeImg = (file, maxDim = 1024) => new Promise((res, rej) => {
   rd.onerror = rej;
 });
 
-// Video frame extraction
 const extractVideo = (file) => new Promise((res, rej) => {
   const v = document.createElement('video');
   v.src = URL.createObjectURL(file);
@@ -964,9 +907,7 @@ const extractVideo = (file) => new Promise((res, rej) => {
   let thumb = null;
   let metadataLoaded = false;
   let finished = false;
-
   const cleanup = () => { try { URL.revokeObjectURL(v.src); } catch (e) {} };
-
   const globalTimeout = setTimeout(() => {
     if (!finished) {
       finished = true;
@@ -981,8 +922,7 @@ const extractVideo = (file) => new Promise((res, rej) => {
     metadataLoaded = true;
     const dur = v.duration;
     if (!dur || dur < 0.1) {
-      clearTimeout(globalTimeout);
-      cleanup();
+      clearTimeout(globalTimeout); cleanup();
       return rej(new Error("Video duration invalid"));
     }
     if (dur < 5) showToast(`Warning: ${file.name} < 5s`, 'error');
@@ -1038,7 +978,6 @@ const extractVideo = (file) => new Promise((res, rej) => {
     finished = true;
     clearTimeout(globalTimeout);
     cleanup();
-
     if (frames.length === 0) rej(new Error("No valid frames extracted"));
     else res({ frames, thumb, duration: dur });
   });
@@ -1050,7 +989,6 @@ const extractVideo = (file) => new Promise((res, rej) => {
   });
 });
 
-// Handle dropped files
 const handleFiles = async (files) => {
   const parsed = [];
   for (let i = 0; i < files.length; i++) {
@@ -1113,9 +1051,6 @@ const addItem = async (targetFile, previewFile) => {
   updateGenerateButton();
 };
 
-// ============================================================
-// RENDER QUEUE — dengan tombol hapus per item
-// ============================================================
 const renderQueue = () => {
   const list = document.getElementById('queue-list');
   document.getElementById('queue-count').textContent = appState.queue.length;
@@ -1135,9 +1070,7 @@ const renderQueue = () => {
         <div class="queue-info-block">
           <div class="queue-filename" title="${esc(item.filename)}">${esc(item.filename)}</div>
           <div class="queue-meta">
-            <span>${fmtBytes(item.size)}</span>
-            <span>·</span>
-            <span>${item.type}</span>
+            <span>${fmtBytes(item.size)}</span><span>·</span><span>${item.type}</span>
             ${item.error ? `<span>·</span><span style="color:var(--orange)">${esc(item.error)}</span>` : ''}
           </div>
         </div>
@@ -1149,11 +1082,10 @@ const renderQueue = () => {
   }).join('');
 };
 
-// Hapus item dari queue
 window.removeQueueItem = (id) => {
   if (appState.isProcessing) {
     const item = appState.queue.find(q => q.id === id);
-    if (item && item.status === 'processing') return showToast('Tidak bisa hapus saat sedang diproses', 'error');
+    if (item && item.status === 'processing') return showToast('Tidak bisa hapus saat diproses', 'error');
   }
   const idx = appState.queue.findIndex(q => q.id === id);
   if (idx === -1) return;
@@ -1166,31 +1098,30 @@ window.removeQueueItem = (id) => {
 };
 
 // ============================================================
-// GEMINI API + METADATA GENERATION
+// DATA CONSTANTS
 // ============================================================
-const ADOBE_CATS = ["Animals", "Buildings and architecture", "Business", "Drinks", "The environment", "States of mind", "Food", "Graphic resources", "Hobbies and leisure", "Industry", "Landscape", "Lifestyle", "People", "Plants and flowers", "Culture and religion", "Science", "Social issues", "Sports", "Technology", "Transport", "Travel"];
-const ADOBE_CAT_IDS = { "Animals": 1, "Buildings and architecture": 2, "Business": 3, "Drinks": 4, "The environment": 5, "States of mind": 6, "Food": 7, "Graphic resources": 8, "Hobbies and leisure": 9, "Industry": 10, "Landscape": 11, "Lifestyle": 12, "People": 13, "Plants and flowers": 14, "Culture and religion": 15, "Science": 16, "Social issues": 17, "Sports": 18, "Technology": 19, "Transport": 20, "Travel": 21 };
-const SS_CATS_IMAGE = ["Abstract", "Animals/Wildlife", "The Arts", "Backgrounds/Textures", "Beauty/Fashion", "Buildings/Landmarks", "Business/Finance", "Celebrities", "Education", "Food and Drink", "Healthcare/Medical", "Holidays", "Industrial", "Interiors", "Miscellaneous", "Nature", "Objects", "Parks/Outdoor", "People", "Religion", "Science", "Signs/Symbols", "Sports/Recreation", "Technology", "Transportation", "Vintage"];
-const SS_CATS_VIDEO = ["Animals/Wildlife", "The Arts", "Backgrounds/Textures", "Buildings/Landmarks", "Business/Finance", "Education", "Food and Drink", "Healthcare/Medical", "Holidays", "Industrial", "Nature", "Objects", "People", "Religion", "Science", "Signs/Symbols", "Sports/Recreation", "Technology", "Transportation"];
-const VZ_CATS = ["Animals and Plants", "Activity and Events", "Composition", "Food and Drink", "Location", "Objects and Colors", "People"];
-const MG_TYPES = ["Photo", "Vector", "PSD", "Mockup", "AI Image"];
-const P5_CATS = ["abstract", "aerials", "alpha channel/greenscreen", "archival", "animation", "animals/wildlife", "buildings and monuments", "business", "celebrities", "current events", "education", "food and drink", "healthcare/medical", "industry", "landscapes", "lifestyle", "medical & health", "nature", "people", "religion", "science", "sports", "technology", "transportation", "vintage", "other"];
+const ADOBE_CATS = ["Animals","Buildings and architecture","Business","Drinks","The environment","States of mind","Food","Graphic resources","Hobbies and leisure","Industry","Landscape","Lifestyle","People","Plants and flowers","Culture and religion","Science","Social issues","Sports","Technology","Transport","Travel"];
+const ADOBE_CAT_IDS = {"Animals":1,"Buildings and architecture":2,"Business":3,"Drinks":4,"The environment":5,"States of mind":6,"Food":7,"Graphic resources":8,"Hobbies and leisure":9,"Industry":10,"Landscape":11,"Lifestyle":12,"People":13,"Plants and flowers":14,"Culture and religion":15,"Science":16,"Social issues":17,"Sports":18,"Technology":19,"Transport":20,"Travel":21};
+const SS_CATS_IMAGE = ["Abstract","Animals/Wildlife","The Arts","Backgrounds/Textures","Beauty/Fashion","Buildings/Landmarks","Business/Finance","Celebrities","Education","Food and Drink","Healthcare/Medical","Holidays","Industrial","Interiors","Miscellaneous","Nature","Objects","Parks/Outdoor","People","Religion","Science","Signs/Symbols","Sports/Recreation","Technology","Transportation","Vintage"];
+const SS_CATS_VIDEO = ["Animals/Wildlife","The Arts","Backgrounds/Textures","Buildings/Landmarks","Business/Finance","Education","Food and Drink","Healthcare/Medical","Holidays","Industrial","Nature","Objects","People","Religion","Science","Signs/Symbols","Sports/Recreation","Technology","Transportation"];
+const VZ_CATS = ["Animals and Plants","Activity and Events","Composition","Food and Drink","Location","Objects and Colors","People"];
+const MG_TYPES = ["Photo","Vector","PSD","Mockup","AI Image"];
+const P5_CATS = ["abstract","aerials","alpha channel/greenscreen","archival","animation","animals/wildlife","buildings and monuments","business","celebrities","current events","education","food and drink","healthcare/medical","industry","landscapes","lifestyle","medical & health","nature","people","religion","science","sports","technology","transportation","vintage","other"];
 
 const isReleaseTag = (x) => /^_?(model|property)[\s_-]*release([\s_-]*(needed|required))?$/i.test(String(x).trim());
 const kwKey = (x) => String(x).toLowerCase().replace(/[\s_-]+/g, ' ').trim();
 
-const KW_STOP = new Set(['and', 'or', 'of', 'the', 'a', 'an', 'with', 'in', 'on', 'for', 'to', 'vs']);
+const KW_STOP = new Set(['and','or','of','the','a','an','with','in','on','for','to','vs']);
 const kwVecteezy = (list, isVideo) => {
   const out = [], seen = new Set();
   for (const raw of list) {
     const parts = String(raw).toLowerCase().trim().split(/[\s_-]+/).filter(Boolean);
-    if (!parts.length || ['no', 'non', 'without'].includes(parts[0])) continue;
+    if (!parts.length || ['no','non','without'].includes(parts[0])) continue;
     for (let w of parts) {
       w = w.replace(/[^\p{L}\p{N}]/gu, '');
       if (w.length < 2 || KW_STOP.has(w) || seen.has(w)) continue;
       if (isVideo && w === 'vector') continue;
-      seen.add(w);
-      out.push(w);
+      seen.add(w); out.push(w);
     }
   }
   return out;
@@ -1204,8 +1135,7 @@ const kwShutterstock = (list) => {
     const words = t.split(' ').filter(w => !KW_STOP.has(w));
     if (words.some(w => (cnt[w] || 0) >= 3)) continue;
     words.forEach(w => { cnt[w] = (cnt[w] || 0) + 1; });
-    seen.add(t);
-    out.push(t);
+    seen.add(t); out.push(t);
   }
   return out;
 };
@@ -1216,17 +1146,17 @@ const kwForPlatform = (list, p, r) => {
   return list;
 };
 
-// Build prompt
+// ============================================================
+// BUILD PROMPT
+// ============================================================
 function buildPrompt(isVideo, titleLen, descLen, kwCount) {
   const ssList = isVideo ? SS_CATS_VIDEO : SS_CATS_IMAGE;
-  const ssNote = isVideo ? "\n\nIMPORTANT: This is VIDEO. Shutterstock does NOT accept: Abstract, Beauty/Fashion, Celebrities, Interiors, Miscellaneous, Parks/Outdoor, Vintage." : "";
+  const ssNote = isVideo ? "\n\nIMPORTANT: VIDEO. Shutterstock does NOT accept: Abstract, Beauty/Fashion, Celebrities, Interiors, Miscellaneous, Parks/Outdoor, Vintage." : "";
   const minKw = Math.max(15, kwCount - 5);
   return `You are a senior microstock SEO expert. Look carefully at the attached image(s) and describe ONLY what is clearly visible.
 
 STEP 1 — GROUNDING:
-- visible_elements: list 3-8 main objects
-- dominant_colors: list 2-5 dominant colors
-- scene_type: classify scene
+- visible_elements, dominant_colors, scene_type
 - has_people: true only if identifiable humans visible
 - has_text: true only if readable text visible
 - has_brand_or_logo: true only if brand marks visible
@@ -1268,15 +1198,15 @@ vz_cat: ${JSON.stringify(VZ_CATS)}
 mg_type: ${JSON.stringify(MG_TYPES)}
 p5_cat: ${JSON.stringify(P5_CATS)}
 
-Respond ONLY with valid JSON in this exact format:
+Respond ONLY with valid JSON:
 {
-  "visible_elements": ["...", "..."],
-  "dominant_colors": ["...", "..."],
+  "visible_elements": ["..."],
+  "dominant_colors": ["..."],
   "scene_type": "...",
   "has_people": false,
   "has_text": false,
   "has_brand_or_logo": false,
-  "keywords": ["...", "..."],
+  "keywords": ["..."],
   "adobe_title": "...",
   "adobe_cat": "...",
   "ss_desc": "...",
@@ -1294,7 +1224,9 @@ Respond ONLY with valid JSON in this exact format:
 }`;
 }
 
-// Call Gemini API via REST
+// ============================================================
+// GEMINI API CALL
+// ============================================================
 const callGemini = async (apiKey, model, payload, maxRetries = 5) => {
   let a = 0;
   while (a < maxRetries) {
@@ -1323,7 +1255,9 @@ const callGemini = async (apiKey, model, payload, maxRetries = 5) => {
   throw new Error("Max retries");
 };
 
-// Process keywords
+// ============================================================
+// PROCESS KEYWORDS + VALIDATE
+// ============================================================
 const processKeywords = (kwArray) => {
   const releaseTags = [];
   const clean = [];
@@ -1344,25 +1278,40 @@ const processKeywords = (kwArray) => {
   return { clean, releaseTags };
 };
 
-// Validate response
+// Fuzzy match untuk kategori (fix vz_cat dan kategori lain)
+const fuzzyMatchCat = (input, list) => {
+  if (!input) return null;
+  const s = String(input).trim();
+  // Exact
+  if (list.includes(s)) return s;
+  // Case insensitive
+  const lower = s.toLowerCase();
+  const ci = list.find(x => x.toLowerCase() === lower);
+  if (ci) return ci;
+  // Partial match
+  const partial = list.find(x => x.toLowerCase().includes(lower) || lower.includes(x.toLowerCase()));
+  if (partial) return partial;
+  return null;
+};
+
 const validate = (d, isVideo, targets) => {
   const e = [];
   const ssList = isVideo ? SS_CATS_VIDEO : SS_CATS_IMAGE;
   const kwCount = (d.keywords || []).length;
   const minKw = Math.max(15, targets.kwCount - 5);
-  if (kwCount < minKw) e.push(`Keywords count ${kwCount}, need at least ${minKw}`);
+  if (kwCount < minKw) e.push(`Keywords count ${kwCount}, need ${minKw}`);
   if (d.adobe_title?.length > targets.titleLen) e.push(`adobe_title ${d.adobe_title.length} chars (max ${targets.titleLen})`);
-  if (d.mg_title && (d.mg_title.length < 35 || d.mg_title.length > 100)) e.push(`mg_title length ${d.mg_title.length}`);
-  if (d.p5_title && (d.p5_title.length < 40 || d.p5_title.length > 80)) e.push(`p5_title length ${d.p5_title.length}`);
-  ['adobe_title', 'ss_desc', 'mg_title', 'mg_desc', 'p5_title', 'p5_desc', 'vz_title', 'vz_desc'].forEach(field => {
+  if (d.mg_title && (d.mg_title.length < 35 || d.mg_title.length > 100)) e.push(`mg_title ${d.mg_title.length} chars`);
+  if (d.p5_title && (d.p5_title.length < 40 || d.p5_title.length > 80)) e.push(`p5_title ${d.p5_title.length} chars`);
+  ['adobe_title','ss_desc','mg_title','mg_desc','p5_title','p5_desc','vz_title','vz_desc'].forEach(field => {
     if (d[field] && d[field].includes(',')) e.push(`${field} contains comma`);
   });
   if (!ADOBE_CATS.includes(d.adobe_cat)) e.push(`adobe_cat '${d.adobe_cat}' invalid`);
   if (!ssList.includes(d.ss_cat)) e.push(`ss_cat '${d.ss_cat}' invalid`);
   if (d.ss_cat2 && !ssList.includes(d.ss_cat2)) e.push(`ss_cat2 '${d.ss_cat2}' invalid`);
-  if (!VZ_CATS.includes(d.vz_cat)) e.push(`vz_cat invalid`);
-  if (!MG_TYPES.includes(d.mg_type)) e.push(`mg_type invalid`);
-  if (!P5_CATS.includes(d.p5_cat)) e.push(`p5_cat invalid`);
+  if (!VZ_CATS.includes(d.vz_cat)) e.push(`vz_cat '${d.vz_cat}' invalid`);
+  if (!MG_TYPES.includes(d.mg_type)) e.push(`mg_type '${d.mg_type}' invalid`);
+  if (!P5_CATS.includes(d.p5_cat)) e.push(`p5_cat '${d.p5_cat}' invalid`);
   if (!d.ss_desc) e.push("ss_desc empty");
   if (d.vz_title) {
     const badChars = d.vz_title.match(/[^a-zA-Z0-9\s\.\,\-\']/g);
@@ -1371,7 +1320,21 @@ const validate = (d, isVideo, targets) => {
   return e;
 };
 
-// Process single file
+// Auto-fix kategori dengan fuzzy match
+const autoFixCats = (d, isVideo) => {
+  const ssList = isVideo ? SS_CATS_VIDEO : SS_CATS_IMAGE;
+  d.adobe_cat = fuzzyMatchCat(d.adobe_cat, ADOBE_CATS) || 'Graphic resources';
+  d.ss_cat = fuzzyMatchCat(d.ss_cat, ssList) || (isVideo ? 'Nature' : 'Objects');
+  d.ss_cat2 = d.ss_cat2 ? fuzzyMatchCat(d.ss_cat2, ssList) : null;
+  d.vz_cat = fuzzyMatchCat(d.vz_cat, VZ_CATS) || 'Objects and Colors';
+  d.mg_type = fuzzyMatchCat(d.mg_type, MG_TYPES) || 'Vector';
+  d.p5_cat = fuzzyMatchCat(d.p5_cat, P5_CATS) || 'other';
+  return d;
+};
+
+// ============================================================
+// PROCESS FILE
+// ============================================================
 const processFile = async (idx) => {
   const item = appState.queue[idx];
   if (!item) return;
@@ -1432,6 +1395,8 @@ const processFile = async (idx) => {
       item.error = "Validation failed";
       item.validationErrors = errs;
     } else {
+      // Auto-fix categories
+      data = autoFixCats(data, isVideo);
       const processed = processKeywords(data.keywords || []);
       data._cleanKeywords = processed.clean;
       data._releaseTags = processed.releaseTags;
@@ -1463,7 +1428,6 @@ const processFile = async (idx) => {
   updateResultsUI();
 };
 
-// Generate button
 document.getElementById('btn-generate').addEventListener('click', async () => {
   if (appState.isProcessing) return;
   appState.isProcessing = true;
@@ -1478,18 +1442,18 @@ document.getElementById('btn-generate').addEventListener('click', async () => {
 });
 
 // ============================================================
-// RENDER RESULTS — Card + Table dengan copy per field
+// RENDER RESULTS — Beda kolom per platform
 // ============================================================
-const cardField = (filename, label, value, field, extra = '') => `
+const cardField = (filename, label, valueHtml, field, extraHtml = '') => `
 <div class="result-field">
   <div class="result-field-header">
-    <span class="result-label">${label} ${extra}</span>
+    <span class="result-label">${label} ${extraHtml}</span>
     <button class="result-copy" onclick="copyField('${filename.replace(/'/g, "\\'")}', '${field}')">📋 Copy</button>
   </div>
-  <div class="result-value">${value}</div>
+  <div class="result-value">${valueHtml}</div>
 </div>`;
 
-const resultCard = (item) => {
+const renderCard = (item, platform) => {
   const r = item.result;
   const fname = item.filename.replace(/'/g, "\\'");
   const kws = (r._cleanKeywords || r.keywords || []).filter(x => !isReleaseTag(x));
@@ -1497,104 +1461,115 @@ const resultCard = (item) => {
   const kwCount = kws.length;
   const targets = getTargetSettings();
   const catId = ADOBE_CAT_IDS[r.adobe_cat] || '';
+  let bodyHtml = '';
+
+  if (platform === 'adobe') {
+    bodyHtml = `
+      ${cardField(item.filename, 'Title', esc(r.adobe_title || ''), 'title')}
+      ${cardField(item.filename, 'Keywords', esc(kwStr), 'keywords', `<span class="result-count">${kwCount}/${targets.kwCount}</span>`)}
+      ${cardField(item.filename, 'Category', `<span class="result-tag">${esc(r.adobe_cat || '')} ${catId ? '· ID ' + catId : ''}</span>`, 'category')}
+    `;
+  } else if (platform === 'shutterstock') {
+    const catStr = [r.ss_cat, r.ss_cat2].filter(Boolean).join(' · ');
+    bodyHtml = `
+      ${cardField(item.filename, 'Description', esc(r.ss_desc || ''), 'desc')}
+      ${cardField(item.filename, 'Keywords', esc(kwStr), 'keywords', `<span class="result-count">${kwCount}/${targets.kwCount}</span>`)}
+      ${cardField(item.filename, 'Categories', `<span class="result-tag">${esc(catStr)}</span>`, 'categories')}
+    `;
+  } else if (platform === 'vecteezy') {
+    bodyHtml = `
+      ${cardField(item.filename, 'Title', esc(r.vz_title || ''), 'title')}
+      ${cardField(item.filename, 'Description', esc(r.vz_desc || ''), 'desc')}
+      ${cardField(item.filename, 'Keywords', esc(kwStr), 'keywords', `<span class="result-count">${kwCount}/${targets.kwCount}</span>`)}
+      ${cardField(item.filename, 'Category', `<span class="result-tag">${esc(r.vz_cat || '')}</span>`, 'category')}
+    `;
+  } else if (platform === 'magnific') {
+    bodyHtml = `
+      ${cardField(item.filename, 'Title', esc(r.mg_title || ''), 'title')}
+      ${cardField(item.filename, 'Keywords', esc(kwStr), 'keywords', `<span class="result-count">${kwCount}/${targets.kwCount}</span>`)}
+      ${cardField(item.filename, 'Type', `<span class="result-tag">${esc(r.mg_type || '')}</span>`, 'type')}
+    `;
+  } else if (platform === 'pond5') {
+    bodyHtml = `
+      ${cardField(item.filename, 'Title', esc(r.p5_title || ''), 'title')}
+      ${cardField(item.filename, 'Description', esc(r.p5_desc || ''), 'desc')}
+      ${cardField(item.filename, 'Keywords', esc(kwStr), 'keywords', `<span class="result-count">${kwCount}/${targets.kwCount}</span>`)}
+      ${cardField(item.filename, 'Category', `<span class="result-tag">${esc(r.p5_cat || '')}</span>`, 'category')}
+    `;
+  }
+
   return `<div class="result-card">
     <div class="result-card-header">
       <span class="result-filename" title="${esc(item.filename)}">${esc(item.filename)}</span>
       <button class="copy-all-btn" onclick="copyAllFields('${fname}')">📋 Copy All</button>
     </div>
-    <div class="result-body">
-      ${cardField(item.filename, 'Title', `<div class="result-value title">${esc(r.adobe_title || '')}</div>`, 'title')}
-      ${cardField(item.filename, 'Keywords', `<span class="result-count">${kwCount}/${targets.kwCount}</span>`, 'keywords', `<span class="result-count">${kwCount}/${targets.kwCount}</span>`)}
-      ${cardField(item.filename, 'Description', esc(r.ss_desc || ''), 'desc')}
-      ${cardField(item.filename, 'Category', `<span class="result-tag">${esc(r.adobe_cat || '')} ${catId ? '· ID ' + catId : ''}</span>`, 'category')}
-    </div>
+    <div class="result-body">${bodyHtml}</div>
   </div>`;
+};
+
+const renderTableRow = (item, platform) => {
+  const r = item.result;
+  const fname = item.filename.replace(/'/g, "\\'");
+  const kws = (r._cleanKeywords || r.keywords || []).filter(x => !isReleaseTag(x)).join(', ');
+  const catId = ADOBE_CAT_IDS[r.adobe_cat] || r.adobe_cat;
+
+  if (platform === 'adobe') {
+    return `<tr>
+      <td><div class="cell-wrap"><span class="cell-text cell-filename">${esc(item.filename)}</span></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(r.adobe_title || '')}</span><button class="cell-copy" onclick="copyField('${fname}','title')">📋</button></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${fname}','keywords')">📋</button></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(String(catId))}</span></div></td>
+    </tr>`;
+  } else if (platform === 'shutterstock') {
+    const cat = [r.ss_cat, r.ss_cat2].filter(Boolean).join(', ');
+    return `<tr>
+      <td><div class="cell-wrap"><span class="cell-text cell-filename">${esc(item.filename)}</span></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(r.ss_desc || '')}</span><button class="cell-copy" onclick="copyField('${fname}','desc')">📋</button></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${fname}','keywords')">📋</button></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(cat)}</span></div></td>
+    </tr>`;
+  } else if (platform === 'vecteezy') {
+    return `<tr>
+      <td><div class="cell-wrap"><span class="cell-text cell-filename">${esc(item.filename)}</span></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(r.vz_title || '')}</span></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(r.vz_desc || '')}</span></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${fname}','keywords')">📋</button></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(r.vz_cat || '')}</span></div></td>
+    </tr>`;
+  } else if (platform === 'magnific') {
+    return `<tr>
+      <td><div class="cell-wrap"><span class="cell-text cell-filename">${esc(item.filename)}</span></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(r.mg_title || '')}</span></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${fname}','keywords')">📋</button></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(r.mg_type || '')}</span></div></td>
+    </tr>`;
+  } else if (platform === 'pond5') {
+    return `<tr>
+      <td><div class="cell-wrap"><span class="cell-text cell-filename">${esc(item.filename)}</span></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(r.p5_title || '')}</span></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(r.p5_desc || '')}</span></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${fname}','keywords')">📋</button></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(r.p5_cat || '')}</span></div></td>
+    </tr>`;
+  }
+  return '';
 };
 
 const updateResultsUI = () => {
   const done = appState.queue.filter(i => i.status === 'done' && i.result);
   ['adobe', 'shutterstock', 'vecteezy', 'magnific', 'pond5'].forEach(p => {
-    const info = document.getElementById(`view-info-${p}`);
+    const info = document.getElementById(`info-${p}`);
     if (info) info.textContent = `${done.length} hasil`;
+    const grid = document.getElementById(`grid-${p}`);
+    if (grid) {
+      grid.innerHTML = done.length
+        ? done.map(i => renderCard(i, p)).join('')
+        : '<div class="empty-state" style="grid-column:1/-1">Belum ada hasil — generate dulu</div>';
+    }
+    const tbody = document.getElementById(`table-${p}`);
+    if (tbody) tbody.innerHTML = done.map(i => renderTableRow(i, p)).join('');
   });
 
-  // Card grids
-  const gridAdAdobe = document.getElementById('grid-adobe');
-  if (gridAdAdobe) gridAdAdobe.innerHTML = done.map(resultCard).join('') || '<div class="empty-state" style="grid-column:1/-1">Belum ada hasil — generate dulu</div>';
-
-  const gridSS = document.getElementById('grid-shutterstock');
-  if (gridSS) gridSS.innerHTML = done.map(resultCard).join('') || '<div class="empty-state" style="grid-column:1/-1">Belum ada hasil</div>';
-
-  const gridVZ = document.getElementById('grid-vecteezy');
-  if (gridVZ) gridVZ.innerHTML = done.map(resultCard).join('') || '<div class="empty-state" style="grid-column:1/-1">Belum ada hasil</div>';
-
-  const gridMG = document.getElementById('grid-magnific');
-  if (gridMG) gridMG.innerHTML = done.map(resultCard).join('') || '<div class="empty-state" style="grid-column:1/-1">Belum ada hasil</div>';
-
-  const gridP5 = document.getElementById('grid-pond5');
-  if (gridP5) gridP5.innerHTML = done.map(resultCard).join('') || '<div class="empty-state" style="grid-column:1/-1">Belum ada hasil</div>';
-
-  // Tables
-  const tbAdobe = document.getElementById('table-adobe');
-  if (tbAdobe) tbAdobe.innerHTML = done.map(i => {
-    const catId = ADOBE_CAT_IDS[i.result.adobe_cat] || i.result.adobe_cat;
-    const kws = (i.result._cleanKeywords || []).join(', ');
-    return `<tr>
-      <td><div class="cell-wrap"><span class="cell-text cell-filename">${esc(i.filename)}</span><button class="cell-copy" onclick="copyField('${i.filename.replace(/'/g, "\\'")}','title')">📋</button></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(i.result.adobe_title || '')}</span><button class="cell-copy" onclick="copyField('${i.filename.replace(/'/g, "\\'")}','title')">📋</button></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${i.filename.replace(/'/g, "\\'")}','keywords')">📋</button></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(String(catId))}</span><button class="cell-copy" onclick="copyField('${i.filename.replace(/'/g, "\\'")}','category')">📋</button></div></td>
-    </tr>`;
-  }).join('');
-
-  const tbSS = document.getElementById('table-shutterstock');
-  if (tbSS) tbSS.innerHTML = done.map(i => {
-    const kws = (i.result._cleanKeywords || []).join(', ');
-    const cat = [i.result.ss_cat, i.result.ss_cat2].filter(Boolean).join(', ');
-    return `<tr>
-      <td><div class="cell-wrap"><span class="cell-text cell-filename">${esc(i.filename)}</span></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(i.result.ss_desc || '')}</span><button class="cell-copy" onclick="copyField('${i.filename.replace(/'/g, "\\'")}','desc')">📋</button></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${i.filename.replace(/'/g, "\\'")}','keywords')">📋</button></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(cat)}</span></div></td>
-    </tr>`;
-  }).join('');
-
-  const tbVZ = document.getElementById('table-vecteezy');
-  if (tbVZ) tbVZ.innerHTML = done.map(i => {
-    const kws = (i.result._cleanKeywords || []).join(', ');
-    return `<tr>
-      <td><div class="cell-wrap"><span class="cell-text cell-filename">${esc(i.filename)}</span></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(i.result.vz_title || '')}</span></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(i.result.vz_desc || '')}</span></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${i.filename.replace(/'/g, "\\'")}','keywords')">📋</button></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(i.result.vz_cat || '')}</span></div></td>
-    </tr>`;
-  }).join('');
-
-  const tbMG = document.getElementById('table-magnific');
-  if (tbMG) tbMG.innerHTML = done.map(i => {
-    const kws = (i.result._cleanKeywords || []).join(', ');
-    return `<tr>
-      <td><div class="cell-wrap"><span class="cell-text cell-filename">${esc(i.filename)}</span></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(i.result.mg_title || '')}</span></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${i.filename.replace(/'/g, "\\'")}','keywords')">📋</button></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(i.result.mg_type || '')}</span></div></td>
-    </tr>`;
-  }).join('');
-
-  const tbP5 = document.getElementById('table-pond5');
-  if (tbP5) tbP5.innerHTML = done.map(i => {
-    const kws = (i.result._cleanKeywords || []).join(', ');
-    return `<tr>
-      <td><div class="cell-wrap"><span class="cell-text cell-filename">${esc(i.filename)}</span></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(i.result.p5_title || '')}</span></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(i.result.p5_desc || '')}</span></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${i.filename.replace(/'/g, "\\'")}','keywords')">📋</button></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(i.result.p5_cat || '')}</span></div></td>
-    </tr>`;
-  }).join('');
-
-  // Validation
   let allErrors = [];
   let allWarnings = [];
   appState.queue.forEach(i => {
@@ -1611,10 +1586,10 @@ const updateResultsUI = () => {
     b.style.display = '';
     let html = '';
     allErrors.forEach(e => {
-      html += `<div class="validation-item error"><div class="validation-file">${esc(e.file)}</div><ul class="validation-errors">${e.errors.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`;
+      html += `<div class="validation-item"><div class="validation-file">${esc(e.file)}</div><ul class="validation-errors">${e.errors.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`;
     });
     allWarnings.forEach(e => {
-      html += `<div class="validation-item warn"><div class="validation-file">${esc(e.file)}</div><ul class="validation-errors">${e.warnings.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`;
+      html += `<div class="validation-item"><div class="validation-file">${esc(e.file)}</div><ul class="validation-errors">${e.warnings.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`;
     });
     vList.innerHTML = html;
   } else {
@@ -1672,8 +1647,6 @@ window.exportCSV = (platform) => {
 
   const ai = document.getElementById('toggle-ai').checked;
   const ed = document.getElementById('toggle-editorial').checked;
-  if (!ai && !confirm('Switch "AI-generated" sedang OFF. Semua baris akan diekspor sebagai BUKAN AI.\n\nLanjut?')) return;
-  if (ed && !confirm('Switch "Editorial" sedang ON. Hanya untuk konten berita/peristiwa nyata.\n\nLanjut?')) return;
 
   let csv = '', ext = ai ? '_ai' : '';
 
