@@ -1112,16 +1112,29 @@ const isReleaseTag = (x) => /^_?(model|property)[\s_-]*release([\s_-]*(needed|re
 const kwKey = (x) => String(x).toLowerCase().replace(/[\s_-]+/g, ' ').trim();
 
 const KW_STOP = new Set(['and','or','of','the','a','an','with','in','on','for','to','vs']);
+// Vecteezy: HANYA kata tunggal. Frasa/compound dipecah jadi kata.
+// Buang keyword yang Vecteezy tolak (vector untuk video, dsb.)
+const VZ_BLOCKED = new Set(['vector', 'icon', 'icons', 'graphic', 'graphics', 'design', 'art', 'animation', 'video', 'footage', 'clipart']);
 const kwVecteezy = (list, isVideo) => {
   const out = [], seen = new Set();
   for (const raw of list) {
-    const parts = String(raw).toLowerCase().trim().split(/[\s_-]+/).filter(Boolean);
-    if (!parts.length || ['no','non','without'].includes(parts[0])) continue;
+    // Pecah by space, underscore, hyphen — semua jadi kata tunggal
+    const parts = String(raw).toLowerCase().trim().split(/[\s_\-]+/).filter(Boolean);
+    if (!parts.length) continue;
+    // Buang frasa yang diawali kata negasi (no, non, without) — jika dipecah artinya terbalik
+    if (['no','non','without'].includes(parts[0])) continue;
     for (let w of parts) {
+      // Bersihkan semua karakter non-alfanumerik
       w = w.replace(/[^\p{L}\p{N}]/gu, '');
-      if (w.length < 2 || KW_STOP.has(w) || seen.has(w)) continue;
+      if (w.length < 2) continue;
+      if (KW_STOP.has(w)) continue;
+      if (seen.has(w)) continue;
+      // Buang keyword yang Vecteezy tolak
+      if (VZ_BLOCKED.has(w)) continue;
+      // Khusus video: buang "vector"
       if (isVideo && w === 'vector') continue;
-      seen.add(w); out.push(w);
+      seen.add(w);
+      out.push(w);
     }
   }
   return out;
