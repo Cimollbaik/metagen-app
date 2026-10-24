@@ -236,7 +236,7 @@ button,.toggle-row,.card-header,.tab-platform,.dropzone{-webkit-tap-highlight-co
 <div class="logo-mark">M</div>
 <div>
 <div class="logo-text">MicroStock MetaGen</div>
-<div class="logo-sub">AI Metadata Generator · v36</div>
+<div class="logo-sub">AI Metadata Generator · v37</div>
 </div>
 </div>
 <div class="header-actions">
@@ -850,7 +850,7 @@ const hexToName = (h) => {
   if (l > 0.94) return 'white';
   if (s < 0.12) return l < 0.35 ? 'dark gray' : l > 0.75 ? 'light gray' : 'gray';
   let base;
-  if (hue < 15 || hue >= 345) base = 'red';
+  if (hue < 15 || hue >= 330) base = 'red';
   else if (hue < 40) base = l < 0.42 ? 'brown' : 'orange';
   else if (hue < 65) base = 'yellow';
   else if (hue < 90) base = 'lime green';
@@ -1261,7 +1261,7 @@ keywords: up to ${kwCount} keywords (at least ${minKw}), ordered by importance. 
   3) POSITION 21+: concepts and uses a buyer would really search (3-5, for example "holiday greeting", "gift giving", "countdown"). AVOID vague filler like magic, tradition, joy, spirit
   4) then dominant colors
   5) LAST: technical tags (orientation horizontal/vertical/square, "no people" when valid, background type)
-- Background: exactly ONE keyword written as "<main color> background" using the real dominant background color (for example "dark green background" or "dark red background"; "white background" only if it really is white). NEVER write "solid", "studio" or "isolated" background.
+- Background: exactly ONE keyword written as "<main color> background" using the real dominant background color (for example "dark green background" or "dark red background"; "white background" only if it really is white). NEVER write "solid", "studio" or "isolated" background. If the notes give "Background colors", base the keyword on the first one unless the image clearly shows another color.
 - FORBIDDEN: beautiful, amazing, stunning, nice, lovely, gorgeous, wonderful, best, great
 - Do NOT repeat same word more than 3 times
 - Include dominant COLOR keywords (placed after the concepts, see STRICT ORDER)
@@ -1269,7 +1269,7 @@ keywords: up to ${kwCount} keywords (at least ${minKw}), ordered by importance. 
 - Lowercase, no special chars except hyphen
 - Each keyword is 1-3 words. NEVER glue several ideas into one keyword (wrong: "no people horizontal background" or "christmas 3d render animation"; right: "no people", "horizontal", "3d render").
 - If the asset is a 3D render, include the keyword "3d render" within the first 5 keywords.
-${isVideo ? '- VIDEO ACTION: put the main motion in the title (pattern: subject + action + "in 3D render", example "Gingerbread house assembling with glowing windows in 3D render") and add 2-3 action keywords (assembling, wrapping, filling, opening, falling, carrying, rotating). The frames show the start, middle and end of the motion. Titles always END with "in 3D render", never "3D render animation".' : ''}
+${isVideo ? '- VIDEO ACTION: put the main motion in the title (pattern: subject + action + "in 3D render", example "Gingerbread house assembling with glowing windows in 3D render") and add 2-3 action keywords (assembling, wrapping, filling, opening, falling, carrying, rotating). The frames show the start, middle and end of the motion. Mention 3D exactly once, naturally, and VARY the wording from title to title ("in 3D render", "in 3D animation", "rendered in 3D"). Never write "3D render animation".' : ''}
 - Keywords are ALL lowercase (also "christmas eve").
 
 adobe_title: max ${titleLen} chars, NO commas.
@@ -1451,13 +1451,22 @@ const dedupe3d = (t) => {
   let i = 0;
   return capFirst(String(t).replace(/\b3d\b\s*/gi, (x) => (++i < n ? '' : x)).replace(/\s{2,}/g, ' ').trim());
 };
+const hashStr = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 9973; return h; };
 const fixTitle = (t) => {
+  if (!t) return t;
+  t = String(t).replace(/\s(?:in 3D animation|rendered in 3D)$/i, ' in 3D render');
   let x = dedupe3d(fixTitle0(t));
   if (!x) return x;
   x = String(x).replace(/\b3d\b/gi, '3D').replace(/\sin 3D$/, ' in 3D render');
   x = x.replace(/\s(?:in\s)?3D render animation$/i, ' animation in 3D render');
-  if (/^3D\s/.test(x) && (x.match(/3D/g) || []).length === 1 && !/^3D\s(?:printer|printing|glasses|scanner|scanning|movie|cinema|tv)\b/i.test(x)) x = capFirst(x.replace(/^3D\s+/, '')) + ' in 3D render';
+  if (/^3D\s/.test(x) && (x.match(/3D/g) || []).length === 1 && !/^3D\s(?:printer|printing|glasses|scanner|scanning|movie|cinema|tv|animated|animation)\b/i.test(x)) x = capFirst(x.replace(/^3D\s+/, '')) + ' in 3D render';
   if (/\s3D render$/.test(x) && !/\sin (?:low poly )?3D render$/i.test(x)) x = x.replace(/\s3D render$/, ' in 3D render');
+  const mm = x.match(/^(.*) in 3D render$/);
+  if (mm && !/animat|render/i.test(mm[1])) {
+    const v = hashStr(mm[1]) % 3;
+    if (v === 1) x = mm[1] + ' in 3D animation';
+    else if (v === 2) x = mm[1] + ' rendered in 3D';
+  }
   return x;
 };
 const polishData = (d) => {
@@ -1632,7 +1641,7 @@ const cardField = (item, platform, label, valueHtml, field, extraHtml = '') => `
 
 // Get keyword untuk display per platform — mirror apa yang akan di-export
 const PEOPLE_WORDS = new Set(['people','person','man','men','woman','women','boy','girl','child','children','kid','kids','student','students','teacher','courier','rider','driver','gardener','worker','workers','character','characters','female','male','human','humans','freelancer','nomad','volunteer','customer','family','couple','therapist','patient']);
-const JUNK_KW = new Set(['digital','graphic','graphics','element','object','style','art','clean','render','rendering','rendered','symbol','magic','tradition','traditions']);
+const JUNK_KW = new Set(['digital','graphic','graphics','element','object','style','art','clean','render','rendering','rendered','symbol','magic','tradition','traditions','event background']);
 const NO_PEOPLE_RE = /^no (people|person|humans?)$/i;
 const kwWords = (x) => String(x).toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
 const TECH_KW = new Set(['no people','horizontal','vertical','square','isolated','copy space','copyspace','studio shot','indoor','indoors','outdoor','outdoors','landscape orientation','portrait orientation']);
