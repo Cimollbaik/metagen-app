@@ -234,7 +234,7 @@ button,.toggle-row,.card-header,.tab-platform,.dropzone{-webkit-tap-highlight-co
 <div class="logo-mark">M</div>
 <div>
 <div class="logo-text">MicroStock MetaGen</div>
-<div class="logo-sub">AI Metadata Generator · v34</div>
+<div class="logo-sub">AI Metadata Generator · v35</div>
 </div>
 </div>
 <div class="header-actions">
@@ -339,12 +339,12 @@ button,.toggle-row,.card-header,.tab-platform,.dropzone{-webkit-tap-highlight-co
 </section>
 
 <section class="dropzone" id="dropzone">
-<input type="file" id="file-input" multiple accept="image/jpeg, image/png, image/webp, image/gif, video/mp4, video/quicktime, image/svg+xml, .eps, .ai, .psd">
+<input type="file" id="file-input" multiple accept="image/jpeg, image/png, image/webp, image/gif, video/mp4, video/quicktime, image/svg+xml, .eps, .ai, .psd, .js">
 <div class="dropzone-inner">
 <div class="dropzone-icon">📁</div>
 <div class="dropzone-title">Drop your assets here</div>
 <div class="dropzone-hint">JPG · PNG · WEBP · MP4 · MOV · SVG · EPS · PSD · AI</div>
-<div class="dropzone-sub">For EPS/PSD/AI, include a JPG preview with the same filename</div>
+<div class="dropzone-sub">For EPS/PSD/AI, include a JPG preview with the same filename<br>Animasi dari kode: drop juga file .js dengan nama sama dengan videonya</div>
 </div>
 </section>
 
@@ -826,6 +826,19 @@ const resizeImg = (file, maxDim = 1024) => new Promise((res, rej) => {
   img.onerror = () => { clearTimeout(to); URL.revokeObjectURL(url); rej(new Error('Image load failed')); };
   img.src = url;
 });
+const summarizeCode = (src) => {
+  const lines = String(src || '').split(/\r?\n/);
+  const notes = [];
+  for (const ln of lines) {
+    const t = ln.trim();
+    if (t.indexOf('//') !== 0) continue;
+    const c = t.replace(/^\/\/+\s*/, '').replace(/^[=\-\s]+|[=\-\s]+$/g, '').trim();
+    if (c.length > 2) notes.push(c);
+  }
+  let out = notes.join('\n');
+  if (out.length < 200) out += '\n' + String(src || '').replace(/\s+/g, ' ').slice(0, 1500);
+  return out.slice(0, 3500).trim();
+};
 const extractVideo = (file) => new Promise((res, rej) => {
   const v = document.createElement('video');
   v.src = URL.createObjectURL(file);
@@ -912,26 +925,35 @@ const handleFiles = async (files) => {
   const videos = parsed.filter(p => ['mp4', 'mov'].includes(p.ext));
   const svgs = parsed.filter(p => p.ext === 'svg');
   const rasters = parsed.filter(p => ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(p.ext));
-  const skipped = parsed.filter(p => !['eps', 'ai', 'psd', 'mp4', 'mov', 'svg', 'jpg', 'jpeg', 'png', 'webp', 'gif'].includes(p.ext));
+  const skipped = parsed.filter(p => !['eps', 'ai', 'psd', 'mp4', 'mov', 'svg', 'jpg', 'jpeg', 'png', 'webp', 'gif', 'js'].includes(p.ext));
+  const jsFiles = parsed.filter(p => p.ext === 'js');
+  const usedJs = new Set();
+  const codeFor = (stem) => {
+    const j = jsFiles.find(x => x.stem.toLowerCase() === stem.toLowerCase());
+    if (j) usedJs.add(j.file.name);
+    return j ? j.file : null;
+  };
   if (skipped.length) showToast(`${skipped.length} file dilewati (format tidak didukung, mis. HEIC)`, 'error');
   const usedRasters = new Set();
   for (const vec of vectors) {
     const preview = rasters.find(r => r.stem.toLowerCase() === vec.stem.toLowerCase() && !usedRasters.has(r.file.name));
-    if (preview) { usedRasters.add(preview.file.name); await addItem(vec.file, preview.file); }
+    if (preview) { usedRasters.add(preview.file.name); await addItem(vec.file, preview.file, codeFor(vec.stem)); }
     else showToast(`${vec.file.name}: butuh JPG/PNG preview nama sama`, 'info');
   }
-  for (const vid of videos) await addItem(vid.file, null);
+  for (const vid of videos) await addItem(vid.file, null, codeFor(vid.stem));
   for (const svg of svgs) {
     const preview = rasters.find(r => r.stem.toLowerCase() === svg.stem.toLowerCase() && !usedRasters.has(r.file.name));
-    if (preview) { usedRasters.add(preview.file.name); await addItem(svg.file, preview.file); }
-    else await addItem(svg.file, null);
+    if (preview) { usedRasters.add(preview.file.name); await addItem(svg.file, preview.file, codeFor(svg.stem)); }
+    else await addItem(svg.file, null, codeFor(svg.stem));
   }
   for (const r of rasters) {
-    if (!usedRasters.has(r.file.name)) await addItem(r.file, null);
+    if (!usedRasters.has(r.file.name)) await addItem(r.file, null, codeFor(r.stem));
   }
+  const lonely = jsFiles.filter(j => !usedJs.has(j.file.name));
+  if (lonely.length) showToast(`${lonely.length} file .js tidak ketemu pasangannya (nama harus sama dengan videonya)`, 'error');
   updateGenerateButton();
 };
-const addItem = async (targetFile, previewFile) => {
+const addItem = async (targetFile, previewFile, codeFile) => {
   if (!targetFile) return;
   const ext = targetFile.name.split('.').pop().toLowerCase();
   const isV = ['mp4', 'mov'].includes(ext);
@@ -948,7 +970,7 @@ const addItem = async (targetFile, previewFile) => {
   let ft = 'image';
   if (isV) ft = 'video'; else if (isVec) ft = 'vector';
   appState.queue.push({
-    id: genId(), filename: finalName, targetFile, previewFile: previewFile || targetFile,
+    id: genId(), filename: finalName, targetFile, previewFile: previewFile || targetFile, codeFile: (codeFile && codeFile.size < 2 * 1024 * 1024) ? codeFile : null,
     type: ft, status: 'waiting', progress: 0, size: targetFile.size,
     result: null, error: null, thumb: null, validationErrors: [], warnings: []
   });
@@ -974,7 +996,7 @@ const renderQueue = () => {
         <div class="queue-info-block">
           <div class="queue-filename" title="${esc(item.filename)}">${esc(item.filename)}</div>
           <div class="queue-meta">
-            <span>${fmtBytes(item.size)}</span><span>·</span><span>${item.type}</span>
+            <span>${fmtBytes(item.size)}</span><span>·</span><span>${item.type}</span>${item.codeFile ? '<span>·</span><span style="color:var(--green)">+ kode JS</span>' : ''}
             ${item.error ? `<span>·</span><span style="color:var(--orange)">${esc(item.error)}</span>` : ''}
           </div>
         </div>
@@ -1050,12 +1072,18 @@ const kwForPlatform = (list, p, r) => {
   return list;
 };
 
-function buildPrompt(isVideo, titleLen, descLen, kwCount) {
+function buildPrompt(isVideo, titleLen, descLen, kwCount, codeHint, noImage) {
   const ssList = isVideo ? SS_CATS_VIDEO : SS_CATS_IMAGE;
   const ssNote = isVideo ? "\n\nIMPORTANT: VIDEO. Shutterstock does NOT accept: Abstract, Beauty/Fashion, Celebrities, Interiors, Miscellaneous, Parks/Outdoor, Vintage." : "";
   const minKw = Math.max(15, Math.round(kwCount * 0.7));
+  let hintBlock = '';
+  if (codeHint) {
+    hintBlock = '\nSOURCE CODE HINT: this asset is an animation generated from code. The notes below were taken from that code and describe what it shows (objects, colors, style, action, loop). Use them to identify objects, colors and action. If they conflict with the image(s), trust the image(s). NEVER mention code, programming, software, studios or tool names in any field. If the notes say it is a seamless loop, add the keywords "seamless loop" and "looping animation".'
+      + (noImage ? '\nNOTE: no image could be attached, so rely ONLY on these notes. Set has_people false unless the notes clearly say humans appear.' : '')
+      + '\n---\n' + codeHint + '\n---\n';
+  }
   return `You are a senior microstock SEO expert. Look carefully at the attached image(s) and describe ONLY what is clearly visible.
-
+${hintBlock}
 STEP 1 — GROUNDING:
 - visible_elements, dominant_colors, scene_type
 - has_people: true only if identifiable humans visible
@@ -1073,12 +1101,16 @@ Rules:
 - If identifiable faces/children/brands visible, add "_model_release_needed" or "_property_release_needed" at end of keywords.
 
 keywords: up to ${kwCount} keywords (at least ${minKw}), ordered by importance. NEVER pad with generic filler such as digital, graphic, element, object, style, art, render, symbol. Fewer accurate keywords are better than padding. Double-check spelling.
-- POSITION 1-5: core subject + asset type
-- POSITION 6-10: secondary visual elements
-- Include 5+ abstract concepts.
+- STRICT ORDER of the keyword list:
+  1) POSITION 1-10: core subject + asset type (what a buyer would type first)
+  2) POSITION 11-20: other clearly visible elements and details
+  3) POSITION 21+: concepts, emotions, uses (include 5+ abstract concepts)
+  4) then dominant colors
+  5) LAST: technical tags (orientation horizontal/vertical/square, "no people" when valid, background type)
+- Write the background as "white background" or "plain background" (never "isolated background").
 - FORBIDDEN: beautiful, amazing, stunning, nice, lovely, gorgeous, wonderful, best, great
 - Do NOT repeat same word more than 3 times
-- Include dominant COLOR keywords
+- Include dominant COLOR keywords (placed after the concepts, see STRICT ORDER)
 - For vectors include STYLE: flat design, line art, 3D render, isometric, minimalist
 - Lowercase, no special chars except hyphen
 - Each keyword is 1-3 words. NEVER glue several ideas into one keyword (wrong: "no people horizontal background" or "christmas 3d render animation"; right: "no people", "horizontal", "3d render").
@@ -1290,20 +1322,31 @@ const processFile = async (idx) => {
   const model = document.getElementById('model-select').value;
   try {
     let parts = [];
-    if (isVideo) {
-      item.progress = 25; renderQueue();
-      const ex = await extractVideo(item.previewFile);
-      item.thumb = ex.thumb;
-      parts = ex.frames.map(f => ({ inline_data: { mime_type: f.mimeType, data: f.data } }));
-    } else {
-      item.progress = 25; renderQueue();
-      const rz = await resizeImg(item.previewFile);
-      item.thumb = rz.thumb;
-      parts = [{ inline_data: { mime_type: rz.mimeType, data: rz.data } }];
+    let codeHint = '';
+    let codeOnly = false;
+    if (item.codeFile) {
+      try { codeHint = summarizeCode(await item.codeFile.text()); } catch (e) { codeHint = ''; }
+    }
+    try {
+      if (isVideo) {
+        item.progress = 25; renderQueue();
+        const ex = await extractVideo(item.previewFile);
+        item.thumb = ex.thumb;
+        parts = ex.frames.map(f => ({ inline_data: { mime_type: f.mimeType, data: f.data } }));
+      } else {
+        item.progress = 25; renderQueue();
+        const rz = await resizeImg(item.previewFile);
+        item.thumb = rz.thumb;
+        parts = [{ inline_data: { mime_type: rz.mimeType, data: rz.data } }];
+      }
+    } catch (exErr) {
+      if (!codeHint) throw exErr;
+      parts = [];
+      codeOnly = true;
     }
     renderQueue();
     const gc = document.getElementById('global-context').value.trim();
-    let prompt = buildPrompt(isVideo, targets.titleLen, targets.descLen, targets.kwCount);
+    let prompt = buildPrompt(isVideo, targets.titleLen, targets.descLen, targets.kwCount, codeHint, codeOnly);
     if (gc) prompt += `\n\nGlobal Context: ${gc}`;
     let errs = [], data = null, att = 0;
     while (att <= 3) {
@@ -1355,6 +1398,7 @@ const processFile = async (idx) => {
       item.result._isVideo = isVideo;
       item.error = null;
       item.warnings = data._releaseTags.map(t => `⚠️ ${t.replace(/_/g, ' ').replace(' needed', '')}`);
+      if (codeOnly) item.warnings.push('⚠️ Gambar tidak terbaca: metadata dibuat dari kode JS saja, cek hasilnya');
     }
   } catch (err) {
     item.status = 'error';
@@ -1421,9 +1465,47 @@ const PEOPLE_WORDS = new Set(['people','person','man','men','woman','women','boy
 const JUNK_KW = new Set(['digital','graphic','graphics','element','object','style','art','clean','render','rendering','rendered','symbol']);
 const NO_PEOPLE_RE = /^no (people|person|humans?)$/i;
 const kwWords = (x) => String(x).toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+const TECH_KW = new Set(['no people','horizontal','vertical','square','isolated','copy space','copyspace','studio shot','indoor','indoors','outdoor','outdoors','landscape orientation','portrait orientation']);
+const COLOR_WORDS = new Set(['red','green','blue','yellow','orange','brown','beige','white','black','purple','pink','gray','grey','gold','golden','silver','cream','teal','turquoise','navy','maroon','violet','tan','ivory']);
+const KW_FIX = { 'isolated background': 'isolated' };
+const BAD_KW_RE = /\b(javascript|three\.?js|threejs|webgl|source code|coding|programming)\b/i;
+const stemWord = (w) => {
+  if (w.length <= 3) return w;
+  if (/(x|ch|sh|ss)es$/.test(w)) return w.slice(0, -2);
+  if (/ss$/.test(w)) return w;
+  return w.charAt(w.length - 1) === 's' ? w.slice(0, -1) : w;
+};
+const kwStem = (x) => kwWords(x).map(stemWord).join(' ');
+const isTechKw = (x) => {
+  const t = String(x).trim().toLowerCase();
+  return TECH_KW.has(t) || NO_PEOPLE_RE.test(t) || /\bbackground$/.test(t);
+};
+const isColorKw = (x) => {
+  const t = String(x).trim().toLowerCase();
+  if (t === 'black and white') return false;
+  const w = t.split(/\s+/);
+  if (w.length > 3) return false;
+  return w.some(a => COLOR_WORDS.has(a)) && w.every(a => COLOR_WORDS.has(a) || a === 'and');
+};
+const orderKw = (list) => {
+  const seen = new Set(), main = [], colors = [], tech = [];
+  for (const raw of list) {
+    let x = String(raw).trim();
+    if (!x) continue;
+    if (KW_FIX[x.toLowerCase()]) x = KW_FIX[x.toLowerCase()];
+    if (BAD_KW_RE.test(x)) continue;
+    const key = kwStem(x) || x.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    if (isTechKw(x)) tech.push(x);
+    else if (isColorKw(x)) colors.push(x);
+    else main.push(x);
+  }
+  return main.concat(colors, tech);
+};
 const cleanKw = (list, r, platform) => {
   const base = list.filter(x => !isReleaseTag(x));
-  const hasPeople = r.has_people === true || [r.adobe_title || ''].concat(base.filter(x => !NO_PEOPLE_RE.test(String(x).trim()))).some(x => kwWords(x).some(w => PEOPLE_WORDS.has(w)));
+  const hasPeople = r.has_people === true || [r.adobe_title || ''].concat(base.filter(x => !NO_PEOPLE_RE.test(String(x).trim())).slice(0, 15)).some(x => kwWords(x).some(w => PEOPLE_WORDS.has(w)));
   let out = base.filter(x => {
     if (JUNK_KW.has(String(x).trim().toLowerCase())) return false;
     if (r._isVideo && kwWords(x).includes('vector')) return false;
@@ -1440,6 +1522,7 @@ const cleanKw = (list, r, platform) => {
     }
     out = kept;
   }
+  out = orderKw(out);
   if (/\b3d\b/i.test(r.adobe_title || r.p5_title || '')) {
     const idx = out.findIndex(x => /^3d[\s-]?render$/i.test(String(x).trim()));
     if (idx < 0) out.splice(Math.min(2, out.length), 0, '3d render');
