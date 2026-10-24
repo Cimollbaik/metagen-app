@@ -217,6 +217,7 @@ button,.toggle-row,.card-header,.tab-platform,.dropzone{-webkit-tap-highlight-co
 .toast{bottom:calc(24px + env(safe-area-inset-bottom,0px))}
 @media (hover:none){.dropzone:hover{transform:none}}
 @media (pointer:coarse){
+.btn,.card-header,.toggle-row{min-height:44px}
 .btn-icon,.btn-export,.btn-test,.view-switch-btn,.copy-all-btn,.tab-platform{min-height:44px}
 .result-copy,.cell-copy{min-height:40px;min-width:48px;padding:6px 12px;font-size:12px}
 .queue-delete{width:44px;height:44px}
@@ -233,7 +234,7 @@ button,.toggle-row,.card-header,.tab-platform,.dropzone{-webkit-tap-highlight-co
 <div class="logo-mark">M</div>
 <div>
 <div class="logo-text">MicroStock MetaGen</div>
-<div class="logo-sub">AI Metadata Generator · v33</div>
+<div class="logo-sub">AI Metadata Generator · v34</div>
 </div>
 </div>
 <div class="header-actions">
@@ -547,7 +548,7 @@ const copyToClipboard = (text, msg = 'Copied!') => {
 const platformFields = (r, p) => {
   const kw = getDisplayKw(r, p).join(', ');
   if (p === 'adobe') return { title: r.adobe_title, keywords: kw, category: r.adobe_cat };
-  if (p === 'shutterstock') return { desc: r.ss_desc, keywords: kw, categories: [r.ss_cat, r.ss_cat2].filter(Boolean).join(', ') };
+  if (p === 'shutterstock') return { desc: r.ss_desc, keywords: kw, categories: [r.ss_cat, r.ss_cat2].filter((x, n, a) => x && a.indexOf(x) === n).join(', ') };
   if (p === 'vecteezy') return { title: r.vz_title, desc: r.vz_desc, keywords: kw, category: r.vz_cat };
   if (p === 'magnific') return { title: r.mg_title, keywords: kw, type: r.mg_type };
   if (p === 'pond5') return { title: r.p5_title, desc: r.p5_desc, keywords: kw, category: r.p5_cat };
@@ -758,7 +759,7 @@ document.querySelectorAll('.view-switch-btn').forEach(btn => {
       tableWrap.style.display = 'none';
     } else {
       grid.style.display = 'none';
-      tableWrap.style.display = '';
+      tableWrap.style.display = 'block';
     }
   });
 });
@@ -781,6 +782,19 @@ const hasVisibleContent = (d) => {
     if (notWhite && notBlack) return true;
   }
   return false;
+};
+const thumbCv = document.createElement('canvas');
+const makeThumb = (src) => {
+  try {
+    const sc = 80 / Math.max(src.width, src.height, 1);
+    thumbCv.width = Math.max(1, Math.round(src.width * sc));
+    thumbCv.height = Math.max(1, Math.round(src.height * sc));
+    const tc = thumbCv.getContext('2d');
+    tc.fillStyle = '#FFFFFF';
+    tc.fillRect(0, 0, thumbCv.width, thumbCv.height);
+    tc.drawImage(src, 0, 0, thumbCv.width, thumbCv.height);
+    return thumbCv.toDataURL('image/jpeg', 0.6);
+  } catch (e) { return null; }
 };
 const resizeImg = (file, maxDim = 1024) => new Promise((res, rej) => {
   const isSvg = file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg');
@@ -806,7 +820,7 @@ const resizeImg = (file, maxDim = 1024) => new Promise((res, rej) => {
       try {
         if (!hasVisibleContent(ctx.getImageData(0, 0, w, h).data)) return rej(new Error('Image appears blank'));
       } catch (err) {}
-      res({ data: cv.toDataURL('image/jpeg', 0.85).split(',')[1], mimeType: 'image/jpeg', thumb: cv.toDataURL('image/jpeg', 0.2) });
+      res({ data: cv.toDataURL('image/jpeg', 0.85).split(',')[1], mimeType: 'image/jpeg', thumb: makeThumb(cv) });
     } catch (err) { rej(new Error('Image processing failed')); }
   };
   img.onerror = () => { clearTimeout(to); URL.revokeObjectURL(url); rej(new Error('Image load failed')); };
@@ -867,7 +881,7 @@ const extractVideo = (file) => new Promise((res, rej) => {
               if (hasContent) {
                 const b64 = cv.toDataURL('image/jpeg', 0.8).split(',')[1];
                 frames.push({ data: b64, mimeType: 'image/jpeg' });
-                if (i === 1) thumb = cv.toDataURL('image/jpeg', 0.2);
+                if (i === 1) thumb = makeThumb(cv);
               }
             } catch (err) {}
             resolve(true);
@@ -927,13 +941,9 @@ const addItem = async (targetFile, previewFile) => {
   if (isV) { mx = 500 * 1024 * 1024; lbl = "Video"; }
   else if (isVec || isSvg) { mx = 100 * 1024 * 1024; lbl = "Vector"; }
   if (targetFile.size > mx) return showToast(`${targetFile.name} exceeds ${mx / (1024 * 1024)}MB (${lbl})`, 'error');
-  let finalName = targetFile.name;
+  const finalName = targetFile.name;
   if (appState.queue.find(q => q.filename === finalName)) {
-    const base = finalName.substring(0, finalName.lastIndexOf('.'));
-    const ex = finalName.substring(finalName.lastIndexOf('.'));
-    let i = 1;
-    while (appState.queue.find(q => q.filename === `${base}_${i}${ex}`)) i++;
-    finalName = `${base}_${i}${ex}`;
+    return showToast(`${finalName} sudah ada di queue (dilewati)`, 'info');
   }
   let ft = 'image';
   if (isV) ft = 'video'; else if (isVec) ft = 'vector';
@@ -1226,6 +1236,7 @@ const autoFixCats = (d, isVideo) => {
   d.adobe_cat = fuzzyMatchCat(d.adobe_cat, ADOBE_CATS) || 'Graphic resources';
   d.ss_cat = fuzzyMatchCat(d.ss_cat, ssList) || (isVideo ? 'Nature' : 'Objects');
   d.ss_cat2 = d.ss_cat2 ? fuzzyMatchCat(d.ss_cat2, ssList) : null;
+  if (d.ss_cat2 && d.ss_cat2 === d.ss_cat) d.ss_cat2 = null;
   d.vz_cat = fuzzyMatchCat(d.vz_cat, VZ_CATS) || 'Objects and Colors';
   d.mg_type = fuzzyMatchCat(d.mg_type, MG_TYPES) || 'Vector';
   d.p5_cat = fuzzyMatchCat(d.p5_cat, P5_CATS) || 'other';
@@ -1306,12 +1317,19 @@ const processFile = async (idx) => {
       renderQueue();
       const r = await callGemini(apiKey, model, payload);
       try {
-        const txt = r.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        const cand = r.candidates && r.candidates[0];
+        let txt = ((cand && cand.content && cand.content.parts) || []).filter(x => !x.thought).map(x => x.text || '').join('').trim();
+        if (!txt) {
+          const why = (r.promptFeedback && r.promptFeedback.blockReason) || (cand && cand.finishReason) || 'kosong';
+          throw new Error('Respon AI kosong (' + why + ')');
+        }
+        const a1 = txt.indexOf('{'), a2 = txt.lastIndexOf('}');
+        if (a1 > 0 || (a2 >= 0 && a2 < txt.length - 1)) txt = txt.substring(a1, a2 + 1);
         data = polishData(autoFixCats(JSON.parse(txt), isVideo));
         errs = validate(data, isVideo, targets);
         if (!errs.length) break;
       } catch (pe) {
-        errs = ["Parse fail"];
+        errs = [String(pe.message || '').indexOf('Respon AI kosong') === 0 ? pe.message : 'Parse fail'];
       }
       att++;
     }
@@ -1353,11 +1371,17 @@ const processFile = async (idx) => {
       item.error = err.message || "Unknown error";
     }
   }
+  try { const pc = document.getElementById('processing-canvas'); pc.width = 1; pc.height = 1; } catch (e) {}
   renderQueue();
   updateResultsUI();
 };
 
 let wakeLock = null;
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState === 'visible' && appState.isProcessing && navigator.wakeLock) {
+    try { wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {}
+  }
+});
 document.getElementById('btn-generate').addEventListener('click', async () => {
   if (appState.isProcessing) return;
   appState.isProcessing = true;
@@ -1456,7 +1480,7 @@ const renderCard = (item, platform) => {
       ${cardField(item, platform, 'Category', `<span class="result-tag">${esc(r.adobe_cat || '')} ${catId ? '· ID ' + catId : ''}</span>`, 'category')}
     `;
   } else if (platform === 'shutterstock') {
-    const catStr = [r.ss_cat, r.ss_cat2].filter(Boolean).join(' · ');
+    const catStr = [r.ss_cat, r.ss_cat2].filter((x, n, a) => x && a.indexOf(x) === n).join(' · ');
     bodyHtml = `
       ${cardField(item, platform, 'Description', esc(r.ss_desc || ''), 'desc')}
       ${cardField(item, platform, 'Keywords', esc(kwStr), 'keywords', `<span class="result-count">${kwCount}/${targets.kwCount}</span>`)}
@@ -1508,7 +1532,7 @@ const renderTableRow = (item, platform) => {
       <td><div class="cell-wrap"><span class="cell-text">${esc(String(catId))}</span></div></td>
     </tr>`;
   } else if (platform === 'shutterstock') {
-    const cat = [r.ss_cat, r.ss_cat2].filter(Boolean).join(', ');
+    const cat = [r.ss_cat, r.ss_cat2].filter((x, n, a) => x && a.indexOf(x) === n).join(', ');
     return `<tr>
       <td><div class="cell-wrap"><span class="cell-text cell-filename">${esc(item.filename)}</span></div></td>
       <td><div class="cell-wrap"><span class="cell-text">${esc(r.ss_desc || '')}</span><button class="cell-copy" onclick="copyField('${item.id}','${platform}','desc')">📋</button></div></td>
@@ -1561,9 +1585,52 @@ const scheduleRefresh = () => {
   clearTimeout(refreshTimer);
   refreshTimer = setTimeout(() => { if (appState.queue.some(i => i.status === 'done')) updateResultsUI(); }, 300);
 };
+const RES_KEY = 'mmg_results_v1';
+const persistResults = () => {
+  let list = appState.queue.filter(i => i.status === 'done' && i.result).map(i => {
+    const r = i.result;
+    return {
+      f: i.filename, t: i.type, z: i.size,
+      r: {
+        adobe_title: r.adobe_title, adobe_cat: r.adobe_cat, ss_desc: r.ss_desc, ss_cat: r.ss_cat, ss_cat2: r.ss_cat2,
+        vz_title: r.vz_title, vz_desc: r.vz_desc, vz_cat: r.vz_cat, mg_title: r.mg_title, mg_type: r.mg_type,
+        p5_title: r.p5_title, p5_desc: r.p5_desc, p5_cat: r.p5_cat,
+        has_people: r.has_people, has_brand_or_logo: r.has_brand_or_logo,
+        _cleanKeywords: r._cleanKeywords || r.keywords || [], _releaseTags: r._releaseTags || [], _isVideo: !!r._isVideo
+      }
+    };
+  });
+  while (true) {
+    try {
+      if (!list.length) localStorage.removeItem(RES_KEY);
+      else localStorage.setItem(RES_KEY, JSON.stringify(list));
+      return;
+    } catch (e) {
+      if (list.length <= 1) { try { localStorage.removeItem(RES_KEY); } catch (e2) {} return; }
+      list = list.slice(Math.ceil(list.length / 4));
+    }
+  }
+};
+const restoreResults = () => {
+  let list = [];
+  try { list = JSON.parse(LS.get(RES_KEY) || '[]'); } catch (e) { list = []; }
+  if (!Array.isArray(list)) return;
+  list.forEach(x => {
+    if (!x || !x.f || !x.r) return;
+    const res = x.r;
+    res.keywords = res._cleanKeywords || [];
+    appState.queue.push({
+      id: genId(), filename: x.f, targetFile: null, previewFile: null,
+      type: x.t || 'image', status: 'done', progress: 100, size: x.z || 0,
+      result: res, error: null, thumb: null, validationErrors: [],
+      warnings: (res._releaseTags || []).map(t => `⚠️ ${t.replace(/_/g, ' ').replace(' needed', '')}`)
+    });
+  });
+};
 const updateResultsUI = () => {
   const done = appState.queue.filter(i => i.status === 'done' && i.result);
   done.forEach(i => polishData(i.result));
+  persistResults();
   PLATFORMS.forEach(p => {
     const info = document.getElementById(`info-${p}`);
     if (info) info.textContent = `${done.length} hasil`;
@@ -1642,7 +1709,7 @@ window.exportCSV = (platform) => {
   } else if (platform === 'shutterstock') {
     csv = 'Filename,Description,Keywords,Categories,Illustration,Mature content,Editorial\n';
     done.forEach(i => {
-      const c = [i.result.ss_cat, i.result.ss_cat2].filter(Boolean).join(',');
+      const c = [i.result.ss_cat, i.result.ss_cat2].filter((x, n, a) => x && a.indexOf(x) === n).join(',');
       const isVec = i.filename.toLowerCase().match(/\.(eps|ai|svg)$/) ? 'yes' : 'no';
       csv += [i.filename, i.result.ss_desc, getKw(i.result, 'shutterstock', targets), c, isVec, 'no', ed ? 'yes' : 'no'].map(v => eC(v)).join(',') + '\n';
     });
@@ -1675,6 +1742,7 @@ window.exportCSV = (platform) => {
 };
 
 loadSettings();
+restoreResults();
 renderQueue();
 updateResultsUI();
 updateGenerateButton();
