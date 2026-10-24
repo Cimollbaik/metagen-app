@@ -236,7 +236,7 @@ button,.toggle-row,.card-header,.tab-platform,.dropzone{-webkit-tap-highlight-co
 <div class="logo-mark">M</div>
 <div>
 <div class="logo-text">MicroStock MetaGen</div>
-<div class="logo-sub">AI Metadata Generator · v35</div>
+<div class="logo-sub">AI Metadata Generator · v36</div>
 </div>
 </div>
 <div class="header-actions">
@@ -862,17 +862,33 @@ const hexToName = (h) => {
   if (base === 'brown') return l < 0.25 ? 'dark brown' : 'brown';
   return (l < 0.3 ? 'dark ' : l > 0.8 ? 'pale ' : '') + base;
 };
+const NOISE_NOTE_RE = /\b(?:anggaran|azimut|azimuth|elevasi|elevation|dolly|derajat|pemanasan|gpu|matriks|seed|helper|periodik|satuan|aman diubah|konstanta|constants?|fungsi utama|setup|update per frame|draw|state)\b/i;
 const summarizeCode = (src) => {
   src = String(src || '');
   const parts = [];
   const is3d = /THREE\.|three(?:\.min)?\.js|WebGLRenderer|PerspectiveCamera/.test(src);
   parts.push('Engine: ' + (is3d ? '3D scene (this is a 3D render, style words: "3d render")' : '2D canvas animation (flat 2D motion graphics, NOT 3D)'));
-  // komentar
+  // header di awal file (paling bisa dipercaya)
+  const hdr = [];
+  for (const ln of src.split(/\r?\n/)) {
+    const t = ln.trim();
+    if (!t) continue;
+    if (!/^(\/\/|\/\*|\*)/.test(t)) break;
+    const c = t.replace(/^(\/\/+|\/\*+|\*+\/?)\s*/, '').replace(/[=\-*\/]{4,}/g, '').replace(/\*\/\s*$/, '').replace(/\s*[—-]?\s*Time Motion Studio/ig, '').trim();
+    if (/konstanta|constants?/i.test(c)) break;
+    if (c.length >= 3 && !/\.m?js$/i.test(c)) hdr.push(c);
+    if (hdr.length >= 10) break;
+  }
+  const hdrSet = new Set(hdr);
+  if (hdr.length) parts.push('HEADER written by the author (most reliable; "Aksi hero" or "Hero action" = the main motion):\n- ' + hdr.join('\n- ').slice(0, 1200));
+  // komentar lain
   const notes = [];
   const pushNote = (t) => {
     t = String(t).replace(/^[\s*\/=\-#]+|[\s*\/=\-#]+$/g, '').trim();
-    if (t.length < 4 || notes.includes(t)) return;
-    if (/[;{}]\s*$/.test(t) || /\s=\s|=>|\(\s*\)/.test(t)) return; // kode yang dikomentari
+    if (t.length < 4 || notes.includes(t) || hdrSet.has(t)) return;
+    if (/[;{}]\s*$/.test(t) || /\s=\s|=>|\(\s*\)/.test(t)) return;
+    if (/time motion studio/i.test(t) || /\.m?js$/i.test(t) || NOISE_NOTE_RE.test(t)) return;
+    if (t === t.toUpperCase() && /[A-Z]{3}/.test(t)) return;
     notes.push(t);
   };
   const noBlock = src.replace(/\/\*[\s\S]*?\*\//g, (m) => { m.split(/\r?\n/).forEach(pushNote); return ''; });
@@ -881,20 +897,29 @@ const summarizeCode = (src) => {
     if (t.indexOf('//') === 0) pushNote(t);
     else { const m = ln.match(/(?:^|[\s;,{(])\/\/\s+(\S.{3,})$/); if (m) pushNote(m[1]); }
   });
-  if (notes.length) parts.push('Notes from comments:\n- ' + notes.join('\n- ').slice(0, 2600));
-  // konstanta
+  if (notes.length) parts.push('Notes from comments (parts and motion):\n- ' + notes.join('\n- ').slice(0, 2200));
+  // konstanta penting + warna latar
+  const hexOf = {};
+  for (const x of src.matchAll(/(?:const|let|var)\s+([A-Za-z_]\w*)\s*=\s*(?:0x|#)([0-9a-fA-F]{6})\b/g)) hexOf[x[1]] = x[2];
   const consts = [];
   const cre = /(?:const|let|var)\s+([A-Z][A-Z0-9_]{2,})\s*=\s*([^;\n]{1,60})/g;
   let m;
-  while ((m = cre.exec(src)) && consts.length < 20) {
+  while ((m = cre.exec(src)) && consts.length < 14) {
+    if (!/(LOOP|DURASI|DURATION|HERO_|WARNA|COLOR|JUMLAH|COUNT)/.test(m[1])) continue;
     if (/function|=>|\bnew\b/.test(m[2])) continue;
-    consts.push(m[1] + '=' + m[2].trim().replace(/,$/, ''));
+    consts.push(m[1] + '=' + m[2].trim().replace(/,$/, '').replace(/(?:0x|#)([0-9a-fA-F]{6})\b/, (_, h) => hexToName(h)));
   }
   if (consts.length) parts.push('Settings: ' + consts.join('; '));
   const lm = src.match(/\b(?:LOOP|DURASI|DURATION)[A-Z_]*\s*=\s*(\d+(?:\.\d+)?)/);
   if (lm) parts.push('Loop length: ' + lm[1] + ' seconds, seamless loop');
   else if (/loop/i.test(src)) parts.push('Loop: the code mentions looping (seamless loop)');
-  // warna
+  const bg = [];
+  Object.keys(hexOf).forEach((k) => { if (/LATAR|BACKGROUND|(^|_)BG($|_)/i.test(k)) bg.push(hexToName(hexOf[k])); });
+  const bd = src.match(/background\s*=\s*new\s+\w+\.Color\(\s*(?:0x|#)([0-9a-fA-F]{6})/);
+  if (bd) bg.push(hexToName(bd[1]));
+  const bgU = bg.filter((n, i) => bg.indexOf(n) === i);
+  if (bgU.length) parts.push('Background colors: ' + bgU.join(', ') + (/vinyet|vignette/i.test(src) ? ' (soft vignette)' : '') + '. Use ONE keyword like "<main color> background" if the image agrees.');
+  // warna dominan
   const cnt = {};
   const addHex = (h) => { h = h.toLowerCase(); if (h.length === 3) h = h.split('').map((c) => c + c).join(''); cnt[h] = (cnt[h] || 0) + 1; };
   for (const x of src.matchAll(/#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b/g)) addHex(x[1]);
@@ -905,14 +930,14 @@ const summarizeCode = (src) => {
   const names = [];
   Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 12).forEach(([h]) => { const n = hexToName(h); if (!names.includes(n)) names.push(n); });
   if (names.length) parts.push('Palette (approximate color names, most used first): ' + names.join(', '));
-  // nama bagian di kode
+  // nama bagian
   const words = {};
   for (const x of src.matchAll(/\b(?:function\s+|(?:const|let|var)\s+)([a-zA-Z_$][\w$]*)/g)) {
     x[1].replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/[_$]+/g, ' ').toLowerCase().split(/\s+/).forEach((w) => {
       if (w.length >= 4 && /^[a-z]+$/.test(w) && !CODE_GENERIC.has(w)) words[w] = (words[w] || 0) + 1;
     });
   }
-  const wl = Object.entries(words).sort((a, b) => b[1] - a[1]).slice(0, 30).map((e) => e[0]);
+  const wl = Object.entries(words).sort((a, b) => b[1] - a[1]).slice(0, 26).map((e) => e[0]);
   if (wl.length) parts.push('Names of parts used in the code (may be noisy, use only what fits the image): ' + wl.join(', '));
   let out = parts.join('\n');
   if (out.length < 250) out += '\nCode excerpt: ' + src.replace(/\s+/g, ' ').slice(0, 1200);
@@ -1088,9 +1113,13 @@ const addItem = async (targetFile, previewFile, codeFile) => {
   else if (isVec || isSvg) { mx = 100 * 1024 * 1024; lbl = "Vector"; }
   if (targetFile.size > mx) return showToast(`${targetFile.name} exceeds ${mx / (1024 * 1024)}MB (${lbl})`, 'error');
   const finalName = targetFile.name;
-  if (appState.queue.find(q => q.filename === finalName)) {
+  const dup = appState.queue.find(q => q.filename === finalName);
+  if (dup && !dup.targetFile && dup.status === 'done') {
+    appState.queue.splice(appState.queue.indexOf(dup), 1);
+  } else if (dup) {
     return showToast(`${finalName} sudah ada di queue (dilewati)`, 'info');
   }
+  if (/^\s|\s$/.test(finalName)) showToast('Nama file diawali/diakhiri spasi - sebaiknya di-rename dulu agar cocok saat upload', 'error');
   let ft = 'image';
   if (isV) ft = 'video'; else if (isVec) ft = 'vector';
   appState.queue.push({
@@ -1203,7 +1232,7 @@ function buildPrompt(isVideo, titleLen, descLen, kwCount, codeHint, noImage) {
   const minKw = Math.max(15, Math.round(kwCount * 0.7));
   let hintBlock = '';
   if (codeHint) {
-    hintBlock = '\nSOURCE CODE HINT: this asset is an animation generated from code. The notes below were taken from that code and describe what it shows (objects, colors, style, action, loop). Use them to identify objects, colors and action. The "Engine" line tells whether it is 3D or flat 2D: follow it for style words (3D: "3d render"; 2D: flat 2d animation or motion graphics; never "vector"). "Palette" gives approximate colors. "Names of parts" may be noisy: use only names that match what is visible. If the notes conflict with the image(s), trust the image(s). NEVER mention code, programming, software, studios or tool names in any field. If the notes say it is a seamless loop, add the keywords "seamless loop" and "looping animation".'
+    hintBlock = '\nSOURCE CODE HINT: this asset is an animation generated from code. The notes below were taken from that code and describe what it shows (objects, colors, style, action, loop). Use them to identify objects, colors and action. The "Engine" line tells whether it is 3D or flat 2D: follow it for style words (3D: "3d render"; 2D: flat 2d animation or motion graphics; never "vector"). "Palette" gives approximate colors. "Names of parts" may be noisy: use only names that match what is visible. If the notes conflict with the image(s), trust the image(s). NEVER mention code, programming, software, studios or tool names in any field. If the notes say it is a seamless loop, add the keywords "seamless loop" and "looping animation". The HEADER (if present) is the most reliable: its "Aksi hero" / "Hero action" line is the main motion. Notes may be in Indonesian: translate precisely (lonceng=bell, lilin=candle, bintang=star, kaus kaki=stocking, rak perapian=fireplace mantel, kado/hadiah=gift box, tongkat permen=candy cane, kue jahe=gingerbread, pita=ribbon, simpul=knot, kereta=train, loko=locomotive, gerbong=freight car, rel=rail track, salju=snow, pohon=tree, asap=smoke, pintu=door, atap=roof, dinding=wall, jendela=window, permen=candy, karangan bunga=wreath, api=flame, cerobong=chimney, roda=wheel, tiang lampu=lamppost, kilau=sparkle, ranting pinus=pine sprig, piring=plate, meja=table). Only use objects that are really visible.'
       + (noImage ? '\nNOTE: no image could be attached, so rely ONLY on these notes. Set has_people false unless the notes clearly say humans appear.' : '')
       + '\n---\n' + codeHint + '\n---\n';
   }
@@ -1229,10 +1258,10 @@ keywords: up to ${kwCount} keywords (at least ${minKw}), ordered by importance. 
 - STRICT ORDER of the keyword list:
   1) POSITION 1-10: core subject + asset type (what a buyer would type first)
   2) POSITION 11-20: other clearly visible elements and details
-  3) POSITION 21+: concepts, emotions, uses (include 5+ abstract concepts)
+  3) POSITION 21+: concepts and uses a buyer would really search (3-5, for example "holiday greeting", "gift giving", "countdown"). AVOID vague filler like magic, tradition, joy, spirit
   4) then dominant colors
   5) LAST: technical tags (orientation horizontal/vertical/square, "no people" when valid, background type)
-- Write the background as "white background" or "plain background" (never "isolated background").
+- Background: exactly ONE keyword written as "<main color> background" using the real dominant background color (for example "dark green background" or "dark red background"; "white background" only if it really is white). NEVER write "solid", "studio" or "isolated" background.
 - FORBIDDEN: beautiful, amazing, stunning, nice, lovely, gorgeous, wonderful, best, great
 - Do NOT repeat same word more than 3 times
 - Include dominant COLOR keywords (placed after the concepts, see STRICT ORDER)
@@ -1240,6 +1269,8 @@ keywords: up to ${kwCount} keywords (at least ${minKw}), ordered by importance. 
 - Lowercase, no special chars except hyphen
 - Each keyword is 1-3 words. NEVER glue several ideas into one keyword (wrong: "no people horizontal background" or "christmas 3d render animation"; right: "no people", "horizontal", "3d render").
 - If the asset is a 3D render, include the keyword "3d render" within the first 5 keywords.
+${isVideo ? '- VIDEO ACTION: put the main motion in the title (pattern: subject + action + "in 3D render", example "Gingerbread house assembling with glowing windows in 3D render") and add 2-3 action keywords (assembling, wrapping, filling, opening, falling, carrying, rotating). The frames show the start, middle and end of the motion. Titles always END with "in 3D render", never "3D render animation".' : ''}
+- Keywords are ALL lowercase (also "christmas eve").
 
 adobe_title: max ${titleLen} chars, NO commas.
 ss_desc: ~${descLen} chars. NO commas.
@@ -1317,6 +1348,7 @@ const callGemini = async (apiKey, model, payload, maxRetries = 5) => {
           const secs = hh * 3600 + mi * 60 + Math.round(parseFloat(m[3] || '0'));
           const at = new Date(Date.now() + secs * 1000);
           const pad = (n) => String(n).padStart(2, '0');
+          q.secs = secs;
           q.wait = 'pukul ' + pad(at.getHours()) + '.' + pad(at.getMinutes()) + ' (' + (hh ? hh + ' jam ' : '') + (mi ? mi + ' menit ' : '') + (!hh && !mi ? secs + ' detik ' : '') + 'lagi)';
         }
         throw q;
@@ -1423,6 +1455,8 @@ const fixTitle = (t) => {
   let x = dedupe3d(fixTitle0(t));
   if (!x) return x;
   x = String(x).replace(/\b3d\b/gi, '3D').replace(/\sin 3D$/, ' in 3D render');
+  x = x.replace(/\s(?:in\s)?3D render animation$/i, ' animation in 3D render');
+  if (/^3D\s/.test(x) && (x.match(/3D/g) || []).length === 1 && !/^3D\s(?:printer|printing|glasses|scanner|scanning|movie|cinema|tv)\b/i.test(x)) x = capFirst(x.replace(/^3D\s+/, '')) + ' in 3D render';
   if (/\s3D render$/.test(x) && !/\sin (?:low poly )?3D render$/i.test(x)) x = x.replace(/\s3D render$/, ' in 3D render');
   return x;
 };
@@ -1434,6 +1468,11 @@ const polishData = (d) => {
   }
   return d;
 };
+appState.exhausted = {};
+const modelList = () => Array.from(document.getElementById('model-select').options).map(o => o.value);
+const modelOk = (m) => !(appState.exhausted[m] && Date.now() < appState.exhausted[m]);
+const pickModel = () => { const sel = document.getElementById('model-select').value; return modelOk(sel) ? sel : (modelList().find(modelOk) || sel); };
+const nextModel = (cur) => modelList().find(m => m !== cur && modelOk(m));
 const processFile = async (idx) => {
   const item = appState.queue[idx];
   if (!item) return;
@@ -1444,7 +1483,8 @@ const processFile = async (idx) => {
   const isVideo = item.type === 'video';
   const targets = getTargetSettings();
   const apiKey = document.getElementById('api-key').value.trim();
-  const model = document.getElementById('model-select').value;
+  const model = pickModel();
+  let retry = false;
   try {
     let parts = [];
     let codeHint = '';
@@ -1532,6 +1572,10 @@ const processFile = async (idx) => {
       item.error = "Invalid API Key";
       appState.isProcessing = false;
       showToast('Invalid API Key', 'error');
+    } else if (err.message === 'QUOTA_DAILY' && (appState.exhausted[model] = Date.now() + (err.secs ? err.secs * 1000 : 6 * 3600 * 1000), nextModel(model))) {
+      item.status = 'waiting'; item.progress = 0; item.error = null;
+      retry = true;
+      showToast('Kuota ' + model + ' habis, lanjut pakai ' + nextModel(model), 'info');
     } else if (err.message === 'QUOTA_DAILY') {
       item.error = 'Kuota harian model ini habis' + (err.wait ? ', reset sekitar ' + err.wait : '') + '. Ganti model atau tunggu reset, lalu Generate lagi.';
       appState.isProcessing = false;
@@ -1543,6 +1587,7 @@ const processFile = async (idx) => {
   try { const pc = document.getElementById('processing-canvas'); pc.width = 1; pc.height = 1; } catch (e) {}
   renderQueue();
   updateResultsUI();
+  return retry ? 'retry' : undefined;
 };
 
 let wakeLock = null;
@@ -1561,7 +1606,7 @@ document.getElementById('btn-generate').addEventListener('click', async () => {
     const next = appState.queue.find(q => ['waiting', 'error'].includes(q.status) && !tried.has(q.id));
     if (!next) break;
     tried.add(next.id);
-    await processFile(appState.queue.indexOf(next));
+    if ((await processFile(appState.queue.indexOf(next))) === 'retry') tried.delete(next.id);
   }
   const stopped = !appState.isProcessing;
   appState.isProcessing = false;
@@ -1587,12 +1632,12 @@ const cardField = (item, platform, label, valueHtml, field, extraHtml = '') => `
 
 // Get keyword untuk display per platform — mirror apa yang akan di-export
 const PEOPLE_WORDS = new Set(['people','person','man','men','woman','women','boy','girl','child','children','kid','kids','student','students','teacher','courier','rider','driver','gardener','worker','workers','character','characters','female','male','human','humans','freelancer','nomad','volunteer','customer','family','couple','therapist','patient']);
-const JUNK_KW = new Set(['digital','graphic','graphics','element','object','style','art','clean','render','rendering','rendered','symbol']);
+const JUNK_KW = new Set(['digital','graphic','graphics','element','object','style','art','clean','render','rendering','rendered','symbol','magic','tradition','traditions']);
 const NO_PEOPLE_RE = /^no (people|person|humans?)$/i;
 const kwWords = (x) => String(x).toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
 const TECH_KW = new Set(['no people','horizontal','vertical','square','isolated','copy space','copyspace','studio shot','indoor','indoors','outdoor','outdoors','landscape orientation','portrait orientation']);
 const COLOR_WORDS = new Set(['red','green','blue','yellow','orange','brown','beige','white','black','purple','pink','gray','grey','gold','golden','silver','cream','teal','turquoise','navy','maroon','violet','tan','ivory']);
-const KW_FIX = { 'isolated background': 'isolated' };
+const KW_FIX = { 'isolated background': 'isolated', 'solid background': 'plain background', 'studio background': 'plain background', 'simple background': 'plain background', 'candlestick': 'candle', 'candlesticks': 'candle', 'fireplace shelf': 'fireplace mantel' };
 const BAD_KW_RE = /\b(javascript|three\.?js|threejs|webgl|source code|coding|programming)\b/i;
 const stemWord = (w) => {
   if (w.length <= 3) return w;
@@ -1615,7 +1660,7 @@ const isColorKw = (x) => {
 const orderKw = (list) => {
   const seen = new Set(), main = [], colors = [], tech = [];
   for (const raw of list) {
-    let x = String(raw).trim();
+    let x = String(raw).trim().toLowerCase();
     if (!x) continue;
     if (KW_FIX[x.toLowerCase()]) x = KW_FIX[x.toLowerCase()];
     if (BAD_KW_RE.test(x)) continue;
@@ -1633,6 +1678,7 @@ const cleanKw = (list, r, platform) => {
   const hasPeople = r.has_people === true || [r.adobe_title || ''].concat(base.filter(x => !NO_PEOPLE_RE.test(String(x).trim())).slice(0, 15)).some(x => kwWords(x).some(w => PEOPLE_WORDS.has(w)));
   let out = base.filter(x => {
     if (JUNK_KW.has(String(x).trim().toLowerCase())) return false;
+    if (r._isVideo && /^(indoors?|outdoors?)$/i.test(String(x).trim())) return false;
     if (r._isVideo && kwWords(x).includes('vector')) return false;
     if (hasPeople && NO_PEOPLE_RE.test(String(x).trim())) return false;
     return true;
