@@ -233,7 +233,7 @@ button,.toggle-row,.card-header,.tab-platform,.dropzone{-webkit-tap-highlight-co
 <div class="logo-mark">M</div>
 <div>
 <div class="logo-text">MicroStock MetaGen</div>
-<div class="logo-sub">AI Metadata Generator · v29</div>
+<div class="logo-sub">AI Metadata Generator · v30</div>
 </div>
 </div>
 <div class="header-actions">
@@ -1057,6 +1057,9 @@ STEP 2 — GENERATE METADATA:
 Rules:
 - English only. No trademarks, no real names.
 - Title MUST NOT contain commas. Description MUST NOT contain commas.
+- ALL titles: start with the main SUBJECT, for example "Red Christmas stocking hanging on a shelf with glowing star in 3D render". NEVER start a title with "3D render of", "Vector illustration of", "Low poly" or any style word. Put the style words at the END.
+- Keyword "no people" ONLY if there is no human AND no human-like character (cartoon people count as people).
+- Use the keywords "vector" or "illustration" ONLY for real vector artwork. ${isVideo ? 'This is a VIDEO / 3D render: NEVER use the keyword "vector".' : ''}
 - If identifiable faces/children/brands visible, add "_model_release_needed" or "_property_release_needed" at end of keywords.
 
 keywords: exactly ${kwCount} keywords (min ${minKw}), ordered by importance.
@@ -1078,7 +1081,7 @@ p5_title: 40-80 chars (+ HD/4K if video). NO commas.
 p5_desc: detailed scene description. NO commas.
 
 Vecteezy keyword extras:
-- "no people" if no humans
+- "no people" only if no humans and no human-like characters
 - orientation
 - background type
 
@@ -1136,6 +1139,12 @@ const callGemini = async (apiKey, model, payload, maxRetries = 5) => {
       a++;
       const st = err.status || 0;
       if (st === 400 && err.message.includes('API key not valid')) throw new Error("INVALID_API_KEY");
+      if (st === 429 && /per day|perday|daily/i.test(err.message)) {
+        const m = err.message.match(/retry in ([\dhms.]+)/i);
+        const q = new Error('QUOTA_DAILY');
+        q.wait = m ? m[1].replace(/\.\d+s$/, 's') : '';
+        throw q;
+      }
       if ((st === 0 || [429, 500, 502, 503, 504].includes(st)) && a < maxRetries) await new Promise(r => setTimeout(r, Math.pow(2, a) * 2000));
       else throw err;
     }
@@ -1212,6 +1221,18 @@ const autoFixCats = (d, isVideo) => {
   return d;
 };
 
+const capFirst = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+const fixTitle = (t) => {
+  if (!t) return t;
+  const m = String(t).trim().match(/^((?:low[- ]poly\s+)?(?:3d|vector|flat design|isometric)(?:\s+(?:render|illustration))?)\s+of\s+(?:an?\s+|the\s+)?(.+)$/i);
+  if (!m) return t;
+  const style = m[1].replace(/3d/i, '3D').replace(/^low[- ]poly/i, 'low poly');
+  return capFirst(m[2]) + ' in ' + style;
+};
+const polishData = (d) => {
+  ['adobe_title', 'mg_title', 'p5_title'].forEach(k => { if (d[k]) d[k] = fixTitle(d[k]); });
+  return d;
+};
 const processFile = async (idx) => {
   const item = appState.queue[idx];
   if (!item) return;
@@ -1253,7 +1274,7 @@ const processFile = async (idx) => {
       const r = await callGemini(apiKey, model, payload);
       try {
         const txt = r.candidates?.[0]?.content?.parts?.[0]?.text || '';
-        data = autoFixCats(JSON.parse(txt), isVideo);
+        data = polishData(autoFixCats(JSON.parse(txt), isVideo));
         errs = validate(data, isVideo, targets);
         if (!errs.length) break;
       } catch (pe) {
@@ -1291,6 +1312,10 @@ const processFile = async (idx) => {
       item.error = "Invalid API Key";
       appState.isProcessing = false;
       showToast('Invalid API Key', 'error');
+    } else if (err.message === 'QUOTA_DAILY') {
+      item.error = 'Kuota harian model ini habis' + (err.wait ? ' (reset sekitar ' + err.wait + ')' : '') + '. Ganti model atau tunggu reset, lalu Generate lagi.';
+      appState.isProcessing = false;
+      showToast('Kuota harian habis - proses dihentikan', 'error');
     } else {
       item.error = err.message || "Unknown error";
     }
@@ -1335,9 +1360,32 @@ const cardField = (item, platform, label, valueHtml, field, extraHtml = '') => `
 </div>`;
 
 // Get keyword untuk display per platform — mirror apa yang akan di-export
+const PEOPLE_WORDS = new Set(['people','person','man','men','woman','women','boy','girl','child','children','kid','kids','student','students','teacher','courier','rider','driver','gardener','worker','workers','character','characters','female','male','human','humans','freelancer','nomad','volunteer','customer','family','couple','therapist','patient']);
+const NO_PEOPLE_RE = /^no (people|person|humans?)$/i;
+const kwWords = (x) => String(x).toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+const cleanKw = (list, r, platform) => {
+  const base = list.filter(x => !isReleaseTag(x));
+  const hasPeople = r.has_people === true || [r.adobe_title || ''].concat(base.filter(x => !NO_PEOPLE_RE.test(String(x).trim()))).some(x => kwWords(x).some(w => PEOPLE_WORDS.has(w)));
+  let out = base.filter(x => {
+    if (r._isVideo && kwWords(x).includes('vector')) return false;
+    if (hasPeople && NO_PEOPLE_RE.test(String(x).trim())) return false;
+    return true;
+  });
+  if (['adobe', 'pond5', 'magnific'].includes(platform)) {
+    const cnt = {}, kept = [];
+    for (const x of out) {
+      const w = kwWords(x).filter(t => !KW_STOP.has(t));
+      if (w.length > 1 && w.some(t => (cnt[t] || 0) >= 4)) continue;
+      w.forEach(t => { cnt[t] = (cnt[t] || 0) + 1; });
+      kept.push(x);
+    }
+    out = kept;
+  }
+  return out;
+};
 const getDisplayKw = (r, platform, targets) => {
   const maxKw = Math.min((targets || getTargetSettings()).kwCount, platform === 'adobe' ? 49 : 50);
-  let k = kwForPlatform((r._cleanKeywords || r.keywords || []).filter(x => !isReleaseTag(x)), platform, r);
+  let k = kwForPlatform(cleanKw(r._cleanKeywords || r.keywords || [], r, platform), platform, r);
   const ai = document.getElementById('toggle-ai').checked;
   if (platform === 'magnific' && ai) {
     k = k.filter(x => {
