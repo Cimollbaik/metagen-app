@@ -19,7 +19,7 @@
 --radius:10px;--radius-lg:14px;--shadow-lg:0 20px 48px rgba(0,0,0,0.5);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:16px;font-size:14px;-webkit-font-smoothing:antialiased}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;min-height:100dvh;padding:16px;font-size:14px;-webkit-font-smoothing:antialiased}
 .app{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
 .header{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:12px}
 .logo{display:flex;align-items:center;gap:12px}
@@ -47,7 +47,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .input,.textarea,.select{width:100%;padding:10px 14px;border-radius:var(--radius);border:1px solid var(--border-hover);background:var(--bg-input);font-family:inherit;font-size:13px;color:var(--text);outline:none;transition:all 0.2s}
 .input:focus,.textarea:focus,.select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(29,185,84,0.12)}
 .textarea{resize:vertical;min-height:60px}
-.select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.select{cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
 .input-group{display:flex;gap:8px}
 .input-group .input{flex:1}
 .btn-test{padding:10px 16px;background:var(--green-soft);color:var(--green);border:1px solid var(--green-border);border-radius:var(--radius);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;white-space:nowrap}
@@ -207,6 +207,22 @@ body{padding:12px}
 .results-grid{grid-template-columns:1fr;padding:12px}
 .tabs-header{padding:6px 8px}
 }
+html{-webkit-text-size-adjust:100%}
+button,.toggle-row,.card-header,.tab-platform,.dropzone{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.card-header,.toggle-row{-webkit-user-select:none}
+.input,.textarea,.select{font-size:16px}
+#api-key{-webkit-text-security:disc}
+.slider-input{height:6px}
+.slider-input::-webkit-slider-thumb{width:28px;height:28px}
+.toast{bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+@media (hover:none){.dropzone:hover{transform:none}}
+@media (pointer:coarse){
+.btn-icon,.btn-export,.btn-test,.view-switch-btn,.copy-all-btn,.tab-platform{min-height:44px}
+.result-copy,.cell-copy{min-height:40px;min-width:48px;padding:6px 12px;font-size:12px}
+.queue-delete{width:44px;height:44px}
+.result-label,.slider-hint,.queue-meta,.field-label-hint{font-size:11.5px}
+.field-label{font-size:12px}
+}
 </style>
 </head>
 <body>
@@ -217,7 +233,7 @@ body{padding:12px}
 <div class="logo-mark">M</div>
 <div>
 <div class="logo-text">MicroStock MetaGen</div>
-<div class="logo-sub">AI Metadata Generator · v28</div>
+<div class="logo-sub">AI Metadata Generator · v29</div>
 </div>
 </div>
 <div class="header-actions">
@@ -241,7 +257,7 @@ body{padding:12px}
 <div class="field">
 <label class="field-label">Gemini API Key</label>
 <div class="input-group">
-<input type="password" class="input" id="api-key" placeholder="AIzaSy...">
+<input type="text" class="input" id="api-key" placeholder="AIzaSy..." autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
 <button class="btn-test" id="btn-test-key">Test</button>
 </div>
 </div>
@@ -250,8 +266,8 @@ body{padding:12px}
 <label class="field-label">AI Model</label>
 <select class="select" id="model-select">
 <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite</option>
-<option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</option>
-<option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+<option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite</option>
+<option value="gemini-3.5-flash">Gemini 3.5 Flash</option>
 </select>
 </div>
 
@@ -488,13 +504,19 @@ Queue: <strong id="queue-count">0</strong> file · Est: <strong id="cost-estimat
 </div>
 
 <script>
+const LS = {
+  get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} }
+};
+let toastTimer = null;
 const showToast = (msg, type = 'info') => {
   const t = document.getElementById('toast');
   document.getElementById('toast-message').textContent = msg;
   document.getElementById('toast-icon').textContent = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
   t.classList.toggle('error', type === 'error');
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
 };
 
 window.toggleSettings = () => {
@@ -504,66 +526,64 @@ window.toggleSettings = () => {
 const esc = (u) => (u || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 
 const copyToClipboard = (text, msg = 'Copied!') => {
-  const ta = document.createElement('textarea');
-  ta.value = text;
-  document.body.appendChild(ta);
-  ta.select();
-  try {
-    document.execCommand('copy');
-    showToast(msg, 'success');
-  } catch (e) {
-    showToast('Copy failed', 'error');
-  }
-  document.body.removeChild(ta);
+  const ok = () => showToast(msg, 'success');
+  const legacy = () => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;font-size:16px';
+    document.body.appendChild(ta);
+    ta.focus({ preventScroll: true });
+    ta.setSelectionRange(0, text.length);
+    let good = false;
+    try { good = document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+    if (good) ok(); else showToast('Copy gagal - coba lagi', 'error');
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, legacy);
+  else legacy();
 };
 
-window.copyAllFields = (filename) => {
-  const item = appState.queue.find(q => q.filename === filename && q.result);
+const platformFields = (r, p) => {
+  const kw = getDisplayKw(r, p).join(', ');
+  if (p === 'adobe') return { title: r.adobe_title, keywords: kw, category: r.adobe_cat };
+  if (p === 'shutterstock') return { desc: r.ss_desc, keywords: kw, categories: [r.ss_cat, r.ss_cat2].filter(Boolean).join(', ') };
+  if (p === 'vecteezy') return { title: r.vz_title, desc: r.vz_desc, keywords: kw, category: r.vz_cat };
+  if (p === 'magnific') return { title: r.mg_title, keywords: kw, type: r.mg_type };
+  if (p === 'pond5') return { title: r.p5_title, desc: r.p5_desc, keywords: kw, category: r.p5_cat };
+  return {};
+};
+
+window.copyAllFields = (id, platform) => {
+  const item = appState.queue.find(q => q.id === id && q.result);
   if (!item) return;
-  const r = item.result;
-  const text = [
-    `Filename: ${item.filename}`,
-    ``,
-    `Title: ${r.adobe_title || ''}`,
-    ``,
-    `Description: ${r.ss_desc || ''}`,
-    ``,
-    `Keywords: ${(r._cleanKeywords || r.keywords || []).join(', ')}`,
-    ``,
-    `Category: ${r.adobe_cat || ''}`
-  ].join('\n');
+  const f = platformFields(item.result, platform);
+  const text = ['Filename: ' + item.filename].concat(Object.keys(f).map(k => k.charAt(0).toUpperCase() + k.slice(1) + ': ' + (f[k] || ''))).join('\n\n');
   copyToClipboard(text, 'All fields copied!');
 };
 
-window.copyField = (filename, field) => {
-  const item = appState.queue.find(q => q.filename === filename && q.result);
+window.copyField = (id, platform, field) => {
+  const item = appState.queue.find(q => q.id === id && q.result);
   if (!item) return;
-  let value = '';
-  const r = item.result;
-  if (field === 'title') value = r.adobe_title || r.vz_title || r.mg_title || r.p5_title || '';
-  else if (field === 'desc') value = r.ss_desc || r.vz_desc || r.p5_desc || '';
-  else if (field === 'keywords') value = (r._cleanKeywords || r.keywords || []).join(', ');
-  else if (field === 'category') value = r.adobe_cat || r.vz_cat || r.p5_cat || '';
-  else if (field === 'categories') value = [r.ss_cat, r.ss_cat2].filter(Boolean).join(', ');
-  else if (field === 'type') value = r.mg_type || '';
-  copyToClipboard(value, 'Copied!');
+  copyToClipboard(String(platformFields(item.result, platform)[field] || ''), 'Copied!');
 };
 
 const loadSettings = () => {
-  document.getElementById('api-key').value = localStorage.getItem('mmg_api_key') || '';
-  document.getElementById('model-select').value = localStorage.getItem('mmg_model') || 'gemini-3.1-flash-lite';
-  document.getElementById('global-context').value = localStorage.getItem('mmg_context') || '';
-  if (localStorage.getItem('mmg_flags_v28') !== '1') {
-    localStorage.setItem('mmg_ai', 'true');
-    localStorage.setItem('mmg_flags_v28', '1');
+  document.getElementById('api-key').value = LS.get('mmg_api_key') || '';
+  document.getElementById('model-select').value = LS.get('mmg_model') || 'gemini-3.1-flash-lite';
+  if (!document.getElementById('model-select').value) document.getElementById('model-select').value = 'gemini-3.1-flash-lite';
+  document.getElementById('global-context').value = LS.get('mmg_context') || '';
+  if (LS.get('mmg_flags_v28') !== '1') {
+    LS.set('mmg_ai', 'true');
+    LS.set('mmg_flags_v28', '1');
   }
-  document.getElementById('toggle-ai').checked = localStorage.getItem('mmg_ai') === 'true';
-  document.getElementById('toggle-editorial').checked = localStorage.getItem('mmg_editorial') === 'true';
-  document.getElementById('ai-model-name').value = localStorage.getItem('mmg_ai_model_name') || '';
-  document.getElementById('ai-prompt-text').value = localStorage.getItem('mmg_ai_prompt_text') || '';
-  document.getElementById('title-length').value = localStorage.getItem('mmg_title_len') || '70';
-  document.getElementById('desc-length').value = localStorage.getItem('mmg_desc_len') || '150';
-  document.getElementById('kw-count').value = localStorage.getItem('mmg_kw_count') || '50';
+  document.getElementById('toggle-ai').checked = LS.get('mmg_ai') === 'true';
+  document.getElementById('toggle-editorial').checked = LS.get('mmg_editorial') === 'true';
+  document.getElementById('ai-model-name').value = LS.get('mmg_ai_model_name') || '';
+  document.getElementById('ai-prompt-text').value = LS.get('mmg_ai_prompt_text') || '';
+  document.getElementById('title-length').value = LS.get('mmg_title_len') || '70';
+  document.getElementById('desc-length').value = LS.get('mmg_desc_len') || '150';
+  document.getElementById('kw-count').value = LS.get('mmg_kw_count') || '50';
   document.getElementById('title-length-val').textContent = document.getElementById('title-length').value;
   document.getElementById('desc-length-val').textContent = document.getElementById('desc-length').value;
   document.getElementById('kw-count-val').textContent = document.getElementById('kw-count').value;
@@ -578,18 +598,19 @@ const loadSettings = () => {
 };
 
 const saveSettings = () => {
-  localStorage.setItem('mmg_api_key', document.getElementById('api-key').value.trim());
-  localStorage.setItem('mmg_model', document.getElementById('model-select').value);
-  localStorage.setItem('mmg_context', document.getElementById('global-context').value);
-  localStorage.setItem('mmg_ai', document.getElementById('toggle-ai').checked);
-  localStorage.setItem('mmg_editorial', document.getElementById('toggle-editorial').checked);
-  localStorage.setItem('mmg_ai_model_name', document.getElementById('ai-model-name').value);
-  localStorage.setItem('mmg_ai_prompt_text', document.getElementById('ai-prompt-text').value);
-  localStorage.setItem('mmg_title_len', document.getElementById('title-length').value);
-  localStorage.setItem('mmg_desc_len', document.getElementById('desc-length').value);
-  localStorage.setItem('mmg_kw_count', document.getElementById('kw-count').value);
+  LS.set('mmg_api_key', document.getElementById('api-key').value.trim());
+  LS.set('mmg_model', document.getElementById('model-select').value);
+  LS.set('mmg_context', document.getElementById('global-context').value);
+  LS.set('mmg_ai', document.getElementById('toggle-ai').checked);
+  LS.set('mmg_editorial', document.getElementById('toggle-editorial').checked);
+  LS.set('mmg_ai_model_name', document.getElementById('ai-model-name').value);
+  LS.set('mmg_ai_prompt_text', document.getElementById('ai-prompt-text').value);
+  LS.set('mmg_title_len', document.getElementById('title-length').value);
+  LS.set('mmg_desc_len', document.getElementById('desc-length').value);
+  LS.set('mmg_kw_count', document.getElementById('kw-count').value);
   updateGenerateButton();
   toggleMagnificSettings();
+  scheduleRefresh();
 };
 
 const toggleMagnificSettings = () => {
@@ -624,7 +645,7 @@ const getTargetSettings = () => ({
 
 const updateGenerateButton = () => {
   const key = document.getElementById('api-key').value.trim();
-  const hasKey = appState.isApiValid || key.length > 20;
+  const hasKey = key.length > 20;
   const pending = appState.queue.filter(i => ['waiting', 'error'].includes(i.status)).length;
   const btn = document.getElementById('btn-generate');
   btn.disabled = !hasKey || pending === 0 || appState.isProcessing;
@@ -682,7 +703,10 @@ document.getElementById('btn-test-key').addEventListener('click', async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ contents: [{ parts: [{ text: "Respond with exactly the word 'OK'." }] }] })
     });
-    if (!r.ok) throw new Error('Invalid key');
+    if (!r.ok) {
+      const ed = await r.json().catch(() => ({}));
+      throw new Error((ed.error && ed.error.message) || ('HTTP ' + r.status));
+    }
     showToast('API Key is valid!', 'success');
     appState.isApiValid = true;
     document.getElementById('api-status').classList.remove('offline');
@@ -696,7 +720,7 @@ document.getElementById('btn-test-key').addEventListener('click', async () => {
 });
 document.getElementById('btn-clear-data').addEventListener('click', () => {
   if (confirm('Clear all settings? (API key, model, preferences)')) {
-    localStorage.clear();
+    try { Object.keys(localStorage).filter(k => k.indexOf('mmg_') === 0).forEach(k => localStorage.removeItem(k)); } catch (e) {}
     location.reload();
   }
 });
@@ -718,6 +742,8 @@ document.getElementById('tabs-header').addEventListener('click', (e) => {
   btn.classList.add('active');
   const target = document.getElementById(targetId);
   if (target) target.classList.add('active');
+  const pid = targetId.replace('tab-', '');
+  if (dirtyTabs.has(pid)) renderPlatform(pid);
 });
 document.querySelectorAll('.view-switch-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -739,50 +765,52 @@ document.querySelectorAll('.view-switch-btn').forEach(btn => {
 const dz = document.getElementById('dropzone');
 dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('active'); });
 dz.addEventListener('dragleave', () => dz.classList.remove('active'));
-dz.addEventListener('drop', (e) => { e.preventDefault(); dz.classList.remove('active'); handleFiles(e.dataTransfer.files); });
-document.getElementById('file-input').addEventListener('change', (e) => handleFiles(e.target.files));
+dz.addEventListener('drop', (e) => { e.preventDefault(); dz.classList.remove('active'); handleFiles(Array.from(e.dataTransfer.files)); });
+document.getElementById('file-input').addEventListener('change', (e) => { const fl = Array.from(e.target.files); e.target.value = ''; handleFiles(fl); });
 const genId = () => Math.random().toString(36).substr(2, 9);
 const fmtBytes = (b) => {
   if (b === 0) return '0 B';
   const i = Math.floor(Math.log(b) / Math.log(1024));
   return parseFloat((b / Math.pow(1024, i)).toFixed(2)) + ' ' + ['B', 'KB', 'MB', 'GB'][i];
 };
+const hasVisibleContent = (d) => {
+  let notWhite = false, notBlack = false;
+  for (let i = 0; i < d.length; i += 40) {
+    if (d[i] < 245 || d[i + 1] < 245 || d[i + 2] < 245) notWhite = true;
+    if (d[i] > 8 || d[i + 1] > 8 || d[i + 2] > 8) notBlack = true;
+    if (notWhite && notBlack) return true;
+  }
+  return false;
+};
 const resizeImg = (file, maxDim = 1024) => new Promise((res, rej) => {
   const isSvg = file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg');
-  let to = null;
-  if (isSvg) to = setTimeout(() => rej(new Error("SVG render timeout")), 5000);
-  const rd = new FileReader();
-  rd.readAsDataURL(file);
-  rd.onload = (e) => {
-    const img = new Image();
-    img.onload = () => {
-      if (isSvg) clearTimeout(to);
+  const url = URL.createObjectURL(isSvg ? new Blob([file], { type: 'image/svg+xml' }) : file);
+  const img = new Image();
+  const to = setTimeout(() => { URL.revokeObjectURL(url); rej(new Error('Image load timeout')); }, isSvg ? 5000 : 30000);
+  img.onload = () => {
+    clearTimeout(to);
+    try {
       let w = img.naturalWidth || img.width || 1024;
       let h = img.naturalHeight || img.height || 1024;
-      if (!w || !h) { w = 1024; h = 1024; }
       if (w > maxDim || h > maxDim) {
-        if (w > h) { h *= maxDim / w; w = maxDim; } else { w *= maxDim / h; h = maxDim; }
+        if (w > h) { h = h * maxDim / w; w = maxDim; } else { w = w * maxDim / h; h = maxDim; }
       }
+      w = Math.max(1, Math.round(w)); h = Math.max(1, Math.round(h));
       const cv = document.getElementById('processing-canvas');
       cv.width = w; cv.height = h;
       const ctx = cv.getContext('2d');
       ctx.fillStyle = '#FFFFFF';
       ctx.fillRect(0, 0, w, h);
       ctx.drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
       try {
-        const d = ctx.getImageData(0, 0, w, h).data;
-        let hasContent = false;
-        for (let i = 0; i < d.length; i += 400) {
-          if (d[i] < 240 || d[i + 1] < 240 || d[i + 2] < 240) { hasContent = true; break; }
-        }
-        if (!hasContent) return rej(new Error("Image appears blank"));
+        if (!hasVisibleContent(ctx.getImageData(0, 0, w, h).data)) return rej(new Error('Image appears blank'));
       } catch (err) {}
       res({ data: cv.toDataURL('image/jpeg', 0.85).split(',')[1], mimeType: 'image/jpeg', thumb: cv.toDataURL('image/jpeg', 0.2) });
-    };
-    img.onerror = () => { if (isSvg) clearTimeout(to); rej(new Error("Image load failed")); };
-    img.src = e.target.result;
+    } catch (err) { rej(new Error('Image processing failed')); }
   };
-  rd.onerror = rej;
+  img.onerror = () => { clearTimeout(to); URL.revokeObjectURL(url); rej(new Error('Image load failed')); };
+  img.src = url;
 });
 const extractVideo = (file) => new Promise((res, rej) => {
   const v = document.createElement('video');
@@ -794,7 +822,8 @@ const extractVideo = (file) => new Promise((res, rej) => {
   let thumb = null;
   let metadataLoaded = false;
   let finished = false;
-  const cleanup = () => { try { URL.revokeObjectURL(v.src); } catch (e) {} };
+  const vUrl = v.src;
+  const cleanup = () => { try { v.pause(); URL.revokeObjectURL(vUrl); v.removeAttribute('src'); v.load(); } catch (e) {} };
   const globalTimeout = setTimeout(() => {
     if (!finished) {
       finished = true; cleanup();
@@ -811,7 +840,7 @@ const extractVideo = (file) => new Promise((res, rej) => {
     const pts = [dur * 0.15, dur * 0.5, dur * 0.85];
     const cv = document.getElementById('processing-canvas');
     const ctx = cv.getContext('2d');
-    let w = v.videoWidth, h = v.videoHeight;
+    let w = v.videoWidth || 640, h = v.videoHeight || 360;
     const mx = 768;
     if (w > mx || h > mx) { if (w > h) { h *= mx / w; w = mx; } else { w *= mx / h; h = mx; } }
     cv.width = w; cv.height = h;
@@ -834,11 +863,7 @@ const extractVideo = (file) => new Promise((res, rej) => {
               ctx.fillStyle = '#FFFFFF';
               ctx.fillRect(0, 0, w, h);
               ctx.drawImage(v, 0, 0, w, h);
-              const d = ctx.getImageData(0, 0, w, h).data;
-              let hasContent = false;
-              for (let j = 0; j < d.length; j += 400) {
-                if (d[j] < 240 || d[j + 1] < 240 || d[j + 2] < 240) { hasContent = true; break; }
-              }
+              const hasContent = hasVisibleContent(ctx.getImageData(0, 0, w, h).data);
               if (hasContent) {
                 const b64 = cv.toDataURL('image/jpeg', 0.8).split(',')[1];
                 frames.push({ data: b64, mimeType: 'image/jpeg' });
@@ -873,6 +898,8 @@ const handleFiles = async (files) => {
   const videos = parsed.filter(p => ['mp4', 'mov'].includes(p.ext));
   const svgs = parsed.filter(p => p.ext === 'svg');
   const rasters = parsed.filter(p => ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(p.ext));
+  const skipped = parsed.filter(p => !['eps', 'ai', 'psd', 'mp4', 'mov', 'svg', 'jpg', 'jpeg', 'png', 'webp', 'gif'].includes(p.ext));
+  if (skipped.length) showToast(`${skipped.length} file dilewati (format tidak didukung, mis. HEIC)`, 'error');
   const usedRasters = new Set();
   for (const vec of vectors) {
     const preview = rasters.find(r => r.stem.toLowerCase() === vec.stem.toLowerCase() && !usedRasters.has(r.file.name));
@@ -1107,9 +1134,9 @@ const callGemini = async (apiKey, model, payload, maxRetries = 5) => {
       return await r.json();
     } catch (err) {
       a++;
-      const st = err.status || 500;
+      const st = err.status || 0;
       if (st === 400 && err.message.includes('API key not valid')) throw new Error("INVALID_API_KEY");
-      if ([429, 503].includes(st) && a < maxRetries) await new Promise(r => setTimeout(r, Math.pow(2, a) * 2000));
+      if ((st === 0 || [429, 500, 502, 503, 504].includes(st)) && a < maxRetries) await new Promise(r => setTimeout(r, Math.pow(2, a) * 2000));
       else throw err;
     }
   }
@@ -1226,7 +1253,7 @@ const processFile = async (idx) => {
       const r = await callGemini(apiKey, model, payload);
       try {
         const txt = r.candidates?.[0]?.content?.parts?.[0]?.text || '';
-        data = JSON.parse(txt);
+        data = autoFixCats(JSON.parse(txt), isVideo);
         errs = validate(data, isVideo, targets);
         if (!errs.length) break;
       } catch (pe) {
@@ -1272,34 +1299,44 @@ const processFile = async (idx) => {
   updateResultsUI();
 };
 
+let wakeLock = null;
 document.getElementById('btn-generate').addEventListener('click', async () => {
   if (appState.isProcessing) return;
   appState.isProcessing = true;
   updateGenerateButton();
-  for (let i = 0; i < appState.queue.length; i++) {
-    if (!appState.isProcessing) break;
-    if (['waiting', 'error'].includes(appState.queue[i].status)) await processFile(i);
+  try { if (navigator.wakeLock) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {}
+  const tried = new Set();
+  while (appState.isProcessing) {
+    const next = appState.queue.find(q => ['waiting', 'error'].includes(q.status) && !tried.has(q.id));
+    if (!next) break;
+    tried.add(next.id);
+    await processFile(appState.queue.indexOf(next));
   }
+  const stopped = !appState.isProcessing;
   appState.isProcessing = false;
+  try { if (wakeLock) await wakeLock.release(); } catch (e) {}
+  wakeLock = null;
   updateGenerateButton();
-  showToast('Processing complete', 'success');
+  const okN = appState.queue.filter(q => q.status === 'done').length;
+  const badN = appState.queue.filter(q => q.status === 'error').length;
+  if (!stopped) showToast(`Selesai: ${okN} berhasil, ${badN} gagal`, badN ? 'error' : 'success');
 });
 
 // ============================================================
 // RENDER — pakai keyword per platform (fixed)
 // ============================================================
-const cardField = (filename, label, valueHtml, field, extraHtml = '') => `
+const cardField = (item, platform, label, valueHtml, field, extraHtml = '') => `
 <div class="result-field">
   <div class="result-field-header">
     <span class="result-label">${label} ${extraHtml}</span>
-    <button class="result-copy" onclick="copyField('${filename.replace(/'/g, "\\'")}', '${field}')">📋 Copy</button>
+    <button class="result-copy" onclick="copyField('${item.id}', '${platform}', '${field}')">📋 Copy</button>
   </div>
   <div class="result-value">${valueHtml}</div>
 </div>`;
 
 // Get keyword untuk display per platform — mirror apa yang akan di-export
 const getDisplayKw = (r, platform, targets) => {
-  const maxKw = (targets || getTargetSettings()).kwCount;
+  const maxKw = Math.min((targets || getTargetSettings()).kwCount, platform === 'adobe' ? 49 : 50);
   let k = kwForPlatform((r._cleanKeywords || r.keywords || []).filter(x => !isReleaseTag(x)), platform, r);
   const ai = document.getElementById('toggle-ai').checked;
   if (platform === 'magnific' && ai) {
@@ -1326,43 +1363,43 @@ const renderCard = (item, platform) => {
 
   if (platform === 'adobe') {
     bodyHtml = `
-      ${cardField(item.filename, 'Title', esc(r.adobe_title || ''), 'title')}
-      ${cardField(item.filename, 'Keywords', esc(kwStr), 'keywords', `<span class="result-count">${kwCount}/${targets.kwCount}</span>`)}
-      ${cardField(item.filename, 'Category', `<span class="result-tag">${esc(r.adobe_cat || '')} ${catId ? '· ID ' + catId : ''}</span>`, 'category')}
+      ${cardField(item, platform, 'Title', esc(r.adobe_title || ''), 'title')}
+      ${cardField(item, platform, 'Keywords', esc(kwStr), 'keywords', `<span class="result-count">${kwCount}/${targets.kwCount}</span>`)}
+      ${cardField(item, platform, 'Category', `<span class="result-tag">${esc(r.adobe_cat || '')} ${catId ? '· ID ' + catId : ''}</span>`, 'category')}
     `;
   } else if (platform === 'shutterstock') {
     const catStr = [r.ss_cat, r.ss_cat2].filter(Boolean).join(' · ');
     bodyHtml = `
-      ${cardField(item.filename, 'Description', esc(r.ss_desc || ''), 'desc')}
-      ${cardField(item.filename, 'Keywords', esc(kwStr), 'keywords', `<span class="result-count">${kwCount}/${targets.kwCount}</span>`)}
-      ${cardField(item.filename, 'Categories', `<span class="result-tag">${esc(catStr)}</span>`, 'categories')}
+      ${cardField(item, platform, 'Description', esc(r.ss_desc || ''), 'desc')}
+      ${cardField(item, platform, 'Keywords', esc(kwStr), 'keywords', `<span class="result-count">${kwCount}/${targets.kwCount}</span>`)}
+      ${cardField(item, platform, 'Categories', `<span class="result-tag">${esc(catStr)}</span>`, 'categories')}
     `;
   } else if (platform === 'vecteezy') {
     bodyHtml = `
-      ${cardField(item.filename, 'Title', esc(r.vz_title || ''), 'title')}
-      ${cardField(item.filename, 'Description', esc(r.vz_desc || ''), 'desc')}
-      ${cardField(item.filename, 'Keywords', esc(kwStr), 'keywords', `<span class="result-count">${kwCount}/${targets.kwCount}</span>`)}
-      ${cardField(item.filename, 'Category', `<span class="result-tag">${esc(r.vz_cat || '')}</span>`, 'category')}
+      ${cardField(item, platform, 'Title', esc(r.vz_title || ''), 'title')}
+      ${cardField(item, platform, 'Description', esc(r.vz_desc || ''), 'desc')}
+      ${cardField(item, platform, 'Keywords', esc(kwStr), 'keywords', `<span class="result-count">${kwCount}/${targets.kwCount}</span>`)}
+      ${cardField(item, platform, 'Category', `<span class="result-tag">${esc(r.vz_cat || '')}</span>`, 'category')}
     `;
   } else if (platform === 'magnific') {
     bodyHtml = `
-      ${cardField(item.filename, 'Title', esc(r.mg_title || ''), 'title')}
-      ${cardField(item.filename, 'Keywords', esc(kwStr), 'keywords', `<span class="result-count">${kwCount}/${targets.kwCount}</span>`)}
-      ${cardField(item.filename, 'Type', `<span class="result-tag">${esc(r.mg_type || '')}</span>`, 'type')}
+      ${cardField(item, platform, 'Title', esc(r.mg_title || ''), 'title')}
+      ${cardField(item, platform, 'Keywords', esc(kwStr), 'keywords', `<span class="result-count">${kwCount}/${targets.kwCount}</span>`)}
+      ${cardField(item, platform, 'Type', `<span class="result-tag">${esc(r.mg_type || '')}</span>`, 'type')}
     `;
   } else if (platform === 'pond5') {
     bodyHtml = `
-      ${cardField(item.filename, 'Title', esc(r.p5_title || ''), 'title')}
-      ${cardField(item.filename, 'Description', esc(r.p5_desc || ''), 'desc')}
-      ${cardField(item.filename, 'Keywords', esc(kwStr), 'keywords', `<span class="result-count">${kwCount}/${targets.kwCount}</span>`)}
-      ${cardField(item.filename, 'Category', `<span class="result-tag">${esc(r.p5_cat || '')}</span>`, 'category')}
+      ${cardField(item, platform, 'Title', esc(r.p5_title || ''), 'title')}
+      ${cardField(item, platform, 'Description', esc(r.p5_desc || ''), 'desc')}
+      ${cardField(item, platform, 'Keywords', esc(kwStr), 'keywords', `<span class="result-count">${kwCount}/${targets.kwCount}</span>`)}
+      ${cardField(item, platform, 'Category', `<span class="result-tag">${esc(r.p5_cat || '')}</span>`, 'category')}
     `;
   }
 
   return `<div class="result-card">
     <div class="result-card-header">
       <span class="result-filename" title="${esc(item.filename)}">${esc(item.filename)}</span>
-      <button class="copy-all-btn" onclick="copyAllFields('${fname}')">📋 Copy All</button>
+      <button class="copy-all-btn" onclick="copyAllFields('${item.id}', '${platform}')">📋 Copy All</button>
     </div>
     <div class="result-body">${bodyHtml}</div>
   </div>`;
@@ -1378,16 +1415,16 @@ const renderTableRow = (item, platform) => {
   if (platform === 'adobe') {
     return `<tr>
       <td><div class="cell-wrap"><span class="cell-text cell-filename">${esc(item.filename)}</span></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(r.adobe_title || '')}</span><button class="cell-copy" onclick="copyField('${fname}','title')">📋</button></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${fname}','keywords')">📋</button></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(r.adobe_title || '')}</span><button class="cell-copy" onclick="copyField('${item.id}','${platform}','title')">📋</button></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${item.id}','${platform}','keywords')">📋</button></div></td>
       <td><div class="cell-wrap"><span class="cell-text">${esc(String(catId))}</span></div></td>
     </tr>`;
   } else if (platform === 'shutterstock') {
     const cat = [r.ss_cat, r.ss_cat2].filter(Boolean).join(', ');
     return `<tr>
       <td><div class="cell-wrap"><span class="cell-text cell-filename">${esc(item.filename)}</span></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(r.ss_desc || '')}</span><button class="cell-copy" onclick="copyField('${fname}','desc')">📋</button></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${fname}','keywords')">📋</button></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(r.ss_desc || '')}</span><button class="cell-copy" onclick="copyField('${item.id}','${platform}','desc')">📋</button></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${item.id}','${platform}','keywords')">📋</button></div></td>
       <td><div class="cell-wrap"><span class="cell-text">${esc(cat)}</span></div></td>
     </tr>`;
   } else if (platform === 'vecteezy') {
@@ -1395,14 +1432,14 @@ const renderTableRow = (item, platform) => {
       <td><div class="cell-wrap"><span class="cell-text cell-filename">${esc(item.filename)}</span></div></td>
       <td><div class="cell-wrap"><span class="cell-text">${esc(r.vz_title || '')}</span></div></td>
       <td><div class="cell-wrap"><span class="cell-text">${esc(r.vz_desc || '')}</span></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${fname}','keywords')">📋</button></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${item.id}','${platform}','keywords')">📋</button></div></td>
       <td><div class="cell-wrap"><span class="cell-text">${esc(r.vz_cat || '')}</span></div></td>
     </tr>`;
   } else if (platform === 'magnific') {
     return `<tr>
       <td><div class="cell-wrap"><span class="cell-text cell-filename">${esc(item.filename)}</span></div></td>
       <td><div class="cell-wrap"><span class="cell-text">${esc(r.mg_title || '')}</span></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${fname}','keywords')">📋</button></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${item.id}','${platform}','keywords')">📋</button></div></td>
       <td><div class="cell-wrap"><span class="cell-text">${esc(r.mg_type || '')}</span></div></td>
     </tr>`;
   } else if (platform === 'pond5') {
@@ -1410,27 +1447,42 @@ const renderTableRow = (item, platform) => {
       <td><div class="cell-wrap"><span class="cell-text cell-filename">${esc(item.filename)}</span></div></td>
       <td><div class="cell-wrap"><span class="cell-text">${esc(r.p5_title || '')}</span></div></td>
       <td><div class="cell-wrap"><span class="cell-text">${esc(r.p5_desc || '')}</span></div></td>
-      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${fname}','keywords')">📋</button></div></td>
+      <td><div class="cell-wrap"><span class="cell-text">${esc(kws)}</span><button class="cell-copy" onclick="copyField('${item.id}','${platform}','keywords')">📋</button></div></td>
       <td><div class="cell-wrap"><span class="cell-text">${esc(r.p5_cat || '')}</span></div></td>
     </tr>`;
   }
   return '';
 };
 
+const PLATFORMS = ['adobe', 'shutterstock', 'vecteezy', 'magnific', 'pond5'];
+const dirtyTabs = new Set(PLATFORMS);
+const renderPlatform = (p) => {
+  dirtyTabs.delete(p);
+  const done = appState.queue.filter(i => i.status === 'done' && i.result);
+  const grid = document.getElementById(`grid-${p}`);
+  if (grid) {
+    grid.innerHTML = done.length
+      ? done.map(i => renderCard(i, p)).join('')
+      : '<div class="empty-state" style="grid-column:1/-1">Belum ada hasil — generate dulu</div>';
+  }
+  const tbody = document.getElementById(`table-${p}`);
+  if (tbody) tbody.innerHTML = done.map(i => renderTableRow(i, p)).join('');
+};
+let refreshTimer = null;
+const scheduleRefresh = () => {
+  clearTimeout(refreshTimer);
+  refreshTimer = setTimeout(() => { if (appState.queue.some(i => i.status === 'done')) updateResultsUI(); }, 300);
+};
 const updateResultsUI = () => {
   const done = appState.queue.filter(i => i.status === 'done' && i.result);
-  ['adobe', 'shutterstock', 'vecteezy', 'magnific', 'pond5'].forEach(p => {
+  PLATFORMS.forEach(p => {
     const info = document.getElementById(`info-${p}`);
     if (info) info.textContent = `${done.length} hasil`;
-    const grid = document.getElementById(`grid-${p}`);
-    if (grid) {
-      grid.innerHTML = done.length
-        ? done.map(i => renderCard(i, p)).join('')
-        : '<div class="empty-state" style="grid-column:1/-1">Belum ada hasil — generate dulu</div>';
-    }
-    const tbody = document.getElementById(`table-${p}`);
-    if (tbody) tbody.innerHTML = done.map(i => renderTableRow(i, p)).join('');
+    dirtyTabs.add(p);
   });
+  const act = document.querySelector('.tab-content.active');
+  const ap = act ? act.id.replace('tab-', '') : '';
+  if (PLATFORMS.includes(ap)) renderPlatform(ap);
   let allErrors = [];
   let allWarnings = [];
   appState.queue.forEach(i => {
@@ -1467,6 +1519,7 @@ const download = (content, filename) => {
   document.body.appendChild(l);
   l.click();
   document.body.removeChild(l);
+  setTimeout(() => URL.revokeObjectURL(u), 15000);
 };
 
 const eC = (s, d = ',') => {
