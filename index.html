@@ -233,7 +233,7 @@ button,.toggle-row,.card-header,.tab-platform,.dropzone{-webkit-tap-highlight-co
 <div class="logo-mark">M</div>
 <div>
 <div class="logo-text">MicroStock MetaGen</div>
-<div class="logo-sub">AI Metadata Generator · v30</div>
+<div class="logo-sub">AI Metadata Generator · v31</div>
 </div>
 </div>
 <div class="header-actions">
@@ -997,7 +997,7 @@ const SS_CATS_VIDEO = ["Animals/Wildlife","The Arts","Backgrounds/Textures","Bui
 const VZ_CATS = ["Animals and Plants","Activity and Events","Composition","Food and Drink","Location","Objects and Colors","People"];
 const MG_TYPES = ["Photo","Vector","PSD","Mockup","AI Image"];
 const P5_CATS = ["abstract","aerials","alpha channel/greenscreen","archival","animation","animals/wildlife","buildings and monuments","business","celebrities","current events","education","food and drink","healthcare/medical","industry","landscapes","lifestyle","medical & health","nature","people","religion","science","sports","technology","transportation","vintage","other"];
-const isReleaseTag = (x) => /^_?(model|property)[\s_-]*release([\s_-]*(needed|required))?$/i.test(String(x).trim());
+const isReleaseTag = (x) => /(^|[\s_-])(model|property)[\s_-]*release([\s_-]*(needed|required))?$/i.test(String(x).trim());
 const kwKey = (x) => String(x).toLowerCase().replace(/[\s_-]+/g, ' ').trim();
 const KW_STOP = new Set(['and','or','of','the','a','an','with','in','on','for','to','vs']);
 // Vecteezy: single-word only. Video tidak terima "vector", "footage", "clipart", "video".
@@ -1071,6 +1071,8 @@ keywords: exactly ${kwCount} keywords (min ${minKw}), ordered by importance.
 - Include dominant COLOR keywords
 - For vectors include STYLE: flat design, line art, 3D render, isometric, minimalist
 - Lowercase, no special chars except hyphen
+- Each keyword is 1-3 words. NEVER glue several ideas into one keyword (wrong: "no people horizontal background" or "christmas 3d render animation"; right: "no people", "horizontal", "3d render").
+- If the asset is a 3D render, include the keyword "3d render" within the first 5 keywords.
 
 adobe_title: max ${titleLen} chars, NO commas.
 ss_desc: ~${descLen} chars. NO commas.
@@ -1190,6 +1192,8 @@ const validate = (d, isVideo, targets) => {
   const kwCount = (d.keywords || []).length;
   const minKw = Math.max(15, targets.kwCount - 5);
   if (kwCount < minKw) e.push(`Keywords count ${kwCount}, need ${minKw}`);
+  const longKw = (d.keywords || []).filter(k => String(k).trim().split(/\s+/).length > 3).length;
+  if (longKw > 3) e.push(`${longKw} keywords longer than 3 words - each keyword must be 1-3 words`);
   if (d.adobe_title?.length > targets.titleLen) e.push(`adobe_title ${d.adobe_title.length} chars (max ${targets.titleLen})`);
   if (d.mg_title && (d.mg_title.length < 35 || d.mg_title.length > 100)) e.push(`mg_title ${d.mg_title.length} chars`);
   if (d.p5_title && (d.p5_title.length < 40 || d.p5_title.length > 80)) e.push(`p5_title ${d.p5_title.length} chars`);
@@ -1222,13 +1226,21 @@ const autoFixCats = (d, isVideo) => {
 };
 
 const capFirst = (t) => t.charAt(0).toUpperCase() + t.slice(1);
-const fixTitle = (t) => {
+const fixTitle0 = (t) => {
   if (!t) return t;
   const m = String(t).trim().match(/^((?:low[- ]poly\s+)?(?:3d|vector|flat design|isometric)(?:\s+(?:render|illustration))?)\s+of\s+(?:an?\s+|the\s+)?(.+)$/i);
   if (!m) return t;
   const style = m[1].replace(/3d/i, '3D').replace(/^low[- ]poly/i, 'low poly');
   return capFirst(m[2]) + ' in ' + style;
 };
+const dedupe3d = (t) => {
+  if (!t) return t;
+  const n = (String(t).match(/\b3d\b/gi) || []).length;
+  if (n < 2) return t;
+  let i = 0;
+  return capFirst(String(t).replace(/\b3d\b\s*/gi, (x) => (++i < n ? '' : x)).replace(/\s{2,}/g, ' ').trim());
+};
+const fixTitle = (t) => dedupe3d(fixTitle0(t));
 const polishData = (d) => {
   ['adobe_title', 'mg_title', 'p5_title'].forEach(k => { if (d[k]) d[k] = fixTitle(d[k]); });
   return d;
@@ -1381,6 +1393,11 @@ const cleanKw = (list, r, platform) => {
     }
     out = kept;
   }
+  if (/\b3d\b/i.test(r.adobe_title || r.p5_title || '')) {
+    const idx = out.findIndex(x => /^3d[\s-]?render$/i.test(String(x).trim()));
+    if (idx < 0) out.splice(Math.min(2, out.length), 0, '3d render');
+    else if (idx > 4) { const it = out.splice(idx, 1)[0]; out.splice(2, 0, it); }
+  }
   return out;
 };
 const getDisplayKw = (r, platform, targets) => {
@@ -1523,6 +1540,7 @@ const scheduleRefresh = () => {
 };
 const updateResultsUI = () => {
   const done = appState.queue.filter(i => i.status === 'done' && i.result);
+  done.forEach(i => polishData(i.result));
   PLATFORMS.forEach(p => {
     const info = document.getElementById(`info-${p}`);
     if (info) info.textContent = `${done.length} hasil`;
@@ -1587,6 +1605,7 @@ window.exportCSV = (platform) => {
   const targets = getTargetSettings();
   const done = appState.queue.filter(i => i.status === 'done' && i.result);
   if (!done.length) return showToast('No processed items to export', 'error');
+  done.forEach(i => polishData(i.result));
   const ai = document.getElementById('toggle-ai').checked;
   const ed = document.getElementById('toggle-editorial').checked;
   let csv = '', ext = ai ? '_ai' : '';
