@@ -89,6 +89,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .dropzone-hint{font-size:12px;color:var(--text-muted);font-weight:500;margin-bottom:4px}
 .dropzone-sub{font-size:10.5px;color:var(--text-dim)}
 .action-bar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.code-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:-4px 0 4px}
+.code-bar-hint{font-size:11px;color:var(--text-dim);flex:1;min-width:200px}
 .queue-info{font-size:12.5px;color:var(--text-muted);font-weight:500}
 .queue-info strong{color:var(--text);font-family:'JetBrains Mono',monospace;font-weight:700}
 .action-buttons{display:flex;gap:10px;flex-wrap:wrap}
@@ -344,9 +346,16 @@ button,.toggle-row,.card-header,.tab-platform,.dropzone{-webkit-tap-highlight-co
 <div class="dropzone-icon">📁</div>
 <div class="dropzone-title">Drop your assets here</div>
 <div class="dropzone-hint">JPG · PNG · WEBP · MP4 · MOV · SVG · EPS · PSD · AI</div>
-<div class="dropzone-sub">For EPS/PSD/AI, include a JPG preview with the same filename<br>Animasi dari kode: drop juga file .js dengan nama sama dengan videonya</div>
+<div class="dropzone-sub">For EPS/PSD/AI, include a JPG preview with the same filename<br>Animasi dari kode: drop juga file .js (nama mirip videonya), atau pakai tombol 📜 di bawah</div>
 </div>
 </section>
+
+<div class="code-bar">
+<button class="btn btn-ghost" id="btn-pick-code" type="button">📜 Pilih file kode JS</button>
+<span class="code-bar-hint">Kalau file .js tidak bisa dipilih di drop zone (sering di iPad), pakai tombol ini. File .txt berisi kode juga boleh.</span>
+<input type="file" id="code-input" multiple style="position:absolute;width:0;height:0;opacity:0;pointer-events:none">
+<input type="file" id="code-input-one" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none">
+</div>
 
 <div class="action-bar">
 <div class="queue-info">
@@ -826,19 +835,97 @@ const resizeImg = (file, maxDim = 1024) => new Promise((res, rej) => {
   img.onerror = () => { clearTimeout(to); URL.revokeObjectURL(url); rej(new Error('Image load failed')); };
   img.src = url;
 });
-const summarizeCode = (src) => {
-  const lines = String(src || '').split(/\r?\n/);
-  const notes = [];
-  for (const ln of lines) {
-    const t = ln.trim();
-    if (t.indexOf('//') !== 0) continue;
-    const c = t.replace(/^\/\/+\s*/, '').replace(/^[=\-\s]+|[=\-\s]+$/g, '').trim();
-    if (c.length > 2) notes.push(c);
+// <<code-hint
+const CODE_GENERIC = new Set('draw setup scene camera render renderer light lights update helper function const time width height mesh group material geometry color colors position scale rotation ease easing smoothstep clamp lerp mix rand random seed segment stagger loop speed hero accent amount count index value offset angle phase build make create init state items list point points path curve shape shapes size radius total max min delta step frame global canvas offscreen three this that from with then base main test temp tmp data cache warm compile bevel segments emissive intensity opacity transform visible vector matrix object objects layer layers fade easeoutback pure noise unit units half full left right top bottom center centre inner outer start end mid next prev last first each item part parts tick wave'.split(' '));
+const hexToName = (h) => {
+  const r = parseInt(h.slice(0, 2), 16) / 255, g = parseInt(h.slice(2, 4), 16) / 255, b = parseInt(h.slice(4, 6), 16) / 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
+  const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+  let hue = 0;
+  if (d) {
+    if (mx === r) hue = ((g - b) / d) % 6; else if (mx === g) hue = (b - r) / d + 2; else hue = (r - g) / d + 4;
+    hue *= 60; if (hue < 0) hue += 360;
   }
-  let out = notes.join('\n');
-  if (out.length < 200) out += '\n' + String(src || '').replace(/\s+/g, ' ').slice(0, 1500);
-  return out.slice(0, 3500).trim();
+  if (l < 0.1) return 'black';
+  if (l > 0.94) return 'white';
+  if (s < 0.12) return l < 0.35 ? 'dark gray' : l > 0.75 ? 'light gray' : 'gray';
+  let base;
+  if (hue < 15 || hue >= 345) base = 'red';
+  else if (hue < 40) base = l < 0.42 ? 'brown' : 'orange';
+  else if (hue < 65) base = 'yellow';
+  else if (hue < 90) base = 'lime green';
+  else if (hue < 160) base = 'green';
+  else if (hue < 195) base = 'teal';
+  else if (hue < 250) base = 'blue';
+  else if (hue < 290) base = 'purple';
+  else base = l > 0.62 ? 'pink' : 'magenta';
+  if (base === 'brown') return l < 0.25 ? 'dark brown' : 'brown';
+  return (l < 0.3 ? 'dark ' : l > 0.8 ? 'pale ' : '') + base;
 };
+const summarizeCode = (src) => {
+  src = String(src || '');
+  const parts = [];
+  const is3d = /THREE\.|three(?:\.min)?\.js|WebGLRenderer|PerspectiveCamera/.test(src);
+  parts.push('Engine: ' + (is3d ? '3D scene (this is a 3D render, style words: "3d render")' : '2D canvas animation (flat 2D motion graphics, NOT 3D)'));
+  // komentar
+  const notes = [];
+  const pushNote = (t) => {
+    t = String(t).replace(/^[\s*\/=\-#]+|[\s*\/=\-#]+$/g, '').trim();
+    if (t.length < 4 || notes.includes(t)) return;
+    if (/[;{}]\s*$/.test(t) || /\s=\s|=>|\(\s*\)/.test(t)) return; // kode yang dikomentari
+    notes.push(t);
+  };
+  const noBlock = src.replace(/\/\*[\s\S]*?\*\//g, (m) => { m.split(/\r?\n/).forEach(pushNote); return ''; });
+  noBlock.split(/\r?\n/).forEach((ln) => {
+    const t = ln.trim();
+    if (t.indexOf('//') === 0) pushNote(t);
+    else { const m = ln.match(/(?:^|[\s;,{(])\/\/\s+(\S.{3,})$/); if (m) pushNote(m[1]); }
+  });
+  if (notes.length) parts.push('Notes from comments:\n- ' + notes.join('\n- ').slice(0, 2600));
+  // konstanta
+  const consts = [];
+  const cre = /(?:const|let|var)\s+([A-Z][A-Z0-9_]{2,})\s*=\s*([^;\n]{1,60})/g;
+  let m;
+  while ((m = cre.exec(src)) && consts.length < 20) {
+    if (/function|=>|\bnew\b/.test(m[2])) continue;
+    consts.push(m[1] + '=' + m[2].trim().replace(/,$/, ''));
+  }
+  if (consts.length) parts.push('Settings: ' + consts.join('; '));
+  const lm = src.match(/\b(?:LOOP|DURASI|DURATION)[A-Z_]*\s*=\s*(\d+(?:\.\d+)?)/);
+  if (lm) parts.push('Loop length: ' + lm[1] + ' seconds, seamless loop');
+  else if (/loop/i.test(src)) parts.push('Loop: the code mentions looping (seamless loop)');
+  // warna
+  const cnt = {};
+  const addHex = (h) => { h = h.toLowerCase(); if (h.length === 3) h = h.split('').map((c) => c + c).join(''); cnt[h] = (cnt[h] || 0) + 1; };
+  for (const x of src.matchAll(/#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b/g)) addHex(x[1]);
+  for (const x of src.matchAll(/\b0x([0-9a-fA-F]{6})\b/g)) addHex(x[1]);
+  for (const x of src.matchAll(/rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/g)) {
+    addHex([x[1], x[2], x[3]].map((v) => Math.min(255, +v).toString(16).padStart(2, '0')).join(''));
+  }
+  const names = [];
+  Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 12).forEach(([h]) => { const n = hexToName(h); if (!names.includes(n)) names.push(n); });
+  if (names.length) parts.push('Palette (approximate color names, most used first): ' + names.join(', '));
+  // nama bagian di kode
+  const words = {};
+  for (const x of src.matchAll(/\b(?:function\s+|(?:const|let|var)\s+)([a-zA-Z_$][\w$]*)/g)) {
+    x[1].replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/[_$]+/g, ' ').toLowerCase().split(/\s+/).forEach((w) => {
+      if (w.length >= 4 && /^[a-z]+$/.test(w) && !CODE_GENERIC.has(w)) words[w] = (words[w] || 0) + 1;
+    });
+  }
+  const wl = Object.entries(words).sort((a, b) => b[1] - a[1]).slice(0, 30).map((e) => e[0]);
+  if (wl.length) parts.push('Names of parts used in the code (may be noisy, use only what fits the image): ' + wl.join(', '));
+  let out = parts.join('\n');
+  if (out.length < 250) out += '\nCode excerpt: ' + src.replace(/\s+/g, ' ').slice(0, 1200);
+  return out.slice(0, 5000).trim();
+};
+const CODE_EXTS = ['js', 'mjs', 'txt'];
+const fileExt = (n) => { const i = String(n).lastIndexOf('.'); return i === -1 ? '' : String(n).slice(i + 1).toLowerCase(); };
+const stripExt = (n) => String(n).replace(/\.[^.]+$/, '');
+const normStem = (s) => String(s || '').toLowerCase().replace(/\s*\(\d+\)$/, '').replace(/[-_ ]?v\d+$/, '').replace(/[-_ ]?(copy|final)$/, '').replace(/[^a-z0-9]/g, '');
+const stemLoose = (a, b) => { const x = normStem(a), y = normStem(b); return x.length >= 5 && y.length >= 5 && (x.startsWith(y) || y.startsWith(x)); };
+const findByStem = (list, getStem, stem) =>
+  list.find((o) => normStem(getStem(o)) === normStem(stem)) || list.find((o) => stemLoose(getStem(o), stem));
+// code-hint>>
 const extractVideo = (file) => new Promise((res, rej) => {
   const v = document.createElement('video');
   v.src = URL.createObjectURL(file);
@@ -912,6 +999,39 @@ const extractVideo = (file) => new Promise((res, rej) => {
   });
   v.addEventListener('error', () => { clearTimeout(globalTimeout); cleanup(); rej(new Error("Video load failed")); });
 });
+appState.pendingCode = [];
+const setCode = (item, file) => {
+  if (!file) return false;
+  if (file.size >= 2 * 1024 * 1024) { showToast(`${file.name} terlalu besar (maks 2MB)`, 'error'); return false; }
+  item.codeFile = file;
+  return true;
+};
+const attachCodeFiles = (files) => {
+  files = Array.from(files || []).filter((f) => CODE_EXTS.includes(fileExt(f.name)));
+  if (!files.length) { showToast('Pilih file berekstensi .js atau .txt', 'error'); return; }
+  let ok = 0;
+  let left = [];
+  for (const f of files) {
+    const it = findByStem(appState.queue, (q) => stripExt(q.filename), stripExt(f.name));
+    if (it && setCode(it, f)) ok++; else left.push(f);
+  }
+  const free = appState.queue.filter((q) => !q.codeFile);
+  if (left.length === 1 && free.length === 1 && setCode(free[0], left[0])) { ok++; left = []; }
+  left.forEach((f) => { if (!appState.pendingCode.some((p) => p.name === f.name)) appState.pendingCode.push(f); });
+  renderQueue();
+  if (ok) showToast(`${ok} file kode terpasang`, 'success');
+  if (left.length) showToast(`${left.length} file kode belum ada pasangannya, disimpan dulu. Tambahkan videonya (nama mirip) atau pakai tombol 📜 di item antrean.`, 'info');
+};
+document.getElementById('btn-pick-code').addEventListener('click', () => document.getElementById('code-input').click());
+document.getElementById('code-input').addEventListener('change', (e) => { const fl = Array.from(e.target.files); e.target.value = ''; attachCodeFiles(fl); });
+window.pickCodeFor = (id) => { appState.codeTarget = id; document.getElementById('code-input-one').click(); };
+document.getElementById('code-input-one').addEventListener('change', (e) => {
+  const f = e.target.files[0]; e.target.value = '';
+  const it = appState.queue.find((q) => q.id === appState.codeTarget);
+  if (!f || !it) return;
+  if (!CODE_EXTS.includes(fileExt(f.name))) return showToast('Pilih file .js atau .txt', 'error');
+  if (setCode(it, f)) { renderQueue(); showToast(`Kode ${f.name} dipasang ke ${it.filename}`, 'success'); }
+});
 const handleFiles = async (files) => {
   const parsed = [];
   for (let i = 0; i < files.length; i++) {
@@ -925,13 +1045,17 @@ const handleFiles = async (files) => {
   const videos = parsed.filter(p => ['mp4', 'mov'].includes(p.ext));
   const svgs = parsed.filter(p => p.ext === 'svg');
   const rasters = parsed.filter(p => ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(p.ext));
-  const skipped = parsed.filter(p => !['eps', 'ai', 'psd', 'mp4', 'mov', 'svg', 'jpg', 'jpeg', 'png', 'webp', 'gif', 'js'].includes(p.ext));
-  const jsFiles = parsed.filter(p => p.ext === 'js');
+  const skipped = parsed.filter(p => !['eps', 'ai', 'psd', 'mp4', 'mov', 'svg', 'jpg', 'jpeg', 'png', 'webp', 'gif', 'js', 'mjs'].includes(p.ext));
+  const jsFiles = parsed.filter(p => p.ext === 'js' || p.ext === 'mjs');
+  const singleMedia = parsed.length - jsFiles.length === 1;
   const usedJs = new Set();
   const codeFor = (stem) => {
-    const j = jsFiles.find(x => x.stem.toLowerCase() === stem.toLowerCase());
-    if (j) usedJs.add(j.file.name);
-    return j ? j.file : null;
+    const j = findByStem(jsFiles, x => x.stem, stem);
+    if (j) { usedJs.add(j.file.name); return j.file; }
+    const pi = appState.pendingCode.findIndex(f => normStem(stripExt(f.name)) === normStem(stem) || stemLoose(stripExt(f.name), stem));
+    if (pi !== -1) return appState.pendingCode.splice(pi, 1)[0];
+    if (singleMedia && jsFiles.length === 1 && !usedJs.has(jsFiles[0].file.name)) { usedJs.add(jsFiles[0].file.name); return jsFiles[0].file; }
+    return null;
   };
   if (skipped.length) showToast(`${skipped.length} file dilewati (format tidak didukung, mis. HEIC)`, 'error');
   const usedRasters = new Set();
@@ -950,7 +1074,7 @@ const handleFiles = async (files) => {
     if (!usedRasters.has(r.file.name)) await addItem(r.file, null, codeFor(r.stem));
   }
   const lonely = jsFiles.filter(j => !usedJs.has(j.file.name));
-  if (lonely.length) showToast(`${lonely.length} file .js tidak ketemu pasangannya (nama harus sama dengan videonya)`, 'error');
+  if (lonely.length) attachCodeFiles(lonely.map(j => j.file));
   updateGenerateButton();
 };
 const addItem = async (targetFile, previewFile, codeFile) => {
@@ -1001,6 +1125,7 @@ const renderQueue = () => {
           </div>
         </div>
         <span class="queue-badge ${statusType}">${statusLabel}</span>
+        <button class="queue-delete" onclick="pickCodeFor('${item.id}')" title="${item.codeFile ? 'Ganti kode JS' : 'Tambah kode JS'}" style="${item.codeFile ? 'color:var(--green);border-color:var(--green)' : ''}">📜</button>
         <button class="queue-delete" onclick="removeQueueItem('${item.id}')" title="Hapus">🗑</button>
       </div>
       <div class="queue-bar"><div class="queue-bar-fill ${barFillClass}" style="width:${progressPct}%"></div></div>
@@ -1078,7 +1203,7 @@ function buildPrompt(isVideo, titleLen, descLen, kwCount, codeHint, noImage) {
   const minKw = Math.max(15, Math.round(kwCount * 0.7));
   let hintBlock = '';
   if (codeHint) {
-    hintBlock = '\nSOURCE CODE HINT: this asset is an animation generated from code. The notes below were taken from that code and describe what it shows (objects, colors, style, action, loop). Use them to identify objects, colors and action. If they conflict with the image(s), trust the image(s). NEVER mention code, programming, software, studios or tool names in any field. If the notes say it is a seamless loop, add the keywords "seamless loop" and "looping animation".'
+    hintBlock = '\nSOURCE CODE HINT: this asset is an animation generated from code. The notes below were taken from that code and describe what it shows (objects, colors, style, action, loop). Use them to identify objects, colors and action. The "Engine" line tells whether it is 3D or flat 2D: follow it for style words (3D: "3d render"; 2D: flat 2d animation or motion graphics; never "vector"). "Palette" gives approximate colors. "Names of parts" may be noisy: use only names that match what is visible. If the notes conflict with the image(s), trust the image(s). NEVER mention code, programming, software, studios or tool names in any field. If the notes say it is a seamless loop, add the keywords "seamless loop" and "looping animation".'
       + (noImage ? '\nNOTE: no image could be attached, so rely ONLY on these notes. Set has_people false unless the notes clearly say humans appear.' : '')
       + '\n---\n' + codeHint + '\n---\n';
   }
