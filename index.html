@@ -236,7 +236,7 @@ button,.toggle-row,.card-header,.tab-platform,.dropzone{-webkit-tap-highlight-co
 <div class="logo-mark">M</div>
 <div>
 <div class="logo-text">MicroStock MetaGen</div>
-<div class="logo-sub">AI Metadata Generator · v40</div>
+<div class="logo-sub">AI Metadata Generator · v41</div>
 </div>
 </div>
 <div class="header-actions">
@@ -805,6 +805,27 @@ const makeThumb = (src) => {
     return thumbCv.toDataURL('image/jpeg', 0.6);
   } catch (e) { return null; }
 };
+const edgeBg = (d, w, h) => {
+  if (w < 4 || h < 4) return '';
+  const px = [];
+  const n = 12;
+  for (let i = 0; i <= n; i++) {
+    const x = Math.round(i * (w - 1) / n), y = Math.round(i * (h - 1) / n);
+    [[x, 1], [x, h - 2], [1, y], [w - 2, y]].forEach(([a, b]) => { const o = (b * w + a) * 4; px.push([d[o], d[o + 1], d[o + 2]]); });
+  }
+  const avg = [0, 1, 2].map(c => px.reduce((t, p) => t + p[c], 0) / px.length);
+  if (!px.every(p => [0, 1, 2].every(c => Math.abs(p[c] - avg[c]) < 20))) return '';
+  if (avg.every(v => v > 235)) return 'white';
+  if (avg.every(v => v < 25)) return 'black';
+  return '';
+};
+const fixBgKeywords = (kws, bg) => {
+  const wrong = bg === 'white' ? /^(black|dark|gr[ae]y|dark gr[ae]y) background$/i : /^(white|light|gr[ae]y) background$/i;
+  const out = (kws || []).filter(k => !wrong.test(String(k).trim()));
+  const mine = bg + ' background';
+  if (!out.some(k => String(k).trim().toLowerCase() === mine)) out.push(mine);
+  return out;
+};
 const resizeImg = (file, maxDim = 1024) => new Promise((res, rej) => {
   const isSvg = file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg');
   const url = URL.createObjectURL(isSvg ? new Blob([file], { type: 'image/svg+xml' }) : file);
@@ -826,10 +847,13 @@ const resizeImg = (file, maxDim = 1024) => new Promise((res, rej) => {
       ctx.fillRect(0, 0, w, h);
       ctx.drawImage(img, 0, 0, w, h);
       URL.revokeObjectURL(url);
+      let bg = '';
       try {
-        if (!hasVisibleContent(ctx.getImageData(0, 0, w, h).data)) return rej(new Error('Image appears blank'));
+        const dd = ctx.getImageData(0, 0, w, h).data;
+        if (!hasVisibleContent(dd)) return rej(new Error('Image appears blank'));
+        bg = edgeBg(dd, w, h);
       } catch (err) {}
-      res({ data: cv.toDataURL('image/jpeg', 0.85).split(',')[1], mimeType: 'image/jpeg', thumb: makeThumb(cv) });
+      res({ data: cv.toDataURL('image/jpeg', 0.85).split(',')[1], mimeType: 'image/jpeg', thumb: makeThumb(cv), bg });
     } catch (err) { rej(new Error('Image processing failed')); }
   };
   img.onerror = () => { clearTimeout(to); URL.revokeObjectURL(url); rej(new Error('Image load failed')); };
@@ -1274,14 +1298,16 @@ const kwForPlatform = (list, p, r) => {
 function buildPrompt(isVideo, titleLen, descLen, kwCount, codeHint, noImage) {
   const known3d = /Engine:\s*3D scene/i.test(codeHint || '');
   const known2d = /Engine:\s*2D/i.test(codeHint || '');
+  const forms = isVideo ? '"in 3D render", "in 3D animation", "rendered in 3D"' : '"in 3D render", "rendered in 3D", "in 3D style"';
+  const still = isVideo ? '' : ' This is a STILL image: never use the word animation or animated.';
   const style3d = known3d
-    ? '- This asset IS a 3D render: mention "3D" exactly once in each title, where it reads naturally, and vary the wording from title to title ("in 3D render", "in 3D animation", "rendered in 3D", or right after the subject like "Toy train in 3D moving around a snowy track"). Never write "3D render animation".'
+    ? '- This asset IS a 3D render: mention "3D" exactly once in each title, where it reads naturally, and vary the wording from title to title (' + forms + (isVideo ? ', or right after the subject like "Toy train in 3D moving around a snowy track"' : '') + '). Never write "3D render animation".' + still
     : known2d
       ? '- This asset is NOT 3D: never mention 3D in the title or keywords.'
-      : '- Mention "3D" in a title ONLY if the visual is clearly a 3D render or 3D animation (then exactly once, naturally, with varied wording such as "in 3D render", "in 3D animation", "rendered in 3D"). For photos, real footage, flat or vector art never mention 3D.';
+      : '- Mention "3D" in a title ONLY if the visual is clearly a 3D render or 3D animation (then exactly once, naturally, with varied wording such as ' + forms + '). For photos, real footage, flat or vector art never mention 3D.' + still;
   const ssList = isVideo ? SS_CATS_VIDEO : SS_CATS_IMAGE;
   const ssNote = isVideo ? "\n\nIMPORTANT: VIDEO. Shutterstock does NOT accept: Abstract, Beauty/Fashion, Celebrities, Interiors, Miscellaneous, Parks/Outdoor, Vintage." : "";
-  const minKw = Math.max(15, Math.round(kwCount * 0.7));
+  const minKw = Math.max(15, Math.round(kwCount * 0.8));
   let hintBlock = '';
   if (codeHint) {
     hintBlock = '\nSOURCE CODE HINT: this asset is an animation generated from code. The notes below were taken from that code and describe what it shows (objects, colors, style, action, loop). Use them to identify objects, colors and action. The "Engine" line tells whether it is 3D or flat 2D: follow it for style words (3D: "3d render"; 2D: flat 2d animation or motion graphics; never "vector"). "Palette" gives approximate colors. "Names of parts" may be noisy: use only names that match what is visible. If the notes conflict with the image(s), trust the image(s). NEVER mention code, programming, software, studios or tool names in any field. If the notes say it is a seamless loop, add the keywords "seamless loop" and "looping animation". The HEADER (if present) is the most reliable: its "Aksi hero" / "Hero action" line is the main motion. Notes may be in Indonesian: translate precisely (lonceng=bell, lilin=candle, bintang=star, kaus kaki=stocking, rak perapian=fireplace mantel, kado/hadiah=gift box, tongkat permen=candy cane, kue jahe=gingerbread, pita=ribbon, simpul=knot, kereta=train, loko=locomotive, gerbong=freight car, rel=rail track, salju=snow, pohon=tree, asap=smoke, pintu=door, atap=roof, dinding=wall, jendela=window, permen=candy, karangan bunga=wreath, api=flame, cerobong=chimney, roda=wheel, tiang lampu=lamppost, kilau=sparkle, ranting pinus=pine sprig, piring=plate, meja=table). Only use objects that are really visible.'
@@ -1307,7 +1333,7 @@ ${style3d}
 - Use the keywords "vector" or "illustration" ONLY for real vector artwork. ${isVideo ? 'This is a VIDEO: NEVER use the keyword "vector".' : ''}
 - If identifiable faces/children/brands visible, add "_model_release_needed" or "_property_release_needed" at end of keywords.
 
-keywords: about ${kwCount} keywords (never fewer than ${minKw}), ordered by importance. NEVER pad with generic filler such as digital, graphic, element, object, style, art, render, symbol. Fewer accurate keywords are better than padding. Double-check spelling.
+keywords: ${Math.max(kwCount - 3, minKw)}-${kwCount} keywords (Adobe allows at most 49), ordered by importance. Cover: the main subject and its synonyms, every visible object or part, action, style or technique, colors, composition, and at least 5 buyer use cases or concepts (for example web design, business presentation, greeting card). When you run out of visible specifics, add accurate synonyms and related search phrases. NEVER use generic filler such as digital, graphic, element, object, style, art, render, symbol. Double-check spelling.
 - STRICT ORDER of the keyword list:
   1) POSITION 1-10: core subject + asset type (what a buyer would type first)
   2) POSITION 11-20: other clearly visible elements and details
@@ -1450,7 +1476,9 @@ const trimWords = (t, max) => {
   if (t.length <= max) return t;
   const cut = t.slice(0, max + 1);
   const i = cut.lastIndexOf(' ');
-  return (i > max * 0.6 ? cut.slice(0, i) : t.slice(0, max)).replace(/[\s,;:\-]+$/, '');
+  let r = (i > max * 0.6 ? cut.slice(0, i) : t.slice(0, max)).replace(/[\s,;:\-]+$/, '');
+  while (/\s(?:and|with|of|on|in|for|the|a|an|to|at|by|or|from|into|its|their)$/i.test(r)) r = r.replace(/\s\S+$/, '');
+  return r;
 };
 const sanitizeData = (d, targets) => {
   ['adobe_title', 'ss_desc', 'mg_title', 'mg_desc', 'p5_title', 'p5_desc', 'vz_title', 'vz_desc'].forEach((f) => {
@@ -1478,8 +1506,6 @@ const softWarnings = (d, targets) => {
   const kwCount = (d.keywords || []).length;
   if (kwCount < Math.round(targets.kwCount * 0.7)) w.push(`⚠️ Keyword agak sedikit (${kwCount} dari target ${targets.kwCount})`);
   if (d.adobe_title && d.adobe_title.length < Math.min(40, targets.titleLen * 0.5)) w.push(`⚠️ Judul Adobe pendek (${d.adobe_title.length} karakter)`);
-  if (d.mg_title && d.mg_title.length < 35) w.push(`⚠️ Judul Magnific pendek (${d.mg_title.length} karakter)`);
-  if (d.p5_title && d.p5_title.length < 40) w.push(`⚠️ Judul Pond5 pendek (${d.p5_title.length} karakter)`);
   return w;
 };
 
@@ -1498,14 +1524,16 @@ const autoFixCats = (d, isVideo) => {
 const capFirst = (t) => t.charAt(0).toUpperCase() + t.slice(1);
 const fixTitle0 = (t) => {
   if (!t) return t;
-  const m = String(t).trim().match(/^((?:low[- ]poly\s+)?(?:3d|vector|flat design|isometric)(?:\s+(?:render|illustration))?)\s+of\s+(?:an?\s+|the\s+)?(.+)$/i);
+  const m = String(t).trim().match(/^((?:(?:low[- ]poly|isometric|flat design|flat|3d|vector|line art)\s+)+(?:render|illustration|icon)?)\s*of\s+(?:an?\s+|the\s+)?(.+)$/i);
   if (!m) {
     const m2 = String(t).trim().match(/^(?:(low[- ]poly)\s+)?3d\s+(?:(render|animation|illustration)\s+)?(?:(low[- ]poly)\s+)?(.+)$/i);
     if (m2 && (m2[1] || m2[2] || m2[3])) return capFirst(m2[4]) + ' in ' + ((m2[1] || m2[3]) ? 'low poly ' : '') + '3D render';
+    const m3 = String(t).trim().match(/^(?:illustration|icon|render|image|picture)\s+of\s+(?:an?\s+|the\s+)?(.+)$/i);
+    if (m3) return capFirst(m3[1]);
     return t;
   }
-  const style = m[1].replace(/3d/i, '3D').replace(/^low[- ]poly/i, 'low poly');
-  return capFirst(m[2]) + ' in ' + style;
+  const style = m[1].trim().toLowerCase().replace(/3d/, '3D');
+  return capFirst(m[2]) + (/\b3D\b/.test(style) ? ' in ' : ' ') + style;
 };
 const dedupe3d = (t) => {
   if (!t) return t;
@@ -1515,25 +1543,25 @@ const dedupe3d = (t) => {
   return capFirst(String(t).replace(/\b3d\b\s*/gi, (x) => (++i < n ? '' : x)).replace(/\s{2,}/g, ' ').trim());
 };
 const hashStr = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 9973; return h; };
-const fixTitle = (t) => {
+const fixTitle = (t, anim) => {
   if (!t) return t;
-  t = String(t).replace(/\s(?:in 3D animation|rendered in 3D)$/i, ' in 3D render');
+  t = String(t).replace(/\s(?:in 3D animation|rendered in 3D|in 3D style)$/i, ' in 3D render');
   let x = dedupe3d(fixTitle0(t));
   if (!x) return x;
   x = String(x).replace(/\b3d\b/gi, '3D').replace(/\sin 3D$/, ' in 3D render');
   x = x.replace(/\s(?:in\s)?3D render animation$/i, ' animation in 3D render');
   if (/^3D\s/.test(x) && (x.match(/3D/g) || []).length === 1 && !/^3D\s(?:printer|printing|glasses|scanner|scanning|movie|cinema|tv|animated|animation|rendered)\b/i.test(x)) x = capFirst(x.replace(/^3D\s+/, '')) + ' in 3D render';
-  if (/\s3D render$/.test(x) && !/\sin (?:low poly )?3D render$/i.test(x)) x = x.replace(/\s3D render$/, ' in 3D render');
+  if (/\s3D render$/.test(x) && !/\sin (?:(?:low poly|isometric|flat|stylized|cartoon|clay|cute|glossy|minimal) ){0,2}3D render$/i.test(x)) x = x.replace(/\s3D render$/, ' in 3D render');
   const mm = x.match(/^(.*) in 3D render$/);
   if (mm && !/animat|render/i.test(mm[1])) {
     const v = hashStr(mm[1]) % 3;
-    if (v === 1) x = mm[1] + ' in 3D animation';
-    else if (v === 2) x = mm[1] + ' rendered in 3D';
+    if (v === 1) x = mm[1] + (anim ? ' in 3D animation' : ' rendered in 3D');
+    else if (v === 2) x = mm[1] + (anim ? ' rendered in 3D' : ' in 3D style');
   }
   return x;
 };
 const polishData = (d) => {
-  ['adobe_title', 'mg_title', 'p5_title'].forEach(k => { if (d[k]) d[k] = fixTitle(d[k]); });
+  ['adobe_title', 'mg_title', 'p5_title'].forEach(k => { if (d[k]) d[k] = fixTitle(d[k], !!d._isVideo); });
   if (d.adobe_cat === 'Culture and Religion') {
     const blob = [d.adobe_title || ''].concat(d.keywords || []).join(' ');
     if (!/relig|christian|church|pray|faith|advent|spiritual|nativity|worship|temple|mosque/i.test(blob)) d.adobe_cat = 'Graphic resources';
@@ -1562,6 +1590,7 @@ const processFile = async (idx) => {
     let codeHint = '';
     let codeOnly = false;
     let directNote = '';
+    let bgName = '';
     if (item.codeFile) {
       try { codeHint = summarizeCode(await item.codeFile.text()); } catch (e) { codeHint = ''; }
     }
@@ -1580,6 +1609,7 @@ const processFile = async (idx) => {
           directNote = 'ℹ️ ' + fileExt(item.filename).toUpperCase() + ' dibaca langsung (tanpa JPG preview)';
         }
         const rz = await resizeImg(srcFile);
+        bgName = rz.bg || '';
         item.thumb = rz.thumb;
         parts = [{ inline_data: { mime_type: rz.mimeType, data: rz.data } }];
       }
@@ -1612,7 +1642,9 @@ const processFile = async (idx) => {
         }
         const a1 = txt.indexOf('{'), a2 = txt.lastIndexOf('}');
         if (a1 > 0 || (a2 >= 0 && a2 < txt.length - 1)) txt = txt.substring(a1, a2 + 1);
-        data = polishData(sanitizeData(autoFixCats(JSON.parse(txt), isVideo), targets));
+        data = autoFixCats(JSON.parse(txt), isVideo);
+        data._isVideo = isVideo;
+        data = polishData(sanitizeData(data, targets));
         errs = validate(data, isVideo, targets);
         if (!errs.length) break;
       } catch (pe) {
@@ -1628,7 +1660,10 @@ const processFile = async (idx) => {
       item.validationErrors = errs;
     } else {
       data = autoFixCats(data, isVideo);
+      if (bgName) data.keywords = fixBgKeywords(data.keywords, bgName);
       const processed = processKeywords(data.keywords || []);
+      const looksIllustrated = item.type === 'vector' || /\.(svg|eps|ai)$/i.test(item.filename) || /Engine:\s*[23]D/i.test(codeHint) || /\b(3d render|3d|vector|illustration|cartoon|flat design|icon set|icon)\b/i.test((data.adobe_title || '') + ' ' + (data.keywords || []).slice(0, 12).join(' '));
+      if (looksIllustrated) { processed.releaseTags = processed.releaseTags.filter(t => t !== '_model_release_needed'); data.has_people = false; }
       data._cleanKeywords = processed.clean;
       data._releaseTags = processed.releaseTags;
       if (data.has_people && !processed.releaseTags.includes('_model_release_needed')) {
