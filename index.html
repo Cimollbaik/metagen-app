@@ -236,7 +236,7 @@ button,.toggle-row,.card-header,.tab-platform,.dropzone{-webkit-tap-highlight-co
 <div class="logo-mark">M</div>
 <div>
 <div class="logo-text">MicroStock MetaGen</div>
-<div class="logo-sub">AI Metadata Generator · v37</div>
+<div class="logo-sub">AI Metadata Generator · v39</div>
 </div>
 </div>
 <div class="header-actions">
@@ -346,7 +346,7 @@ button,.toggle-row,.card-header,.tab-platform,.dropzone{-webkit-tap-highlight-co
 <div class="dropzone-icon">📁</div>
 <div class="dropzone-title">Drop your assets here</div>
 <div class="dropzone-hint">JPG · PNG · WEBP · MP4 · MOV · SVG · EPS · PSD · AI</div>
-<div class="dropzone-sub">For EPS/PSD/AI, include a JPG preview with the same filename<br>Animasi dari kode: drop juga file .js (nama mirip videonya), atau pakai tombol 📜 di bawah</div>
+<div class="dropzone-sub">EPS/AI dibaca langsung (JPG preview boleh disertakan agar lebih cepat) · PSD butuh JPG preview nama sama<br>Animasi dari kode: drop juga file .js (nama mirip videonya), atau pakai tombol 📜 di bawah</div>
 </div>
 </section>
 
@@ -1057,6 +1057,50 @@ document.getElementById('code-input-one').addEventListener('change', (e) => {
   if (!CODE_EXTS.includes(fileExt(f.name))) return showToast('Pilih file .js atau .txt', 'error');
   if (setCode(it, f)) { renderQueue(); showToast(`Kode ${f.name} dipasang ke ${it.filename}`, 'success'); }
 });
+// ---- Baca EPS/AI langsung (Ghostscript WASM, dimuat otomatis saat dibutuhkan) ----
+const GS_BASE = 'https://cdn.jsdelivr.net/npm/@jspawn/ghostscript-wasm@0.0.2/';
+let gsModulePromise = null;
+const newGhostscript = async () => {
+  if (!gsModulePromise) {
+    showToast('Memuat pembaca EPS (pertama kali saja, butuh internet)...', 'info');
+    gsModulePromise = import(GS_BASE + 'gs.mjs').catch((e) => { gsModulePromise = null; throw e; });
+  }
+  const mod = await gsModulePromise;
+  const factory = mod.default || mod.Module || mod;
+  return Promise.race([
+    factory({ locateFile: (f) => GS_BASE + f }),
+    new Promise((_, rej) => setTimeout(() => rej(new Error('timeout memuat pembaca EPS')), 90000))
+  ]);
+};
+const renderVectorFile = async (file, makeGs = newGhostscript) => {
+  const ext = fileExt(file.name);
+  if (file.size > 40 * 1024 * 1024) throw new Error('File terlalu besar untuk dibaca langsung - sertakan JPG preview');
+  const buf = new Uint8Array(await file.arrayBuffer());
+  let dpi = 72;
+  if (ext === 'eps') {
+    const dec = new TextDecoder('iso-8859-1');
+    const txt = dec.decode(buf.subarray(0, Math.min(buf.length, 200000))) + '\n' + dec.decode(buf.subarray(Math.max(0, buf.length - 30000)));
+    const m = txt.match(/%%(?:HiRes)?BoundingBox:\s*(-?[\d.]+)\s+(-?[\d.]+)\s+(-?[\d.]+)\s+(-?[\d.]+)/);
+    if (m) {
+      const mx = Math.max(Math.abs(m[3] - m[1]), Math.abs(m[4] - m[2]));
+      if (mx > 0) dpi = Math.max(20, Math.min(300, Math.round(72 * 1100 / mx)));
+    }
+  }
+  let gs;
+  try { gs = await makeGs(); } catch (e) { throw new Error('Pembaca EPS gagal dimuat (' + (e && e.message ? e.message : e) + ') - sertakan JPG preview'); }
+  const inName = ext === 'eps' ? 'in.eps' : 'in.pdf';
+  gs.FS.writeFile(inName, buf);
+  const args = ['-dBATCH', '-dNOPAUSE', '-dSAFER', '-dQUIET', '-dFirstPage=1', '-dLastPage=1', '-sDEVICE=png16m', '-dTextAlphaBits=4', '-dGraphicsAlphaBits=4', '-r' + dpi];
+  if (ext === 'eps') args.push('-dEPSCrop');
+  args.push('-sOutputFile=out.png', inName);
+  let err = null;
+  try { gs.callMain(args); } catch (e) { err = e; }
+  let out = null;
+  try { out = gs.FS.readFile('out.png'); } catch (e) {}
+  try { gs.FS.unlink(inName); gs.FS.unlink('out.png'); } catch (e) {}
+  if (!out || out.length < 100) throw new Error('File ' + ext.toUpperCase() + ' gagal dirender' + (err ? ' (' + (err.message || err) + ')' : '') + ' - sertakan JPG preview');
+  return new File([out], stripExt(file.name) + '.png', { type: 'image/png' });
+};
 const handleFiles = async (files) => {
   const parsed = [];
   for (let i = 0; i < files.length; i++) {
@@ -1087,6 +1131,7 @@ const handleFiles = async (files) => {
   for (const vec of vectors) {
     const preview = rasters.find(r => r.stem.toLowerCase() === vec.stem.toLowerCase() && !usedRasters.has(r.file.name));
     if (preview) { usedRasters.add(preview.file.name); await addItem(vec.file, preview.file, codeFor(vec.stem)); }
+    else if (['eps', 'ai'].includes(vec.ext)) await addItem(vec.file, null, codeFor(vec.stem));
     else showToast(`${vec.file.name}: butuh JPG/PNG preview nama sama`, 'info');
   }
   for (const vid of videos) await addItem(vid.file, null, codeFor(vid.stem));
@@ -1254,7 +1299,7 @@ Rules:
 - Use the keywords "vector" or "illustration" ONLY for real vector artwork. ${isVideo ? 'This is a VIDEO / 3D render: NEVER use the keyword "vector".' : ''}
 - If identifiable faces/children/brands visible, add "_model_release_needed" or "_property_release_needed" at end of keywords.
 
-keywords: up to ${kwCount} keywords (at least ${minKw}), ordered by importance. NEVER pad with generic filler such as digital, graphic, element, object, style, art, render, symbol. Fewer accurate keywords are better than padding. Double-check spelling.
+keywords: about ${kwCount} keywords (never fewer than ${minKw}), ordered by importance. NEVER pad with generic filler such as digital, graphic, element, object, style, art, render, symbol. Fewer accurate keywords are better than padding. Double-check spelling.
 - STRICT ORDER of the keyword list:
   1) POSITION 1-10: core subject + asset type (what a buyer would type first)
   2) POSITION 11-20: other clearly visible elements and details
@@ -1272,7 +1317,7 @@ keywords: up to ${kwCount} keywords (at least ${minKw}), ordered by importance. 
 ${isVideo ? '- VIDEO ACTION: put the main motion in the title (pattern: subject + action + "in 3D render", example "Gingerbread house assembling with glowing windows in 3D render") and add 2-3 action keywords (assembling, wrapping, filling, opening, falling, carrying, rotating). The frames show the start, middle and end of the motion. Mention 3D exactly once, naturally, and VARY the wording from title to title ("in 3D render", "in 3D animation", "rendered in 3D"). Never write "3D render animation".' : ''}
 - Keywords are ALL lowercase (also "christmas eve").
 
-adobe_title: max ${titleLen} chars, NO commas.
+adobe_title: ${Math.round(titleLen * 0.85)}-${titleLen} chars (use the full length with concrete visual details, do not stop early), NO commas.
 ss_desc: ~${descLen} chars. NO commas.
 vz_title: 3-8 words ONLY. Letters, numbers, periods, hyphens, apostrophes only.
 vz_desc: 1 sentence ~${descLen} chars. NO commas.
@@ -1392,32 +1437,42 @@ const fuzzyMatchCat = (input, list) => {
   return null;
 };
 
+const trimWords = (t, max) => {
+  t = String(t || '').trim();
+  if (t.length <= max) return t;
+  const cut = t.slice(0, max + 1);
+  const i = cut.lastIndexOf(' ');
+  return (i > max * 0.6 ? cut.slice(0, i) : t.slice(0, max)).replace(/[\s,;:\-]+$/, '');
+};
+const sanitizeData = (d, targets) => {
+  ['adobe_title', 'ss_desc', 'mg_title', 'mg_desc', 'p5_title', 'p5_desc', 'vz_title', 'vz_desc'].forEach((f) => {
+    if (typeof d[f] === 'string') d[f] = d[f].replace(/\s*,\s*/g, ' ').replace(/\s{2,}/g, ' ').trim();
+  });
+  if (d.vz_title) d.vz_title = d.vz_title.replace(/[^a-zA-Z0-9\s.\-']/g, ' ').replace(/\s{2,}/g, ' ').trim();
+  if (d.adobe_title) d.adobe_title = trimWords(d.adobe_title, targets.titleLen);
+  if (d.mg_title) d.mg_title = trimWords(d.mg_title, 100);
+  if (d.p5_title) d.p5_title = trimWords(d.p5_title, 80);
+  if (!d.ss_desc) d.ss_desc = d.vz_desc || d.p5_desc || d.mg_desc || d.adobe_title || '';
+  return d;
+};
 const validate = (d, isVideo, targets) => {
   const e = [];
-  const ssList = isVideo ? SS_CATS_VIDEO : SS_CATS_IMAGE;
   const kwCount = (d.keywords || []).length;
-  const minKw = Math.max(15, Math.round(targets.kwCount * 0.7));
-  if (kwCount < minKw) e.push(`Keywords count ${kwCount}, need ${minKw}`);
+  const hardMin = Math.max(12, Math.round(targets.kwCount * 0.5));
+  if (!d.adobe_title) e.push('adobe_title is empty');
+  if (kwCount < hardMin) e.push(`Keywords count ${kwCount}, need at least ${hardMin}`);
   const longKw = (d.keywords || []).filter(k => String(k).trim().split(/\s+/).length > 3).length;
   if (longKw > 3) e.push(`${longKw} keywords longer than 3 words - each keyword must be 1-3 words`);
-  if (d.adobe_title?.length > targets.titleLen) e.push(`adobe_title ${d.adobe_title.length} chars (max ${targets.titleLen})`);
-  if (d.mg_title && (d.mg_title.length < 35 || d.mg_title.length > 100)) e.push(`mg_title ${d.mg_title.length} chars`);
-  if (d.p5_title && (d.p5_title.length < 40 || d.p5_title.length > 80)) e.push(`p5_title ${d.p5_title.length} chars`);
-  ['adobe_title','ss_desc','mg_title','mg_desc','p5_title','p5_desc','vz_title','vz_desc'].forEach(field => {
-    if (d[field] && d[field].includes(',')) e.push(`${field} contains comma`);
-  });
-  if (!ADOBE_CATS.includes(d.adobe_cat)) e.push(`adobe_cat '${d.adobe_cat}' invalid`);
-  if (!ssList.includes(d.ss_cat)) e.push(`ss_cat '${d.ss_cat}' invalid`);
-  if (d.ss_cat2 && !ssList.includes(d.ss_cat2)) e.push(`ss_cat2 '${d.ss_cat2}' invalid`);
-  if (!VZ_CATS.includes(d.vz_cat)) e.push(`vz_cat '${d.vz_cat}' invalid`);
-  if (!MG_TYPES.includes(d.mg_type)) e.push(`mg_type '${d.mg_type}' invalid`);
-  if (!P5_CATS.includes(d.p5_cat)) e.push(`p5_cat '${d.p5_cat}' invalid`);
-  if (!d.ss_desc) e.push("ss_desc empty");
-  if (d.vz_title) {
-    const badChars = d.vz_title.match(/[^a-zA-Z0-9\s\.\,\-\']/g);
-    if (badChars) e.push(`vz_title invalid chars: ${badChars.join(' ')}`);
-  }
   return e;
+};
+const softWarnings = (d, targets) => {
+  const w = [];
+  const kwCount = (d.keywords || []).length;
+  if (kwCount < Math.round(targets.kwCount * 0.7)) w.push(`⚠️ Keyword agak sedikit (${kwCount} dari target ${targets.kwCount})`);
+  if (d.adobe_title && d.adobe_title.length < Math.min(40, targets.titleLen * 0.5)) w.push(`⚠️ Judul Adobe pendek (${d.adobe_title.length} karakter)`);
+  if (d.mg_title && d.mg_title.length < 35) w.push(`⚠️ Judul Magnific pendek (${d.mg_title.length} karakter)`);
+  if (d.p5_title && d.p5_title.length < 40) w.push(`⚠️ Judul Pond5 pendek (${d.p5_title.length} karakter)`);
+  return w;
 };
 
 const autoFixCats = (d, isVideo) => {
@@ -1498,6 +1553,7 @@ const processFile = async (idx) => {
     let parts = [];
     let codeHint = '';
     let codeOnly = false;
+    let directNote = '';
     if (item.codeFile) {
       try { codeHint = summarizeCode(await item.codeFile.text()); } catch (e) { codeHint = ''; }
     }
@@ -1509,7 +1565,13 @@ const processFile = async (idx) => {
         parts = ex.frames.map(f => ({ inline_data: { mime_type: f.mimeType, data: f.data } }));
       } else {
         item.progress = 25; renderQueue();
-        const rz = await resizeImg(item.previewFile);
+        let srcFile = item.previewFile;
+        if (item.type === 'vector' && item.previewFile === item.targetFile) {
+          item.progress = 15; renderQueue();
+          srcFile = await renderVectorFile(item.targetFile);
+          directNote = 'ℹ️ ' + fileExt(item.filename).toUpperCase() + ' dibaca langsung (tanpa JPG preview)';
+        }
+        const rz = await resizeImg(srcFile);
         item.thumb = rz.thumb;
         parts = [{ inline_data: { mime_type: rz.mimeType, data: rz.data } }];
       }
@@ -1523,7 +1585,7 @@ const processFile = async (idx) => {
     let prompt = buildPrompt(isVideo, targets.titleLen, targets.descLen, targets.kwCount, codeHint, codeOnly);
     if (gc) prompt += `\n\nGlobal Context: ${gc}`;
     let errs = [], data = null, att = 0;
-    while (att <= 3) {
+    while (att <= 1) {
       let p = prompt;
       if (errs.length) p += `\n\nFIX THESE:\n- ${errs.join('\n- ')}`;
       const payload = {
@@ -1542,7 +1604,7 @@ const processFile = async (idx) => {
         }
         const a1 = txt.indexOf('{'), a2 = txt.lastIndexOf('}');
         if (a1 > 0 || (a2 >= 0 && a2 < txt.length - 1)) txt = txt.substring(a1, a2 + 1);
-        data = polishData(autoFixCats(JSON.parse(txt), isVideo));
+        data = polishData(sanitizeData(autoFixCats(JSON.parse(txt), isVideo), targets));
         errs = validate(data, isVideo, targets);
         if (!errs.length) break;
       } catch (pe) {
@@ -1550,7 +1612,8 @@ const processFile = async (idx) => {
       }
       att++;
     }
-    if (errs.length) {
+    const canAccept = !!(data && data.adobe_title && (data.keywords || []).length >= 10);
+    if (errs.length && !canAccept) {
       item.status = 'error';
       item.progress = 100;
       item.error = "Validation failed";
@@ -1573,6 +1636,8 @@ const processFile = async (idx) => {
       item.error = null;
       item.warnings = data._releaseTags.map(t => `⚠️ ${t.replace(/_/g, ' ').replace(' needed', '')}`);
       if (codeOnly) item.warnings.push('⚠️ Gambar tidak terbaca: metadata dibuat dari kode JS saja, cek hasilnya');
+      item.warnings = item.warnings.concat(softWarnings(data, targets), errs.map(x => '⚠️ ' + x));
+      if (directNote) item.warnings.push(directNote);
     }
   } catch (err) {
     item.status = 'error';
