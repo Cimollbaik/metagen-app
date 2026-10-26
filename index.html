@@ -58,12 +58,12 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 /* shell */
 .shell{display:none;min-height:100vh;gap:20px;padding:20px}
 .shell.on{display:flex}
-aside{width:236px;flex-shrink:0;padding:22px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:20px;height:calc(100vh - 40px);transition:width .25s,padding .25s,margin .25s,opacity .2s;overflow:hidden}
+aside{width:236px;flex-shrink:0;padding:14px 14px 22px;display:flex;flex-direction:column;gap:6px;position:sticky;top:20px;height:calc(100vh - 40px);transition:width .25s,padding .25s,margin .25s,opacity .2s;overflow:hidden}
 aside .brand{padding:0 8px 18px}
 .nav{text-align:left;padding:13px 14px;border-radius:16px;font-weight:700;font-size:15px;color:var(--ink2);display:flex;gap:10px;align-items:center;white-space:nowrap}
 .nav.act{background:rgba(255,255,255,.85);color:var(--acc2);box-shadow:0 2px 10px rgba(60,80,45,.08)}
 .sp{flex:1}
-.shell.sb-closed aside{width:0;padding:22px 0;margin-right:-20px;opacity:0;pointer-events:none;border-width:0}
+.shell.sb-closed aside{width:0;padding:14px 0 22px;margin-right:-20px;opacity:0;pointer-events:none;border-width:0}
 main{flex:1;min-width:0;display:flex;flex-direction:column;gap:18px}
 .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .tl,.tr{display:flex;align-items:center;gap:12px}
@@ -73,6 +73,15 @@ main{flex:1;min-width:0;display:flex;flex-direction:column;gap:18px}
 .status-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
 .view{display:none;flex-direction:column;gap:18px}
 .view.on{display:flex}
+/* tombol sidebar ala claude.ai */
+.sb-toggle{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;color:var(--ink2);background:transparent;flex-shrink:0}
+.sb-toggle:hover{background:var(--soft);color:var(--ink)}
+.sb-toggle svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.sb-toggle.in{margin:0 0 8px 0}
+.sb-toggle.out{display:none;position:fixed;left:35px;top:35px;z-index:40;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.shell.sb-closed .sb-toggle.out{display:grid}
+.shell.sb-closed .topbar{padding:18px 0 0 70px}
+.action-btns{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 /* settings */
 .settings-card{padding:24px}
 .card-body{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
@@ -193,6 +202,7 @@ main{flex:1;min-width:0;display:flex;flex-direction:column;gap:18px}
 @media(max-width:900px){
  .hero{grid-template-columns:1fr}.stage{height:400px}#landing{padding:20px}.s1{right:20px}
  .shell{padding:14px;gap:14px}
+ .sb-toggle.out{left:29px;top:29px}.shell.sb-closed .topbar{padding:18px 0 0 70px}
  aside{position:fixed;z-index:30;left:14px;top:14px;height:calc(100vh - 28px);background:rgba(240,245,233,.96)}
  .shell.sb-closed aside{margin-right:0}
 }
@@ -221,7 +231,9 @@ main{flex:1;min-width:0;display:flex;flex-direction:column;gap:18px}
 </section>
 
 <div id="app" class="shell">
+  <button class="sb-toggle out" aria-label="Buka sidebar" title="Buka sidebar"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg></button>
   <aside class="glass" id="sidebar">
+    <button class="sb-toggle in" aria-label="Tutup sidebar" title="Tutup sidebar"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg></button>
     <div class="brand"><div class="logo-mark"><svg viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="#0A0A0A" stroke-linecap="round" stroke-linejoin="round" transform="rotate(45 32 32)"><circle cx="19" cy="32" r="9" stroke-width="6"/><path d="M28 32H52" stroke-width="6"/><path d="M43 32V41M51 32V39" stroke-width="5"/></g><path d="M49 8l2.6 6.4L58 17l-6.4 2.6L49 26l-2.6-6.4L40 17l6.4-2.6z" fill="#0A0A0A"/></svg></div><div><div class="logo-text" style="font-size:16px">KeyMaster Studio</div><div class="logo-sub">v42.2</div></div></div>
     <button class="nav act" data-view="upload">📥 Upload</button>
     <button class="nav" data-view="settings">⚙️ Settings</button>
@@ -231,13 +243,9 @@ main{flex:1;min-width:0;display:flex;flex-direction:column;gap:18px}
 
   <main>
     <div class="topbar">
-      <div class="tl">
-        <button class="icon-btn" id="btn-sidebar" aria-label="Buka atau tutup sidebar" title="Buka/tutup sidebar"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg></button>
-        <h2 id="view-title">Workspace</h2>
-      </div>
+      <div class="tl"><h2 id="view-title">Workspace</h2></div>
       <div class="tr">
         <span class="status offline" id="api-status"><span class="status-dot"></span><span id="api-status-text">No API Key</span></span>
-        <button class="btn btn-primary" id="btn-generate" disabled>✨ Generate Metadata</button>
       </div>
     </div>
 
@@ -261,7 +269,10 @@ main{flex:1;min-width:0;display:flex;flex-direction:column;gap:18px}
 
       <div class="glass action-bar">
         <div class="queue-info">Queue: <strong id="queue-count">0</strong> file · Est: <strong id="cost-estimate">0</strong> API calls</div>
-        <button class="btn-ghost" id="btn-clear-queue">🗑 Clear All</button>
+        <div class="action-btns">
+          <button class="btn-ghost" id="btn-clear-queue">🗑 Clear All</button>
+          <button class="btn btn-primary" id="btn-generate" disabled>✨ Generate Metadata</button>
+        </div>
       </div>
       <div class="queue-list" id="queue-list">
 <div class="empty-state">Queue is empty — drop files above to begin</div>
@@ -2120,10 +2131,10 @@ updateGenerateButton();
 
   const saved = get('kms_sidebar');
   if (saved === 'closed' || (saved === null && window.innerWidth < 900)) shell.classList.add('sb-closed');
-  $('btn-sidebar').addEventListener('click', () => {
+  document.querySelectorAll('.sb-toggle').forEach(btn => btn.addEventListener('click', () => {
     shell.classList.toggle('sb-closed');
     set('kms_sidebar', shell.classList.contains('sb-closed') ? 'closed' : 'open');
-  });
+  }));
 
   const area = $('results-area');
   const setCols = (n) => {
@@ -2143,6 +2154,5 @@ updateGenerateButton();
   });
 })();
 </script>
-
 </body>
 </html>
