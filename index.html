@@ -56,7 +56,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 .ph{background:var(--soft);border-radius:14px;height:104px;display:grid;place-items:center;color:var(--acc);margin-bottom:10px}
 .ph svg,.rc-ph svg{width:46px;height:46px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 /* shell */
-.shell{display:none;min-height:100vh;gap:20px;padding:20px}
+.shell{display:none;position:relative;min-height:100vh;gap:20px;padding:20px}
 .shell.on{display:flex}
 aside{width:236px;flex-shrink:0;padding:14px 14px 22px;display:flex;flex-direction:column;gap:6px;position:sticky;top:20px;height:calc(100vh - 40px);transition:width .25s,padding .25s,margin .25s,opacity .2s;overflow:hidden}
 aside .brand{padding:0 8px 18px}
@@ -78,7 +78,7 @@ main{flex:1;min-width:0;display:flex;flex-direction:column;gap:18px}
 .sb-toggle:hover{background:var(--soft);color:var(--ink)}
 .sb-toggle svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .sb-toggle.in{margin:0 0 8px 0}
-.sb-toggle.out{display:none;position:fixed;left:35px;top:35px;z-index:40;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.sb-toggle.out{display:none;position:absolute;left:35px;top:35px;z-index:40;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 .shell.sb-closed .sb-toggle.out{display:grid}
 .shell.sb-closed .topbar{padding:18px 0 0 70px}
 .action-btns{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -755,7 +755,7 @@ const resizeImg = (file, maxDim = 1024) => new Promise((res, rej) => {
   img.src = url;
 });
 // <<code-hint
-const CODE_GENERIC = new Set('draw setup scene camera render renderer light lights update helper function const time width height mesh group material geometry color colors position scale rotation ease easing smoothstep clamp lerp mix rand random seed segment stagger loop speed hero accent amount count index value offset angle phase build make create init state items list point points path curve shape shapes size radius total max min delta step frame global canvas offscreen three this that from with then base main test temp tmp data cache warm compile bevel segments emissive intensity opacity transform visible vector matrix object objects layer layers fade easeoutback pure noise unit units half full left right top bottom center centre inner outer start end mid next prev last first each item part parts tick wave'.split(' '));
+const CODE_GENERIC = new Set('draw setup scene camera render renderer light lights update helper function const time width height mesh group material geometry color colors position scale rotation ease easing smoothstep clamp lerp mix rand random seed segment stagger loop speed hero accent amount count index value offset angle phase build make create init state items list point points path curve shape shapes size radius total max min delta step frame global canvas offscreen three this that from with then base main test temp tmp data cache warm compile bevel segments emissive intensity opacity transform visible vector matrix object objects layer layers fade easeoutback pure noise unit units half full left right top bottom center centre inner outer start end mid next prev last first each item part parts tick wave warna maks teks target skala terapkan buat rbox bikin atur hitung posisi ukuran kecepatan durasi tampil mulai selesai awal akhir nilai ambil tambah ubah jalankan puncak pulse root shadow aksen azimut jumlah kiri kanan atas bawah dasar keluar rapat gelap terang'.split(' '));
 const hexToName = (h) => {
   const r = parseInt(h.slice(0, 2), 16) / 255, g = parseInt(h.slice(2, 4), 16) / 255, b = parseInt(h.slice(4, 6), 16) / 255;
   const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
@@ -765,7 +765,7 @@ const hexToName = (h) => {
     if (mx === r) hue = ((g - b) / d) % 6; else if (mx === g) hue = (b - r) / d + 2; else hue = (r - g) / d + 4;
     hue *= 60; if (hue < 0) hue += 360;
   }
-  if (l < 0.1) return 'black';
+  if (l < 0.1 || (l < 0.14 && s < 0.35)) return 'black';
   if (l > 0.94) return 'white';
   if (s < 0.12) return l < 0.35 ? 'dark gray' : l > 0.75 ? 'light gray' : 'gray';
   let base;
@@ -858,7 +858,8 @@ const summarizeCode = (src) => {
   }
   const wl = Object.entries(words).sort((a, b) => b[1] - a[1]).slice(0, 16).map((e) => e[0]);
   if (wl.length) parts.push('Names of parts used in the code (may be noisy, use only what fits the image): ' + wl.join(', '));
-  let out = parts.join('\n');
+  let out = parts.join('\n').replace(/\bHUD\b/gi, 'decorative interface');
+  out += '\nNames of functions, constants and effects in the code are NOT search words. Never output them as keywords (for example "hud", "beat", "rig", "helper"); describe what they look like in plain buyer-friendly words.';
   if (out.length < 250) out += '\nCode excerpt: ' + src.replace(/\s+/g, ' ').slice(0, 1200);
   return out.slice(0, 5000).trim();
 };
@@ -1447,11 +1448,12 @@ const topUpKeywords = (d, targets) => {
 
 // Second pass: the model scores each keyword against the image(s); weak ones are dropped.
 const JUDGE_KEEP_RE = /^(3d render|seamless loop|looping animation)$/i;
-const judgeKeywords = async (apiKey, model, parts, d) => {
+const judgeKeywords = async (apiKey, model, parts, d, codeHint = '') => {
   const rel = (d.keywords || []).filter(k => isReleaseTag(k));
   const list = (d.keywords || []).filter(k => !isReleaseTag(k)).map(k => String(k));
   if (list.length < 8 || !parts.length) return { removed: [], skipped: !parts.length ? 'tanpa gambar' : '' };
   const prompt = 'You are a strict microstock keyword reviewer. Look at the attached image(s) and rate each keyword for how well it describes what is ACTUALLY visible.\n' +
+    (codeHint ? 'These image(s) are frames of an animation rendered from code. The code summary below is RELIABLE about which objects, colors and motions exist, including motion that cannot be seen in one still frame (rotating, jumping, flying, zooming). Treat a keyword that matches an object, color or motion it describes, or is an obvious synonym of it, as visible. Names of code parts alone are NOT evidence.\n---\n' + codeHint + '\n---\n\n' : '') +
     '5 = clearly visible object, part, color or action, or an obvious synonym of it\n' +
     '4 = accurate art style, technique, occasion or orientation tag that fits the image\n' +
     '3 = plausible but not clearly visible\n' +
@@ -1609,7 +1611,7 @@ const processFile = async (idx) => {
       if (document.getElementById('toggle-verify').checked && (data.keywords || []).length >= 8) {
         item.progress = 80; renderQueue();
         try {
-          const jr = await judgeKeywords(apiKey, model, parts, data);
+          const jr = await judgeKeywords(apiKey, model, parts, data, codeHint);
           if (jr.removed.length) extraWarn.push(`🔍 Verifikasi: ${jr.removed.length} keyword dibuang (${jr.removed.slice(0, 6).join(', ')}${jr.removed.length > 6 ? ', ...' : ''})`);
           else if (jr.skipped) extraWarn.push(`ℹ️ Verifikasi keyword dilewati (${jr.skipped})`);
         } catch (je) {
